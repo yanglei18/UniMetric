@@ -1,10 +1,10 @@
-# Config Matrix
+# Configuration Matrix
 
-日期：2026-05-26
+Date: 2026-05-26
 
-## 配置布局
+## Layout
 
-当前配置树采用 dataset × model matrix：
+The configuration tree is organized as a dataset-by-model matrix:
 
 ```text
 configs/
@@ -17,7 +17,7 @@ configs/
   waymo/
 ```
 
-每个 dataset 目录通常包含：
+Each dataset directory usually contains:
 
 ```text
 default.yaml
@@ -31,13 +31,13 @@ scal3r_long.yaml
 lingbot_map_long.yaml
 ```
 
-`configs/nuscenes/pi3x_long.yaml` 是当前额外存在的 Pi3X 命名变体。
+`configs/nuscenes/pi3x_long.yaml` is an additional Pi3X-named variant.
 
-## 核心 section
+## Main sections
 
-### runtime
+### `runtime`
 
-控制 dataset、sequence、frame 数、评测开关和 pipeline 语义：
+Controls the dataset, sequence, frame count, evaluation switches, and pipeline behavior:
 
 ```yaml
 runtime:
@@ -51,18 +51,18 @@ runtime:
   subsequence_size: 1000
 ```
 
-重点字段：
+Important fields:
 
-- `dataset`：prompt routing、output path 和报告字段使用。
-- `data_path`：sequence root。
-- `depth_model`：必须与 `ModelManager` 支持的 key 对齐。
-- `use_shared_scale`：shared subsequence scale 或 per-frame scale。
-- `frame_count`：处理前 N 帧；`null` 或非正数表示不截断。
-- `subsequence_size`：long-sequence stage 的切分单位。
+- `dataset`: used for prompt routing, output paths, and reports.
+- `data_path`: root of the input sequences.
+- `depth_model`: must match a key supported by `ModelManager`.
+- `use_shared_scale`: selects a shared subsequence scale or per-frame scales.
+- `frame_count`: processes the first N frames; `null` or a nonpositive value disables truncation.
+- `subsequence_size`: chunk size for long-sequence stages.
 
-### parallel
+### `parallel`
 
-控制多 GPU 与 threaded VLM API：
+Controls multi-GPU scheduling and threaded VLM API calls:
 
 ```yaml
 parallel:
@@ -73,9 +73,9 @@ parallel:
   metric_workers: 8
 ```
 
-### vision
+### `vision`
 
-控制 VLM backend。API key 不应写在 YAML 中：
+Controls the VLM backend. Do not place API keys in YAML:
 
 ```yaml
 vision:
@@ -85,11 +85,11 @@ vision:
   model_version: "seed-1.8-max"
 ```
 
-本地 Qwen 模型通常不需要 API key。API backend 会从 `api_key_env` 指定的环境变量读取。
+A local Qwen model generally does not need an API key. API backends read the environment variable named by `api_key_env`.
 
-### depth
+### `depth`
 
-控制 depth model 输入尺寸、long chunk 和输出分辨率：
+Controls the depth model's input size, long-sequence chunks, and output resolution:
 
 ```yaml
 depth:
@@ -101,11 +101,11 @@ depth:
   native_sampling_mode: "nearest"
 ```
 
-注意：不同模型的 `native` / `original` 输出会影响 metric sampling。评测比较时需要确认一致性。
+The meaning of `native` and `original` output resolution varies by model and can affect metric sampling. Confirm that compared runs use consistent settings.
 
-### semantic_scale
+### `semantic_scale`
 
-控制 anchor source、filters、optimization variants 和 sequence difficulty：
+Controls anchor sources, filters, optimization variants, and sequence difficulty:
 
 ```yaml
 semantic_scale:
@@ -116,9 +116,9 @@ semantic_scale:
     enabled: true
 ```
 
-## Dataset 差异
+## Dataset-specific differences
 
-当前长序列公开/官方数据配置一般使用：
+Long-sequence public or official dataset configurations generally use:
 
 - `frame_count: 1000`
 - `subsequence_size: 1000`
@@ -126,31 +126,30 @@ semantic_scale:
 - `enable_pose_evaluation: true`
 - `height_anchor_source: dynamic`
 
-早期/默认配置保留更短的测试风格：
+Earlier or default configurations retain shorter test settings:
 
 - `frame_count: 60`
 - `subsequence_size: 60`
 - `sparse_reconstruction_mode: frame`
 - `height_anchor_source: both`
 
-V2X / DAIR 类数据里，部分配置仍使用 frame-level sparse reconstruction，这是因为场景组织和可用 GT 可能不同。
+Some V2X and DAIR configurations still use frame-level sparse reconstruction because scene organization and available ground truth may differ.
 
-## 推荐使用方式
+## Recommended usage
 
-优先选择完整 YAML：
+Select a complete YAML file:
 
 ```bash
 python get_metric_scale.py --config configs/nuscenes/lingbot_map_long.yaml
 ```
 
-CLI 只用于轻量覆盖：
+Use CLI flags only for light overrides:
 
-```bash
+```text
 --sequence-name
 --frame-count
 --parallel / --disable-parallel
 --enable-visualization / --disable-visualization
 ```
 
-不建议只用 `--depth-model` 切模型，因为不同模型需要不同 checkpoint path、输出分辨率和 wrapper 参数。
-
+Avoid switching models using only `--depth-model`: the checkpoint path, output resolution, and wrapper parameters often differ as well.

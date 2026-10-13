@@ -1,58 +1,56 @@
-# Metric-Depth
+# UniMetric
 
-Metric-Depth 是 `Metric-Depth-Project` 的中心实验仓库，用于把多种 depth / 3D foundation model 的输出统一到可评测的 metric geometry，并通过 VLM semantic anchors、SAM masks、scene planes、LiDAR sparse GT 和 pose metrics 做尺度标定与评测。
+UniMetric is the central experiment repository in `Metric-Depth-Project`. It turns outputs from multiple depth and 3D foundation models into measurable metric geometry. It uses VLM semantic anchors, SAM masks, scene planes, sparse LiDAR ground truth, and pose metrics for scale calibration and evaluation.
 
-当前仓库已经不只是早期的数据格式验证脚本。它更像一个自动驾驶/机器人长序列几何评测平台：外部模型来自父级目录中的 sibling repositories，本仓库负责统一输入、输出、尺度求解和指标报告。
+The project has grown beyond its initial dataset-format validation scripts into a long-sequence geometry evaluation platform for autonomous driving and robotics. Model implementations live in sibling repositories; this repository standardizes inputs, outputs, scale estimation, and metric reports.
 
-## 项目定位
+## What it does
 
-核心问题：
+The core task is to compare geometric outputs from depth and 3D reconstruction models on long visual sequences, then use semantic scale anchors to convert relative geometry to metric scale.
 
-> 在长序列视觉场景中，比较不同 foundation depth / 3D reconstruction 模型的几何输出，并用语义尺度锚点把相对尺度转成 metric-scale 结果。
+- Unifies depth maps, point maps, and camera parameters from multiple models.
+- Uses a VLM to identify dynamic and static height anchors and scene planes.
+- Uses SAM to generate object and plane masks from VLM bounding boxes.
+- Produces `consistent_scale` and several `optimized_scale_*` variants with a semantic scale solver.
+- Evaluates sparse depth and point metrics against projected LiDAR, sparse reconstruction proxies, and TUM-style pose ATE/RPE.
+- Provides a dataset-by-model YAML configuration matrix.
 
-当前能力：
+## Related repositories
 
-- 多模型 depth / pointmap / camera 参数统一输出。
-- VLM 挖掘 dynamic/static height anchors 和 scene planes。
-- SAM 根据 VLM bbox 生成 object/plane masks。
-- Semantic scale solver 生成 `consistent_scale` 和多个 `optimized_scale_*` variants。
-- LiDAR 投影 sparse depth / point metrics、sparse reconstruction proxy、TUM-style pose ATE / RPE。
-- Dataset × model YAML 配置矩阵。
+Sibling repositories under `Metric-Depth-Project/` provide background and local dependencies:
 
-## 父级项目关系
+- `Depth-Anything-3/`: DA3 and DA3-Streaming.
+- `VGGT-Long/`: long-sequence chunking, overlap, and alignment for VGGT.
+- `Pi-Long/`: long-sequence adaptation for Pi3/Pi3X.
+- `Scal3R/`: large-scale test-time-training reconstruction.
+- `vggt-omega/`: source of the VGGT-Omega wrapper.
+- `lingbot-map/`: source of the streaming/windowed reconstruction wrapper.
+- `STream3R/`: research background for streaming reconstruction; no direct wrapper has been identified here.
 
-`Metric-Depth-Project/` 下的 sibling repositories 是当前仓库的重要背景和本地依赖来源：
+These sibling repositories are not included in this repository. You must provide the required model code and checkpoints separately.
 
-- `Depth-Anything-3/`：DA3 / DA3-Streaming。
-- `VGGT-Long/`：VGGT long-sequence chunk / overlap / alignment framework。
-- `Pi-Long/`：Pi3/Pi3X long-sequence adaptation。
-- `Scal3R/`：large-scale test-time-training reconstruction。
-- `vggt-omega/`：VGGT-Omega wrapper 来源。
-- `lingbot-map/`：streaming/windowed long-sequence reconstruction wrapper 来源。
-- `STream3R/`：streaming reconstruction 研究背景，当前未发现直接 wrapper。
-
-## 代码结构
+## Repository layout
 
 ```text
-Metric-Depth/
-├── get_metric_scale.py                  # 主入口
-├── configs/                             # dataset/model YAML 配置矩阵
-├── dataset_tools/                       # 数据转换、验证、清理与可视化工具
+UniMetric/
+├── get_metric_scale.py                  # Main entry point
+├── configs/                             # Dataset/model YAML configuration matrix
+├── dataset_tools/                       # Conversion, validation, cleanup, visualization
 ├── metric_scale/
-│   ├── config/                          # YAML 配置与路径解析
+│   ├── config/                          # YAML configuration and path resolution
 │   ├── processing/                      # VLM/SAM/depth/scale pipeline
-│   ├── models/                          # depth/3D/VLM/SAM/scale model wrappers
-│   ├── metrics/                         # geometry、reconstruction、pose 评测
-│   ├── prompts/                         # dataset-specific VLM prompts
+│   ├── models/                          # Depth/3D/VLM/SAM/scale model wrappers
+│   ├── metrics/                         # Geometry, reconstruction, and pose evaluation
+│   ├── prompts/                         # Dataset-specific VLM prompts
 │   ├── utils/
 │   └── visualization/
-├── docs/                                # 运行、配置、尺度、评测文档
-└── plan/                                # 项目梳理与规划记录
+├── docs/                                # Usage, configuration, scale, and evaluation guides
+└── plan/                                # Project inventory and architecture notes
 ```
 
-## 支持模型
+## Supported models
 
-`metric_scale.models.models.ModelManager` 当前支持：
+`metric_scale.models.models.ModelManager` supports:
 
 - `pi3_long`
 - `vggt_long`
@@ -64,23 +62,23 @@ Metric-Depth/
 - `lingbot_map_long`
 - `moge`
 
-长序列 wrapper 通常会按 `long_chunk_size` / `long_overlap` 切分输入，并把不同模型输出统一保存为 `pointmap/`、`conf/`、`camera_params/`。
+Long-sequence wrappers generally split input using `long_chunk_size` and `long_overlap`, then save standardized outputs under `pointmap/`, `conf/`, and `camera_params/`.
 
-## 快速运行
+## Quick start
 
-运行前根据 VLM backend 设置 API key。默认配置使用 `doubao` backend，并从环境变量读取：
+Set the API key for your VLM backend before running. The default configuration uses the `doubao` backend and reads its key from an environment variable:
 
 ```bash
 export DOUBAO_API_KEY=...
 ```
 
-基础命令：
+Basic command:
 
 ```bash
 python get_metric_scale.py --config configs/nuscenes/lingbot_map_long.yaml
 ```
 
-常用覆盖：
+Example overrides:
 
 ```bash
 python get_metric_scale.py \
@@ -90,30 +88,21 @@ python get_metric_scale.py \
   --depth-model pi3_long
 ```
 
-注意：当前 `ProcessingPipeline._process_sequence_task()` 默认只启用 semantic scale stage，VLM、SAM、P3 image prep 和 depth inference stage 在该函数中处于注释状态。若要端到端重新生成中间产物，需要在 pipeline 中重新启用对应阶段，或按 [runbook](docs/runbook.md) 分阶段运行。
+Currently, `ProcessingPipeline._process_sequence_task()` enables only the semantic scale stage by default. The VLM, SAM, P3 image preparation, and depth inference stages are commented out in that function. To regenerate intermediates end to end, enable the relevant stages or follow the staged workflow in the [runbook](docs/runbook.md).
 
-## 配置矩阵
+## Configuration matrix
 
-配置位于 `configs/{dataset}/{model}.yaml`。当前主要 dataset：
+Configurations live at `configs/{dataset}/{model}.yaml`. The main datasets include `argoverse`, `dair_v2x_i`, `kitti`, `nuscenes`, `v2x_radar_i`, and `waymo`. See the [configuration matrix](docs/config-matrix.md) for details.
 
-- `argoverse`
-- `dair_v2x_i`
-- `kitti`
-- `nuscenes`
-- `v2x_radar_i`
-- `waymo`
+## Outputs
 
-更多配置说明见 [config-matrix](docs/config-matrix.md)。
-
-## 输出结构
-
-输出根目录通常为：
+The usual output root is:
 
 ```text
 outputs/{dataset_name}/{sequence_name}/{model}_outputs/
 ```
 
-重要 scale variants：
+Important scale variants include:
 
 ```text
 relative_scale/
@@ -127,24 +116,15 @@ selected_scale/
 absolute_scale/
 ```
 
-`relative_scale` 是模型原始/相对尺度输出，其余目录由 semantic scale stage 生成。详情见 [semantic-scale](docs/semantic-scale.md)。
+`relative_scale` is the model's original or relative-scale output. The semantic scale stage produces the other variants. See [semantic scale](docs/semantic-scale.md).
 
-## 评测
+## Evaluation
 
-评测入口由 `get_metric_scale.py` 调用 `MetricCalculator` 完成。主要报告：
+`get_metric_scale.py` invokes `MetricCalculator` to produce sequence-level JSON and Markdown reports, dataset-level `dataset_summary.json` and Markdown reports, sparse depth and point metrics, a sparse reconstruction proxy, TUM-style pose ATE/RPE, and optional distance-bin metrics. See [evaluation](docs/evaluation.md) for metric definitions.
 
-- sequence-level JSON 和 Markdown report。
-- dataset-level `dataset_summary.json` 和 Markdown report。
-- sparse depth / point metrics。
-- sparse reconstruction proxy。
-- TUM-style pose ATE / RPE。
-- 可选 distance-bin metrics。
+## Dataset format
 
-指标口径见 [evaluation](docs/evaluation.md)。
-
-## 数据集格式
-
-每个 sequence 通常包含：
+A sequence usually contains:
 
 ```text
 {frame_id}.pcd
@@ -154,32 +134,24 @@ absolute_scale/
 {frame_id}_camera2.jpg
 ```
 
-YAML 中包含：
+The YAML contains camera `cords`, `extrinsic`, and `intrinsic` values, plus `lidar_pose`, `vehicles`, `pedestrians`, and `cyclists`. The main pipeline uses `camera1` by default. Dataset validation and visualization tools are in `dataset_tools/varify_dataset.py`.
 
-- 相机 `cords`、`extrinsic`、`intrinsic`
-- `lidar_pose`
-- `vehicles`
-- `pedestrians`
-- `cyclists`
+## Credentials and local configuration
 
-默认主流程使用 `camera1`。数据验证与可视化工具位于 `dataset_tools/varify_dataset.py`。
-
-## 安全与本地配置
-
-不要把 API keys、tokens、credentials 写入 YAML 或源码。当前配置通过：
+Do not put API keys, tokens, or credentials in YAML or source files. The current configuration reads the key through an environment variable:
 
 ```yaml
 vision:
   api_key_env: "DOUBAO_API_KEY"
 ```
 
-读取环境变量。需要不同 backend 时，优先在本地 gitignored config 或 shell 环境中覆盖。
+For a different backend, use a local Git-ignored configuration or a shell environment override.
 
-## 更多文档
+## Further reading
 
-- [runbook](docs/runbook.md)
-- [config-matrix](docs/config-matrix.md)
-- [semantic-scale](docs/semantic-scale.md)
-- [evaluation](docs/evaluation.md)
-- [documentation-inventory](plan/documentation-inventory.md)
-- [codebase-map](plan/metric-depth-codebase-map.md)
+- [Runbook](docs/runbook.md)
+- [Configuration matrix](docs/config-matrix.md)
+- [Semantic scale](docs/semantic-scale.md)
+- [Evaluation](docs/evaluation.md)
+- [Documentation inventory](plan/documentation-inventory.md)
+- [Codebase map](plan/metric-depth-codebase-map.md)

@@ -1,18 +1,12 @@
 # Evaluation
 
-日期：2026-05-26
+Date: 2026-05-26
 
-## 评测目标
+## Objective
 
-评测模块关注 metric geometry 是否正确，而不是只看视觉深度图是否平滑。当前指标主要围绕 LiDAR sparse GT、pointmap 几何、sequence reconstruction 和 camera pose。
+The evaluation module measures whether metric geometry is correct, not just whether a depth map looks smooth. Its metrics focus on sparse LiDAR ground truth, point-map geometry, sequence reconstruction, and camera pose.
 
-入口：
-
-```python
-metric_scale.metrics.metrics.MetricCalculator
-```
-
-主脚本会在 pipeline 后调用：
+The entry point is `metric_scale.metrics.metrics.MetricCalculator`. After the pipeline runs, the main script calls:
 
 ```python
 metric_calculator.calculate_all_metrics(...)
@@ -20,47 +14,19 @@ metric_calculator.save_sequence_result(...)
 metric_calculator.save_dataset_summary(...)
 ```
 
-## 评测对象
+## Evaluated scale variants
 
-每个 scale variant 都可以被评测：
+Any enabled scale variant can be evaluated: `relative`, `consistent`, `optimized_legacy`, `optimized_original`, `optimized_weighted_bi`, `optimized_weighted_ifpa`, `selected`, and `absolute`. The configuration determines which optimized variants are enabled.
 
-- `relative`
-- `consistent`
-- `optimized_legacy`
-- `optimized_original`
-- `optimized_weighted_bi`
-- `optimized_weighted_ifpa`
-- `selected`
-- `absolute`
+## Sparse depth and point metrics
 
-具体启用哪些 optimized variants 由配置决定。
+Evaluation projects LiDAR points into the camera image, samples the predicted point map at those projected pixels, and compares the samples with ground-truth LiDAR points in the camera frame.
 
-## Sparse depth / point metrics
-
-评测步骤：
-
-1. 将 LiDAR points 投影到 camera image。
-2. 在 projected pixels 处采样 predicted pointmap。
-3. 与 GT camera-frame LiDAR points 对齐比较。
-
-Depth metrics 包括：
-
-- `rel`
-- `mae`
-- `rmse`
-- `delta1`
-
-Point metrics 包括：
-
-- 3D point error
-- relative point error
-- valid sample counts
-
-这些指标只在 LiDAR 可见投影点上评估，因此是 sparse proxy，不是 dense depth GT。
+Depth metrics include `rel`, `mae`, `rmse`, and `delta1`. Point metrics include 3D point error, relative point error, and valid-sample counts. Since only projected LiDAR-visible points are evaluated, these are sparse proxies, not dense-depth ground truth.
 
 ## Distance bins
 
-可选启用：
+Optional configuration:
 
 ```yaml
 runtime:
@@ -68,18 +34,9 @@ runtime:
   metric_depth_bins: [20, 40, 60]
 ```
 
-会形成：
-
-- `0-20m`
-- `20-40m`
-- `40-60m`
-- `60m+`
-
-用于分析近中远距离的尺度/深度退化。
+This creates `0-20m`, `20-40m`, `40-60m`, and `60m+` bins for analyzing scale or depth degradation at different distances.
 
 ## Sparse reconstruction proxy
-
-配置：
 
 ```yaml
 runtime:
@@ -89,24 +46,22 @@ runtime:
   sparse_reconstruction_pose_source: pred
 ```
 
-两种模式：
+Two modes are available:
 
-- `frame`：逐帧评估 point cloud。
-- `sequence`：把 subsequence 融合到统一坐标系后评估。
+- `frame`: evaluates each frame's point cloud independently.
+- `sequence`: fuses a subsequence into a common coordinate system before evaluation.
 
-Alignment source：
+Alignment methods:
 
-- `trajectory`：根据 camera trajectory 拟合 SE3。
-- `point_cloud`：根据 sparse pred/GT point pairs 拟合 SE3。
+- `trajectory`: fits an SE3 transform from the camera trajectory.
+- `point_cloud`: fits an SE3 transform from sparse predicted/ground-truth point pairs.
 
-Pose source：
+Pose sources:
 
-- `pred`：用模型保存的 `camera_params/extrinsics` 将预测 pointmap 从每帧 camera frame 融合到 subsequence reference frame；GT samples 仍使用 dataset GT pose 融合。这是默认模式，可同时评估 pointmap 几何和预测 pose 的跨帧一致性。
-- `gt`：预测 pointmap 和 GT samples 都使用 dataset GT pose 融合到同一个 reference frame。该模式去掉预测 pose 误差影响，更接近只评估 pointmap/scale 几何质量。
+- `pred`: uses model-saved `camera_params/extrinsics` to fuse predicted point maps from camera frames into a subsequence reference frame; ground-truth samples still use dataset ground-truth poses. This default mode tests both point-map geometry and cross-frame consistency of predicted poses.
+- `gt`: uses dataset ground-truth poses to fuse both predicted point maps and ground-truth samples. Removing predicted-pose error makes this closer to a test of point-map and scale geometry alone.
 
 ## Pose evaluation
-
-配置：
 
 ```yaml
 runtime:
@@ -117,34 +72,22 @@ runtime:
   pose_eval_scale: 1.0
 ```
 
-当前 pose metrics 是 TUM-style：
+The current pose metrics follow TUM conventions: ATE uses SE3 alignment, and RPE uses adjacent frames or a fixed delta. No Sim3 scale correction is applied, making these metrics suitable for checking metric-scale pose reliability.
 
-- ATE 使用 SE3 alignment。
-- RPE 使用相邻帧或固定 delta。
-- 不做 Sim3 scale correction，因此更适合检查 metric-scale pose 是否可靠。
+## Reports
 
-## 输出报告
-
-输出位置通常是：
+The usual report directory is:
 
 ```text
 outputs/{dataset}/metric_results/{depth_model}/
 ```
 
-核心文件：
+Key files are `dataset_summary.json`, `dataset_summary.md`, `sequences/{sequence}.json`, `sequences/{sequence}.md`, and sequence-difficulty/group-map reports. A later `sequence_difficulty` run can read `dataset_summary.json` to select easy, mid, or hard profiles.
 
-- `dataset_summary.json`
-- `dataset_summary.md`
-- `sequences/{sequence}.json`
-- `sequences/{sequence}.md`
-- sequence difficulty / group map 相关报告
+## Interpretation notes
 
-`dataset_summary.json` 也会被下一轮 `sequence_difficulty` 读取，用来选择 easy / mid / hard profile。
-
-## 解释指标时的注意事项
-
-- `relative_scale` 是模型原始尺度 baseline，不代表 metric-correct。
-- `absolute_scale` 当前通常是默认 optimized variant 的兼容输出，不一定代表 GT absolute oracle。
-- Sparse LiDAR projection 只评估 LiDAR 可见点，不覆盖整张图。
-- Pose metrics 依赖模型保存的 `camera_params/extrinsics` 语义，不同 wrapper 的坐标约定需要保持一致。
-- `native_sampling_mode` 会影响 pointmap 采样，比较模型时要确认输出分辨率策略。
+- `relative_scale` is the model's original-scale baseline; it is not necessarily metric-correct.
+- `absolute_scale` is usually a compatibility output for the default optimized variant, not necessarily a ground-truth absolute oracle.
+- Sparse LiDAR projection covers only LiDAR-visible pixels, not the whole image.
+- Pose metrics depend on the coordinate semantics of the model's `camera_params/extrinsics`; wrappers must use consistent conventions.
+- `native_sampling_mode` affects point-map sampling. Check output-resolution policies before comparing models.

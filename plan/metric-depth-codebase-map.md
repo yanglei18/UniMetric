@@ -1,37 +1,24 @@
-# Metric-Depth 当前代码地图
+# UniMetric Codebase Map
 
-日期：2026-05-26
+Date: 2026-05-26. This is a historical codebase snapshot; later changes may have extended the model and dataset lists.
 
-## 一句话理解
+## In one sentence
 
-`Metric-Depth` 是 `Metric-Depth-Project` 中的中心实验仓库：它把多个 depth / 3D foundation model 的相对或弱 metric 输出转成统一的 pointmap / camera_params 结构，再用 VLM semantic anchors、SAM masks、ground/plane cues 和 LiDAR/pose GT 做 metric-scale 标定与评测。
+UniMetric is the central experiment repository in `Metric-Depth-Project`: it normalizes relative or weakly metric outputs from depth and 3D foundation models into point maps and camera parameters, then uses VLM semantic anchors, SAM masks, ground/plane cues, and LiDAR/pose ground truth for metric-scale calibration and evaluation.
 
-## 输入数据契约
+## Input contract
 
-每个 sequence 通常包含：
+Each sequence usually contains:
 
-- `{frame_id}.pcd`：LiDAR 点云。
-- `{frame_id}.yaml`：相机、LiDAR、对象和场景元数据。
-- `{frame_id}_camera{camera_id}.jpg`：相机图像，主流程默认使用 `camera1`。
+- `{frame_id}.pcd`: LiDAR point cloud.
+- `{frame_id}.yaml`: camera, LiDAR, object, and scene metadata.
+- `{frame_id}_camera{camera_id}.jpg`: camera image; the main pipeline uses `camera1` by default.
 
-`FrameLoader` 会读取图像、PCD、YAML，构造：
+`FrameLoader` reads images, PCD, and YAML and constructs `lidar2camera`, `camera2world`, `world2camera`, intrinsics, object lists, image size, point clouds, projected bounding boxes, and BEV visualization inputs.
 
-- `lidar2camera`
-- `camera2world`
-- `world2camera`
-- `intrinsic`
-- `object_list`
-- image size / point cloud / projected bboxes / BEV 可视化输入
+## Output contract
 
-## 输出数据契约
-
-输出根通常是：
-
-```text
-outputs/{dataset_name}/{sequence_name}/
-```
-
-不同 depth model 写到不同子目录：
+The usual root is `outputs/{dataset_name}/{sequence_name}/`. Each depth model writes to its own subtree:
 
 ```text
 {model}_outputs/
@@ -50,115 +37,69 @@ outputs/{dataset_name}/{sequence_name}/
   semantic_scale_debug/
 ```
 
-其中 `relative_scale` 是 depth / 3D model 原始或相对尺度输出；后续 scale stage 会生成多种 metric-scale variants。
+`relative_scale` is the original or relative-scale model output. The scale stage produces metric-scale variants.
 
-## Pipeline 阶段
+## Pipeline stages
 
-代码里保留完整五阶段结构：
+1. **VLM processing:** `VLMProcessor.process_frames()` writes `vlm_outputs/results/*.json` with dynamic/static height anchors and semantic planes.
+2. **P3 image preparation:** `P3ImagePreparer.prepare_images()` copies images referenced by VLM results to `p3_images/{sequence_name}/` for depth-model input.
+3. **SAM processing:** `SAMProcessor.process_segmentation()` uses VLM bounding-box prompts to write masks under `sam_outputs/{frame}/`.
+4. **Depth estimation:** `DepthProcessor.run_depth_estimation()` runs the selected foundation-model wrapper and writes `relative_scale/pointmap`, `conf`, and `camera_params`.
+5. **Semantic plane scale estimation:** `SemanticPlaneScaleProcessor.estimate_scale()` estimates scale from semantic anchors and plane/ground geometry, producing `consistent_scale`, `optimized_scale_*`, `absolute_scale`, and other variants.
 
-1. VLM Processing
-   - 入口：`VLMProcessor.process_frames()`
-   - 输出：`vlm_outputs/results/*.json`
-   - 内容：dynamic height anchors、static height anchors、semantic planes。
+At the time of this snapshot, `ProcessingPipeline._process_sequence_task()` called only `_process_scale_for_sequence()`; the first four stages were commented out. Decide whether to restore the end-to-end pipeline before running a new experiment.
 
-2. Prepare P3 Images
-   - 入口：`P3ImagePreparer.prepare_images()`
-   - 输出：`p3_images/{sequence_name}/`
-   - 内容：复制 VLM 结果中引用的图像，供 depth model 输入。
+## Supported depth and 3D models
 
-3. SAM Processing
-   - 入口：`SAMProcessor.process_segmentation()`
-   - 输出：`sam_outputs/{frame}/...mask...png`
-   - 内容：根据 VLM bbox prompt 生成 masks。
+`ModelManager.initialize_depth_estimator()` supported Pi3/Pi3X (`pi3_long`), VGGT (`vggt_long`), VGGT-Omega (`vggt_omega_long`), Depth Anything 3 (`da3_long`), DUSt3R/MUSt3R (`dust3r_long`, `must3r_long`), Scal3R (`scal3r_long`), LingBot-Map (`lingbot_map_long`), and MoGe (`moge`).
 
-4. Depth Estimation
-   - 入口：`DepthProcessor.run_depth_estimation()`
-   - 输出：`relative_scale/pointmap`、`relative_scale/conf`、`relative_scale/camera_params`。
-   - 内容：运行指定 foundation model wrapper。
+Long-sequence wrappers commonly:
 
-5. Semantic Plane Scale Estimation
-   - 入口：`SemanticPlaneScaleProcessor.estimate_scale()`
-   - 输出：`consistent_scale`、`optimized_scale_*`、`absolute_scale` 等。
-   - 内容：用 semantic anchors 和 plane/ground geometry 求尺度。
+- Split input with `long_chunk_size` and `long_overlap`.
+- Save standardized point maps, confidence, and camera parameters.
+- Handle model-specific native/original resolution, intrinsic rescaling, and camera-extrinsic direction.
+- Use `temp_root` for large-disk temporary files and `long_delete_temp_files` for cleanup.
 
-当前实际默认：`ProcessingPipeline._process_sequence_task()` 只调用 `_process_scale_for_sequence()`，前四阶段被注释。后续运行前必须根据目标确认是否需要恢复端到端 pipeline。
+## Semantic-scale mechanism
 
-## 支持的 depth / 3D models
+1. A VLM identifies objects whose real-world height can serve as a metric prior.
+2. SAM converts VLM boxes into masks.
+3. The predicted point map supplies relative anchor heights; real-world height intervals yield scale intervals.
+4. Robust consensus and weighted optimization combine multiple anchors.
+5. The resulting scales are applied to point maps and camera translations.
 
-当前 `ModelManager.initialize_depth_estimator()` 支持：
+Main variants:
 
-- Pi3 / Pi3X：`pi3_long`
-- VGGT：`vggt_long`
-- VGGT-Omega：`vggt_omega_long`
-- Depth Anything 3：`da3_long`
-- DUSt3R / MUSt3R：`dust3r_long`、`must3r_long`
-- Scal3R：`scal3r_long`
-- LingBot-Map：`lingbot_map_long`
-- MoGe：`moge`
+- `relative`: original model scale without semantic correction.
+- `consistent`: robust consensus scale.
+- `optimized_scale_legacy`, `optimized_scale_original`, `optimized_scale_weighted_bi`, and `optimized_scale_weighted_ifpa`: optimized alternatives.
+- `optimized`/`absolute`: compatibility aliases, usually for the default optimized variant.
+- `selected`: optional gated final scale, disabled in most configurations at the time.
 
-Long wrappers 的共同设计：
+Common configuration choices were `height_anchor_source: dynamic` or `both`, `default_optimized_variant: optimized_scale_original`, `enable_selected_scale: false`, and `sequence_difficulty.enabled: true` for long-sequence datasets.
 
-- 按 `long_chunk_size` / `long_overlap` 切 chunk。
-- 将各模型输出统一保存为 pointmap、confidence、camera_params。
-- 为不同模型处理 native/original resolution、intrinsics rescaling、camera extrinsics 方向差异。
-- `temp_root` 默认指向大盘路径，`long_delete_temp_files` 控制清理。
+## Evaluation
 
-## Semantic scale 机制
+`MetricGeometryEvaluator` and `MetricCalculator` cover:
 
-Semantic scale stage 的核心思想：
+- Sparse depth metrics sampled at LiDAR-projected pixels.
+- Point metrics against ground-truth camera-frame LiDAR points.
+- A frame- or sequence-level sparse reconstruction proxy.
+- TUM-style pose ATE/RPE without Sim3 scale correction.
+- Optional `0-20m`, `20-40m`, `40-60m`, and `60m+` distance bins.
+- Easy/mid/hard sequence-difficulty inference from a prior `dataset_summary.json`, optionally changing semantic-scale profiles.
 
-1. VLM 从图像中找可作为 metric height prior 的语义物体。
-2. SAM 将 VLM bbox 转成 masks。
-3. 在 predicted pointmap 中测量 anchor 的相对高度，结合 VLM 的真实高度 interval 得到 scale interval。
-4. 使用 robust consensus / weighted optimization 聚合多个 anchors。
-5. 将 pointmap 和 camera translation 按 scale 放大，形成不同 scale variants。
+Reports include sequence JSON and Markdown files, `dataset_summary.json`, a dataset Markdown report, and a sequence group map.
 
-主要 scale variants：
+## Working with configuration
 
-- `relative`：原始模型尺度，不做 semantic scale。
-- `consistent`：鲁棒 consensus 尺度。
-- `optimized_scale_legacy`
-- `optimized_scale_original`
-- `optimized_scale_weighted_bi`
-- `optimized_scale_weighted_ifpa`
-- `optimized` / `absolute`：兼容 alias，通常指向默认 optimized variant。
-- `selected`：可选 gated final scale，当前多数配置未启用。
-
-当前配置常见策略：
-
-- `height_anchor_source: dynamic` 或 `both`
-- `default_optimized_variant: optimized_scale_original`
-- `enable_selected_scale: false`
-- `sequence_difficulty.enabled: true` 在长序列 dataset configs 中启用
-
-## 评测体系
-
-`MetricGeometryEvaluator` 和 `MetricCalculator` 覆盖：
-
-- sparse LiDAR projection depth metrics：在 LiDAR 投影像素处采样 predicted pointmap。
-- point metrics：比较 predicted points 与 GT camera-frame LiDAR points。
-- sparse reconstruction proxy：frame 或 sequence 模式融合 sparse points。
-- pose evaluation：TUM-style ATE / RPE，不做 Sim3 scale correction。
-- distance bins：可选 `0-20m`、`20-40m`、`40-60m`、`60m+`。
-- sequence difficulty：从已有 `dataset_summary.json` 推断 easy/mid/hard，并可动态调整 semantic scale profile。
-
-报告输出包括：
-
-- sequence JSON
-- sequence Markdown report
-- dataset_summary.json
-- dataset_summary.md / dataset report
-- sequence group map
-
-## 配置使用心智模型
-
-常用命令形态：
+Typical command:
 
 ```bash
 python get_metric_scale.py --config configs/nuscenes/lingbot_map_long.yaml
 ```
 
-可以通过 CLI 覆盖：
+Selected CLI overrides:
 
 ```bash
 python get_metric_scale.py \
@@ -168,38 +109,16 @@ python get_metric_scale.py \
   --depth-model pi3_long
 ```
 
-配置中的关键开关：
+Important keys include `runtime.dataset`, `runtime.data_path`, `runtime.depth_model`, `runtime.use_shared_scale`, `runtime.all_sequences`, `runtime.sequence_name`, `runtime.frame_count`, `runtime.subsequence_size`, `runtime.enable_sparse_reconstruction`, `runtime.enable_pose_evaluation`, `runtime.sparse_reconstruction_mode`, `depth.output_resolution`, `semantic_scale.height_anchor_source`, `semantic_scale.default_optimized_variant`, `semantic_scale.sequence_difficulty`, and `paths.output_root`.
 
-- `runtime.dataset`
-- `runtime.data_path`
-- `runtime.depth_model`
-- `runtime.use_shared_scale`
-- `runtime.all_sequences`
-- `runtime.sequence_name`
-- `runtime.frame_count`
-- `runtime.subsequence_size`
-- `runtime.enable_sparse_reconstruction`
-- `runtime.enable_pose_evaluation`
-- `runtime.sparse_reconstruction_mode`
-- `depth.output_resolution`
-- `semantic_scale.height_anchor_source`
-- `semantic_scale.default_optimized_variant`
-- `semantic_scale.sequence_difficulty`
-- `paths.output_root`
+## Documentation gaps identified at the time
 
-## 当前文档缺口
+The earlier README had not explained the scale-only default pipeline, model wrappers' dependence on sibling repositories, the move to a dataset/model configuration matrix, scale-variant meanings, depth/point/reconstruction/pose metric definitions, or safe injection of sensitive configuration via environment variables. Later README and `docs/` updates addressed several of these gaps.
 
-- 没有说明当前 pipeline 只启用 scale stage。
-- 没有说明 model wrapper 与 sibling repo 的关系。
-- 没有说明 config tree 已从单文件 dataset config 演化为 dataset/model matrix。
-- 没有说明 semantic-scale variants 的含义。
-- 没有说明 metric report 中 depth / point / reconstruction / pose 指标的口径。
-- 没有说明敏感配置应通过环境变量或本地覆盖注入。
+## Follow-up priorities
 
-## 后续优先任务
-
-1. 先处理 hardcoded API key 风险：rotate，并迁移到环境变量。
-2. 更新 README，使其反映当前真实 pipeline。
-3. 将 `metrics.py` 拆成 depth/point/reconstruction/pose/reporting 子模块。
-4. 给 config matrix 建表，明确每个 dataset/model 的推荐用途和默认 stage。
-5. 为 semantic-scale solver 补最小单元测试，尤其是 scale interval aggregation 和 selected-scale gating。
+1. Rotate any previously hard-coded API key and migrate to environment variables.
+2. Keep the README aligned with the actual pipeline.
+3. Split `metrics.py` into depth, point, reconstruction, pose, and reporting modules.
+4. Document the recommended use and default stage for each dataset/model configuration.
+5. Add basic semantic-scale solver tests, especially interval aggregation and selected-scale gating.
