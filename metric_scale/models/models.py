@@ -4,19 +4,6 @@ from metric_scale.models.mllm_agent import ModelConfig, get_model
 from metric_scale.models.vlm_semantic_scale_anchor import VLMSemanticScaleAnchor
 from metric_scale.models.semantic_scale_estimator import SemanticPlaneScaleEstimator
 from metric_scale.models.vlm_scale_estimator import VLMScaleEstimator
-from metric_scale.models.sam2_tracker import SAM2Tracker
-from metric_scale.models.pi3x_long_depth_estimator import Pi3LongDepthEstimator
-from metric_scale.models.da3_long_depth_estimator import Da3LongDepthEstimator
-from metric_scale.models.vggt_long_depth_estimator import VGGTLongDepthEstimator
-from metric_scale.models.vggt_omega_long_depth_estimator import VGGTOmegaLongDepthEstimator
-from metric_scale.models.moge_depth_estimator import MogeDepthEstimator
-from metric_scale.models.dust3r_long_depth_estimator import Dust3rLongDepthEstimator
-from metric_scale.models.must3r_long_depth_estimator import Must3rLongDepthEstimator
-from metric_scale.models.scal3r_long_depth_estimator import Scal3rLongDepthEstimator
-from metric_scale.models.lingbot_map_long_depth_estimator import LingBotMapLongDepthEstimator
-from metric_scale.models.dvlt_long_depth_estimator import DVLTLongDepthEstimator
-from metric_scale.models.fourrc_long_depth_estimator import FourRCLongDepthEstimator
-from metric_scale.models.stream3r_long_depth_estimator import STream3RLongDepthEstimator
 from metric_scale.config.config import config
 
 class ModelManager:
@@ -64,6 +51,7 @@ class ModelManager:
         device_suffix = "" if device is None else f"_{device}"
         key = f"sam_tracker{device_suffix}"
         if key not in self._initialized:
+            from metric_scale.models.sam2_tracker import SAM2Tracker
             tracker = SAM2Tracker(
                 model_cfg=config.get_path('sam_config'),
                 sam2_checkpoint=config.get_path('sam_checkpoint'),
@@ -81,6 +69,7 @@ class ModelManager:
         
         if key not in self._initialized:
             if model_type == "pi3_long":
+                from metric_scale.models.pi3x_long_depth_estimator import Pi3LongDepthEstimator
                 depth_estimator = Pi3LongDepthEstimator(
                     model_type='Pi3X',
                     device=device,
@@ -91,6 +80,7 @@ class ModelManager:
                     temp_root=config.long_temp_root,
                 )
             elif model_type == "vggt_long":
+                from metric_scale.models.vggt_long_depth_estimator import VGGTLongDepthEstimator
                 depth_estimator = VGGTLongDepthEstimator(
                     pretrained_model=config.vggt_weights,
                     device=device,
@@ -100,6 +90,7 @@ class ModelManager:
                     temp_root=config.long_temp_root,
                 )
             elif model_type == "vggt_omega_long":
+                from metric_scale.models.vggt_omega_long_depth_estimator import VGGTOmegaLongDepthEstimator
                 depth_estimator = VGGTOmegaLongDepthEstimator(
                     project_root=config.vggt_omega_project_root,
                     checkpoint=config.vggt_omega_checkpoint,
@@ -113,31 +104,8 @@ class ModelManager:
                     delete_temp_files=config.long_delete_temp_files,
                     temp_root=config.long_temp_root,
                 )
-            elif model_type == "moge":
-                depth_estimator = MogeDepthEstimator(
-                    pretrained_model=config.moge_model_name,
-                    device=device,
-                )
-            elif model_type == "dust3r_long":
-                depth_estimator = Dust3rLongDepthEstimator(
-                    model_name=config.dust3r_model_name,
-                    device=device,
-                    chunk_size=config.long_chunk_size,
-                    overlap=config.long_overlap,
-                    delete_temp_files=config.long_delete_temp_files,
-                    temp_root=config.long_temp_root,
-                )
-            elif model_type == "must3r_long":
-                depth_estimator = Must3rLongDepthEstimator(
-                    model_name=config.must3r_model_name,
-                    retrieval_ckpt_path=config.must3r_retrieval_ckpt_path,
-                    device=device,
-                    chunk_size=config.long_chunk_size,
-                    overlap=config.long_overlap,
-                    delete_temp_files=config.long_delete_temp_files,
-                    temp_root=config.long_temp_root,
-                )
             elif model_type == "scal3r_long":
+                from metric_scale.models.scal3r_long_depth_estimator import Scal3rLongDepthEstimator
                 depth_estimator = Scal3rLongDepthEstimator(
                     project_root=config.scal3r_project_root,
                     config_path=config.scal3r_config_path,
@@ -146,10 +114,14 @@ class ModelManager:
                     device=device,
                     block_size=config.long_chunk_size,
                     overlap_size=config.long_overlap,
+                    use_loop=config.scal3r_use_loop,
+                    offload_batches=config.scal3r_offload_batches,
+                    offload_outputs=config.scal3r_offload_outputs,
                     delete_temp_files=config.long_delete_temp_files,
                     temp_root=config.long_temp_root,
                 )
             elif model_type == "lingbot_map_long":
+                from metric_scale.models.lingbot_map_long_depth_estimator import LingBotMapLongDepthEstimator
                 depth_estimator = LingBotMapLongDepthEstimator(
                     project_root=config.lingbot_map_project_root,
                     checkpoint=config.lingbot_map_checkpoint,
@@ -171,6 +143,7 @@ class ModelManager:
                     temp_root=config.long_temp_root,
                 )
             elif model_type == "dvlt_long":
+                from metric_scale.models.dvlt_long_depth_estimator import DVLTLongDepthEstimator
                 depth_estimator = DVLTLongDepthEstimator(
                     project_root=config.dvlt_project_root,
                     checkpoint=config.dvlt_checkpoint,
@@ -181,6 +154,7 @@ class ModelManager:
                     temp_root=config.long_temp_root,
                 )
             elif model_type == "4rc_long":
+                from metric_scale.models.fourrc_long_depth_estimator import FourRCLongDepthEstimator
                 depth_estimator = FourRCLongDepthEstimator(
                     project_root=config.fourrc_project_root,
                     checkpoint=config.fourrc_checkpoint,
@@ -196,6 +170,7 @@ class ModelManager:
                     temp_root=config.long_temp_root,
                 )
             elif model_type == "stream3r_long":
+                from metric_scale.models.stream3r_long_depth_estimator import STream3RLongDepthEstimator
                 depth_estimator = STream3RLongDepthEstimator(
                     project_root=config.stream3r_project_root,
                     checkpoint=config.stream3r_checkpoint,
@@ -206,6 +181,7 @@ class ModelManager:
                     temp_root=config.long_temp_root,
                 )
             elif model_type == "da3_long":
+                from metric_scale.models.da3_long_depth_estimator import Da3LongDepthEstimator
                 depth_estimator = Da3LongDepthEstimator(
                     model_name=config.da3_model_name,
                     device=device,
@@ -288,6 +264,7 @@ class ModelFactory:
     def create_depth_estimator(model_type, device=None):
         """创建深度估计模型"""
         if model_type == "pi3_long":
+            from metric_scale.models.pi3x_long_depth_estimator import Pi3LongDepthEstimator
             return Pi3LongDepthEstimator(
                 model_type='Pi3X',
                 device=device,
@@ -298,6 +275,7 @@ class ModelFactory:
                 temp_root=config.long_temp_root,
             )
         elif model_type == "vggt_long":
+            from metric_scale.models.vggt_long_depth_estimator import VGGTLongDepthEstimator
             return VGGTLongDepthEstimator(
                 pretrained_model=config.vggt_weights,
                 device=device,
@@ -307,6 +285,7 @@ class ModelFactory:
                 temp_root=config.long_temp_root,
             )
         elif model_type == "vggt_omega_long":
+            from metric_scale.models.vggt_omega_long_depth_estimator import VGGTOmegaLongDepthEstimator
             return VGGTOmegaLongDepthEstimator(
                 project_root=config.vggt_omega_project_root,
                 checkpoint=config.vggt_omega_checkpoint,
@@ -320,31 +299,8 @@ class ModelFactory:
                 delete_temp_files=config.long_delete_temp_files,
                 temp_root=config.long_temp_root,
             )
-        elif model_type == "moge":
-            return MogeDepthEstimator(
-                pretrained_model=config.moge_model_name,
-                device=device,
-            )
-        elif model_type == "dust3r_long":
-            return Dust3rLongDepthEstimator(
-                model_name=config.dust3r_model_name,
-                device=device,
-                chunk_size=config.long_chunk_size,
-                overlap=config.long_overlap,
-                delete_temp_files=config.long_delete_temp_files,
-                temp_root=config.long_temp_root,
-            )
-        elif model_type == "must3r_long":
-            return Must3rLongDepthEstimator(
-                model_name=config.must3r_model_name,
-                retrieval_ckpt_path=config.must3r_retrieval_ckpt_path,
-                device=device,
-                chunk_size=config.long_chunk_size,
-                overlap=config.long_overlap,
-                delete_temp_files=config.long_delete_temp_files,
-                temp_root=config.long_temp_root,
-            )
         elif model_type == "scal3r_long":
+            from metric_scale.models.scal3r_long_depth_estimator import Scal3rLongDepthEstimator
             return Scal3rLongDepthEstimator(
                 project_root=config.scal3r_project_root,
                 config_path=config.scal3r_config_path,
@@ -353,10 +309,14 @@ class ModelFactory:
                 device=device,
                 block_size=config.long_chunk_size,
                 overlap_size=config.long_overlap,
+                use_loop=config.scal3r_use_loop,
+                offload_batches=config.scal3r_offload_batches,
+                offload_outputs=config.scal3r_offload_outputs,
                 delete_temp_files=config.long_delete_temp_files,
                 temp_root=config.long_temp_root,
             )
         elif model_type == "lingbot_map_long":
+            from metric_scale.models.lingbot_map_long_depth_estimator import LingBotMapLongDepthEstimator
             return LingBotMapLongDepthEstimator(
                 project_root=config.lingbot_map_project_root,
                 checkpoint=config.lingbot_map_checkpoint,
@@ -378,6 +338,7 @@ class ModelFactory:
                 temp_root=config.long_temp_root,
             )
         elif model_type == "dvlt_long":
+            from metric_scale.models.dvlt_long_depth_estimator import DVLTLongDepthEstimator
             return DVLTLongDepthEstimator(
                 project_root=config.dvlt_project_root,
                 checkpoint=config.dvlt_checkpoint,
@@ -388,6 +349,7 @@ class ModelFactory:
                 temp_root=config.long_temp_root,
             )
         elif model_type == "4rc_long":
+            from metric_scale.models.fourrc_long_depth_estimator import FourRCLongDepthEstimator
             return FourRCLongDepthEstimator(
                 project_root=config.fourrc_project_root,
                 checkpoint=config.fourrc_checkpoint,
@@ -402,7 +364,19 @@ class ModelFactory:
                 delete_temp_files=config.long_delete_temp_files,
                 temp_root=config.long_temp_root,
             )
+        elif model_type == "stream3r_long":
+            from metric_scale.models.stream3r_long_depth_estimator import STream3RLongDepthEstimator
+            return STream3RLongDepthEstimator(
+                project_root=config.stream3r_project_root,
+                checkpoint=config.stream3r_checkpoint,
+                device=device,
+                chunk_size=config.long_chunk_size,
+                overlap=config.long_overlap,
+                delete_temp_files=config.long_delete_temp_files,
+                temp_root=config.long_temp_root,
+            )
         elif model_type == "da3_long":
+            from metric_scale.models.da3_long_depth_estimator import Da3LongDepthEstimator
             return Da3LongDepthEstimator(
                 model_name=config.da3_model_name,
                 device=device,
@@ -417,6 +391,7 @@ class ModelFactory:
     @staticmethod
     def create_sam_tracker(device=None):
         """创建SAM跟踪器"""
+        from metric_scale.models.sam2_tracker import SAM2Tracker
         return SAM2Tracker(
             model_cfg=config.get_path('sam_config'),
             sam2_checkpoint=config.get_path('sam_checkpoint'),

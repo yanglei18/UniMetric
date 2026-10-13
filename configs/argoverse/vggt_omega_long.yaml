@@ -6,10 +6,8 @@ runtime:
   # Dataset root directory.
   data_path: "data/official-data/Argoverse/"
 
-  # Depth model to run.
-  # Supported values in the current project: long is better!
-  # "pi3_long", "vggt_long", "vggt_omega_long", "da3_long", "dust3r_long", "must3r_long", "scal3r_long", "stream3r_long"
-  # "moge".
+  # Selected depth model wrapper; this YAML filename identifies the production model.
+  # The published matrix contains nine depth-model configs per dataset.
   depth_model: "vggt_omega_long"
 
   # true: estimate one shared scale for a subsequence / sequence batch.
@@ -25,8 +23,8 @@ runtime:
   # sequence_name: ["scene-0092", "scene-0015", "scene-0013"]
   sequence_name: []
 
-  # Number of frames to process per sequence.
-  # Positive integer: use the first N frames.
+  # Requested frame count for selected-sequence runs and metric reporting.
+  # With all_sequences enabled, the pipeline may process complete sequences.
   frame_count: 1000
 
   # Maximum GT depth (meters) included in metric geometry evaluation.
@@ -111,7 +109,7 @@ vision:
   # Local VLM path or model identifier template.
   model_path: "{qwen_model}"
 
-  # VLM backend type. Typical values: "doubao", "qwen".
+  # VLM backend: doubao or qwen-api for API calls; qwen for a local model.
   model_type: "doubao"
 
   # Environment variable holding the API key for the configured backend.
@@ -167,7 +165,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/Metric-Depth/tmp"
+  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
 
 
   # Saved prediction resolution. Options: "original", "native".
@@ -238,11 +236,11 @@ semantic_scale:
   plane_normal_outlier_filter_enabled: true
   # Maximum angular deviation from the robust reference normal for keeping a plane proposal.
   plane_normal_filter_max_angle_deg: 25.0
-  plane_normal_filter_min_frames: 3
-  plane_normal_filter_max_points: 5000
-  plane_normal_filter_ransac_iterations: 100
-  plane_normal_filter_ransac_threshold: 0.03
   plane_normal_filter_ransac_confidence: 0.98
+  plane_normal_filter_ransac_threshold: 0.03
+  plane_normal_filter_ransac_iterations: 100
+  plane_normal_filter_max_points: 5000
+  plane_normal_filter_min_frames: 3
   # Strength of priority-based modulation applied to type_weight in optimized-scale solving.
   # 0.0 disables modulation; larger values increase the gap between high-priority and low-priority anchors.
   optimized_scale_priority_modulation_strength: 0.3
@@ -375,11 +373,12 @@ semantic_scale:
 models:
 
   # Local VGGT-Omega project root and checkpoint.
-  vggt_omega_project_root: "/workspace/code/vendor/vggt-omega"
-  vggt_omega_checkpoint: "/workspace/weights/vggt_omega_1b_512.pt"
+  vggt_omega_project_root: "/data1/yanglei/FoundationModel/vggt-omega"
+  vggt_omega_checkpoint: "{vggt_omega_project_root}/checkpoints/vggt_omega_1b_512.pt"
   vggt_omega_image_resolution: 512
   vggt_omega_preprocess_mode: "resize_only"
   vggt_omega_enable_alignment: false
+
 paths:
   # Base project path template.
   project_root: "{project_root}"

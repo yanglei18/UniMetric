@@ -1,0 +1,1038 @@
+{
+  "dataset_dirs": [
+    "3eed_dataset",
+    "argoverse",
+    "cear",
+    "dair_v2x_i",
+    "droid",
+    "fusionportable",
+    "humanoid_everyday",
+    "jrdb",
+    "kitti",
+    "nuscenes",
+    "v2x_radar_i",
+    "waymo"
+  ],
+  "files": [
+    {
+      "path": ".gitignore",
+      "sha256": "d75ef97683a2f66216b405d18c56e50d837d725bfb6b24fad501fe453e6d87ed",
+      "bytes": 892
+    },
+    {
+      "path": "configs/3eed_dataset/4rc_long.yaml",
+      "sha256": "22da0c2ba1e3b6d87bbd9046c7cc9c3c6eb961023daa9f7fd2c4b700c89c52c9",
+      "bytes": 14387
+    },
+    {
+      "path": "configs/3eed_dataset/da3_long.yaml",
+      "sha256": "b406424488ed289275e2eb538146da48ced7413d78a8b2700489e39490550196",
+      "bytes": 15676
+    },
+    {
+      "path": "configs/3eed_dataset/default.yaml",
+      "sha256": "036a027ac57e8f6cc1ff3bbae15d225edcf0528a9ec6c9672156cdc123e8317d",
+      "bytes": 15388
+    },
+    {
+      "path": "configs/3eed_dataset/dvlt_long.yaml",
+      "sha256": "70dea3a1e245aaeb44914e8d2cffa9345ad6de2cd00f955b83d883aeff785569",
+      "bytes": 15966
+    },
+    {
+      "path": "configs/3eed_dataset/lingbot_map_long.yaml",
+      "sha256": "3c44b3033e454618d23838878e4975541f42d09dd4397662a4fc50518a888c00",
+      "bytes": 16820
+    },
+    {
+      "path": "configs/3eed_dataset/pi3_long.yaml",
+      "sha256": "bd2938dba915a0a90f1721d0cf09430a8aa4ab6aefc0fd30665505deda461250",
+      "bytes": 15530
+    },
+    {
+      "path": "configs/3eed_dataset/scal3r_long.yaml",
+      "sha256": "043bf782ac9135ea0c68730b3c6563b7ef6915222dfa33fa44d73da0dc95c25c",
+      "bytes": 16343
+    },
+    {
+      "path": "configs/3eed_dataset/stream3r_long.yaml",
+      "sha256": "fe1d1f3a0dd92bd755d7880c6b7421d91d90ff87ee79334d462351b73156491a",
+      "bytes": 16046
+    },
+    {
+      "path": "configs/3eed_dataset/vggt_long.yaml",
+      "sha256": "06a4663a91c848d1a6bbb84a970a3c0a3e37eed0ba311c815d2bf25c376a0cc1",
+      "bytes": 16125
+    },
+    {
+      "path": "configs/3eed_dataset/vggt_omega_long.yaml",
+      "sha256": "36f6b2c6cc3a97910bba24ffa881b99661a40acec763b92c717c3780c71d2b75",
+      "bytes": 16975
+    },
+    {
+      "path": "configs/argoverse/4rc_long.yaml",
+      "sha256": "91462076f1e3d1b6827a7292f1864c7afa0ae09398fd428a6e90567d3310446a",
+      "bytes": 13622
+    },
+    {
+      "path": "configs/argoverse/da3_long.yaml",
+      "sha256": "71a25ef57bd06d5a57137a2cdc85be59b5bc8e33a93ad6ee0863dd7eac00ea2a",
+      "bytes": 15660
+    },
+    {
+      "path": "configs/argoverse/default.yaml",
+      "sha256": "75a2375187d3f3d641b5680f1b65f56dbd74e3957e63a110c1c779afa895a849",
+      "bytes": 15274
+    },
+    {
+      "path": "configs/argoverse/dvlt_long.yaml",
+      "sha256": "99f40ac0aa9f98b8c3d7e36f52573e31a1e033ae3608c1febdf9d2ed82739291",
+      "bytes": 15321
+    },
+    {
+      "path": "configs/argoverse/lingbot_map_long.yaml",
+      "sha256": "ee5161c29cdc49b508a3ab7e21c409daaba1d32f6d27bf08b27c63715eec7b49",
+      "bytes": 15994
+    },
+    {
+      "path": "configs/argoverse/pi3_long.yaml",
+      "sha256": "e64bf73b5d7bafb2e2ae9f7087f8f06f990dc83b029aaa8f0ba0dc7fff20593c",
+      "bytes": 15272
+    },
+    {
+      "path": "configs/argoverse/scal3r_long.yaml",
+      "sha256": "921917a9275ea77859324790e20326b1cd7fac7676260944be1913485b7af309",
+      "bytes": 15616
+    },
+    {
+      "path": "configs/argoverse/stream3r_long.yaml",
+      "sha256": "e09483b9d9928a3fc90a5de81bf0e662e3eb86ec2a8b2fa41e7284c970f3561c",
+      "bytes": 15263
+    },
+    {
+      "path": "configs/argoverse/vggt_long.yaml",
+      "sha256": "cea52357bfd8eed111662a651369b3b51636b91bf40a4f5bd57168ce17cf7c68",
+      "bytes": 15360
+    },
+    {
+      "path": "configs/argoverse/vggt_omega_long.yaml",
+      "sha256": "d94743843fde754c7872a4b1188089b504fab9ab473418a7287592fdc5404572",
+      "bytes": 15867
+    },
+    {
+      "path": "configs/cear/4rc_long.yaml",
+      "sha256": "7258243212f45a9e1115a4941738a7a5921ed0755c6e2d8dabb715b8eab01a2d",
+      "bytes": 15508
+    },
+    {
+      "path": "configs/cear/da3_long.yaml",
+      "sha256": "da17a8f2431c17309ebd1b571b687cb37510bbd99ebf59aaf7d260fa9bab5622",
+      "bytes": 15368
+    },
+    {
+      "path": "configs/cear/default.yaml",
+      "sha256": "2299ef84c33faee71597ca1165eb6947dbbdfdeaff6d92e50101ba9cf18fc242",
+      "bytes": 13730
+    },
+    {
+      "path": "configs/cear/dvlt_long.yaml",
+      "sha256": "549a0f8652ab9c520c2ab48df4141fe0187315ac21ad5911f2a44ce79e1188db",
+      "bytes": 15490
+    },
+    {
+      "path": "configs/cear/lingbot_map_long.yaml",
+      "sha256": "d934adad91d025929fa9db67ffa2960d2859171de66096a2197bd14177df81e6",
+      "bytes": 16261
+    },
+    {
+      "path": "configs/cear/pi3_long.yaml",
+      "sha256": "a20ae28d91c2a75d93ed60f4c9ffee6ca1ece86cfd7aca6669268a8f61bc6dc5",
+      "bytes": 15106
+    },
+    {
+      "path": "configs/cear/scal3r_long.yaml",
+      "sha256": "647ae54fb217d8fcb9e3717c58edcb3b243aa810e4571667f77b87428972ee0a",
+      "bytes": 16030
+    },
+    {
+      "path": "configs/cear/stream3r_long.yaml",
+      "sha256": "2827cdf7ea50e238ab93ae93c9c88a937701c5e250d3458eb0fb7869118bec06",
+      "bytes": 15789
+    },
+    {
+      "path": "configs/cear/vggt_long.yaml",
+      "sha256": "0171425e3f82a642a7813f59933fda934d71d7b3f79f69ef1c7957e60c8efe0b",
+      "bytes": 15396
+    },
+    {
+      "path": "configs/cear/vggt_omega_long.yaml",
+      "sha256": "5b4013d08f1d5b7002c33b1178a15461a7fcf1cac7087385febf3ab1a19af7a6",
+      "bytes": 15912
+    },
+    {
+      "path": "configs/dair_v2x_i/4rc_long.yaml",
+      "sha256": "0c1a6d2b90a957dc64a59366f76e4ccdea622eeb62f34b92a2262715502bfc13",
+      "bytes": 14021
+    },
+    {
+      "path": "configs/dair_v2x_i/da3_long.yaml",
+      "sha256": "f6895c8f64022706b0c467e3abd01bb0d7ad65c5421d56680f0310f096b57942",
+      "bytes": 15467
+    },
+    {
+      "path": "configs/dair_v2x_i/default.yaml",
+      "sha256": "9a5477726258914e1814ee8647badd3df85933793a7e6b083a72aa4737bb59ad",
+      "bytes": 13635
+    },
+    {
+      "path": "configs/dair_v2x_i/dvlt_long.yaml",
+      "sha256": "dcc4e6053ccd43f74309efebc3c58a5d1f24f41581d71a15aeb6f01d9361839e",
+      "bytes": 15478
+    },
+    {
+      "path": "configs/dair_v2x_i/lingbot_map_long.yaml",
+      "sha256": "5b0636b5a5c6e6dab966e668d73359702c31243bcd21f989fb3c0e76efbb8be7",
+      "bytes": 16051
+    },
+    {
+      "path": "configs/dair_v2x_i/pi3_long.yaml",
+      "sha256": "38fbe81a5fa0d3b641e0251399b234bef3351c8289be0010d966045d8e05d657",
+      "bytes": 15315
+    },
+    {
+      "path": "configs/dair_v2x_i/scal3r_long.yaml",
+      "sha256": "e5fca81714da59fe4901d4c5b5ed1fba0606ee5eaa25251dae27e53badaece3e",
+      "bytes": 15602
+    },
+    {
+      "path": "configs/dair_v2x_i/stream3r_long.yaml",
+      "sha256": "728b95fc12d12f4ad412c22d75406ed736f1d97ce4e6ee41334a75a2990c85e7",
+      "bytes": 15322
+    },
+    {
+      "path": "configs/dair_v2x_i/vggt_long.yaml",
+      "sha256": "3706bb4d3b2a8acb14af8252a0b39adb13ba45a2a3277d259f7015d4a945327b",
+      "bytes": 15401
+    },
+    {
+      "path": "configs/dair_v2x_i/vggt_omega_long.yaml",
+      "sha256": "20f211eefbf5fcf7bd9386243d942841c2b2f01be69d5e0b0eca0235ca727211",
+      "bytes": 15701
+    },
+    {
+      "path": "configs/default.yaml",
+      "sha256": "c54b903943b9ce17e794e830aa26e0fdabbaa0a915e531db1b41a2a6a6888f64",
+      "bytes": 13565
+    },
+    {
+      "path": "configs/droid/4rc_long.yaml",
+      "sha256": "a19bb2caf05723565e319be4e13d08cc3ce71a1724f966aaffc0c40b6a6857fd",
+      "bytes": 14363
+    },
+    {
+      "path": "configs/droid/da3_long.yaml",
+      "sha256": "49bbf11842478d1f6636c0fa65c0dcc7bc42f4a2d8eb1be30479a970c10f1576",
+      "bytes": 14133
+    },
+    {
+      "path": "configs/droid/default.yaml",
+      "sha256": "8ffe256f1bfdcc330e802621ac899a94eae6b78fdc17fe4ecf16ac4043a670f6",
+      "bytes": 13725
+    },
+    {
+      "path": "configs/droid/dvlt_long.yaml",
+      "sha256": "4facfb4f1cd88e74a4cc2438e3ff713030a14b50cf454dd171e645734341b5fb",
+      "bytes": 14254
+    },
+    {
+      "path": "configs/droid/lingbot_map_long.yaml",
+      "sha256": "fead80bffcec7ddee4ee2fff97b99a735cd86695385cacb274c733d04230be6e",
+      "bytes": 15008
+    },
+    {
+      "path": "configs/droid/pi3_long.yaml",
+      "sha256": "7a9fe19a563bc7c304d7fa954e58480b24c96dc8e4d3cdc505240fa7e39f3151",
+      "bytes": 14052
+    },
+    {
+      "path": "configs/droid/scal3r_long.yaml",
+      "sha256": "da0bacfe18ff2dd6de3907c88aaa22ee9e5a7d72f3b36aeb932683638e47b026",
+      "bytes": 14413
+    },
+    {
+      "path": "configs/droid/stream3r_long.yaml",
+      "sha256": "9442712f804d8d1bf35f60e5f091c45378d7e894febf95c78f0217d9e450b8dc",
+      "bytes": 14335
+    },
+    {
+      "path": "configs/droid/vggt_long.yaml",
+      "sha256": "281d530441b918f0522d06128cab1901953847820711d091f44d75e923f9c215",
+      "bytes": 14159
+    },
+    {
+      "path": "configs/droid/vggt_omega_long.yaml",
+      "sha256": "f27808caf6b58ef73ae918b458138a93867d6ccee1189035900a531737779e73",
+      "bytes": 14756
+    },
+    {
+      "path": "configs/fusionportable/4rc_long.yaml",
+      "sha256": "117928d02dbac5570536f5b195c152d2407f26030f715ca2fb8541491e9f5709",
+      "bytes": 14516
+    },
+    {
+      "path": "configs/fusionportable/da3_long.yaml",
+      "sha256": "74fa8e54e82d682b7464d95ac179bca4af9201da75a55944d6e62f89fe6f702c",
+      "bytes": 14657
+    },
+    {
+      "path": "configs/fusionportable/default.yaml",
+      "sha256": "c847c08e85eebfc4bc565762da39b1db917710de33cd843e135622e9c29e02cb",
+      "bytes": 13743
+    },
+    {
+      "path": "configs/fusionportable/dvlt_long.yaml",
+      "sha256": "78fbff605aa01473ae61fb035e90c1c464c44bbbd6443a02186cb5cec914fecc",
+      "bytes": 14580
+    },
+    {
+      "path": "configs/fusionportable/lingbot_map_long.yaml",
+      "sha256": "55a5451d7f6934cfeadb0b4414688c5916c1646ba5e26419c90c3bdf4a35ae70",
+      "bytes": 15232
+    },
+    {
+      "path": "configs/fusionportable/pi3_long.yaml",
+      "sha256": "fb1b8385912f7d022b226e9bc6d8d5bac61316a4529559ec8acbdd335cf55ba4",
+      "bytes": 14216
+    },
+    {
+      "path": "configs/fusionportable/scal3r_long.yaml",
+      "sha256": "5b121193ca0d54b421f05339dc5070bf87b31bd13aa0f1b7663fa57d37bfcd0d",
+      "bytes": 14937
+    },
+    {
+      "path": "configs/fusionportable/stream3r_long.yaml",
+      "sha256": "d0e07a901e0c5f6eb6cd9698e4f356042386098278aa39c2eb851ad2f6572bd9",
+      "bytes": 15280
+    },
+    {
+      "path": "configs/fusionportable/vggt_long.yaml",
+      "sha256": "140e220f402c7a58650d508b0d89b380ffa736b1bed017a750ad67f767150921",
+      "bytes": 14405
+    },
+    {
+      "path": "configs/fusionportable/vggt_omega_long.yaml",
+      "sha256": "3350c516e582d573dc32799a4a75d39934438883255e35524b5f7383e8c90a34",
+      "bytes": 14901
+    },
+    {
+      "path": "configs/humanoid_everyday/4rc_long.yaml",
+      "sha256": "732fac58cce71ad5f2992895017b3e3d068d234721d8ea8cade6cfe9c2f4956c",
+      "bytes": 18088
+    },
+    {
+      "path": "configs/humanoid_everyday/da3_long.yaml",
+      "sha256": "92d8fdb9942402e991d9b0f8db2427a021ecb8b2e171a74051efe1d6f9eea5e6",
+      "bytes": 17919
+    },
+    {
+      "path": "configs/humanoid_everyday/default.yaml",
+      "sha256": "c272dd286036492c636113be787ac1356b7844a984e6777d9eae1b5099fdbf3e",
+      "bytes": 17375
+    },
+    {
+      "path": "configs/humanoid_everyday/dvlt_long.yaml",
+      "sha256": "0588abd7e0e205c98f6065befe1d5693af172ad9b51fc9fd25f63b7470db91c1",
+      "bytes": 18073
+    },
+    {
+      "path": "configs/humanoid_everyday/lingbot_map_long.yaml",
+      "sha256": "a464b787f7dd84e4cedea20578ca7a43106f91f84f5f4c52bdc3ca1907be4e8f",
+      "bytes": 18098
+    },
+    {
+      "path": "configs/humanoid_everyday/pi3_long.yaml",
+      "sha256": "f4b1a158c453b9515cdac6a61256ea8049b8a91707cd73f0ff0a08d0f4ee3124",
+      "bytes": 17945
+    },
+    {
+      "path": "configs/humanoid_everyday/scal3r_long.yaml",
+      "sha256": "889f6c2c4969549a98c0dd6a3b5c1f940498ed7505b1bfb54d1249e97f36accd",
+      "bytes": 18749
+    },
+    {
+      "path": "configs/humanoid_everyday/stream3r_long.yaml",
+      "sha256": "53a9ecc2e38ae2068548f6a62f91e75cf99aa959fcafae067f3e4a5f5e2493a0",
+      "bytes": 18081
+    },
+    {
+      "path": "configs/humanoid_everyday/vggt_long.yaml",
+      "sha256": "404a5825a43b3559ba22913fc65eb5ca14b5d8e8ef32492581c5ded61c306910",
+      "bytes": 17947
+    },
+    {
+      "path": "configs/humanoid_everyday/vggt_omega_long.yaml",
+      "sha256": "91a7ad208ff0571dd22a831db970f136f5236a1755d86d82e8e3d1948cf726a9",
+      "bytes": 18786
+    },
+    {
+      "path": "configs/jrdb/4rc_long.yaml",
+      "sha256": "9fee6d30e5e1fd4b61ffef204d0fb9af7dd8a0c0efc1f97e119aa167901a0ec6",
+      "bytes": 15843
+    },
+    {
+      "path": "configs/jrdb/da3_long.yaml",
+      "sha256": "dbb0648eaca17c0dc2f93cfa4db1ff0da4327a2772dcc6314ccff1aaaa422df3",
+      "bytes": 14951
+    },
+    {
+      "path": "configs/jrdb/default.yaml",
+      "sha256": "9dabeacb572639ae22814d979bf7196eb572a21ad365daddfa1c7239a37b1c3b",
+      "bytes": 13872
+    },
+    {
+      "path": "configs/jrdb/dvlt_long.yaml",
+      "sha256": "192282712570e48043c86d7abdd7a001bb746dc14de0c9145a2c42ebc55ecd48",
+      "bytes": 15077
+    },
+    {
+      "path": "configs/jrdb/lingbot_map_long.yaml",
+      "sha256": "9db6d13282bd4943f8d1ca93e52b2181dbd89a6be5df31e22f5c557499a88076",
+      "bytes": 15825
+    },
+    {
+      "path": "configs/jrdb/pi3_long.yaml",
+      "sha256": "2133c35888b7a786368856f3133711d9b6130bc6589565594e2816ab0870fc53",
+      "bytes": 15468
+    },
+    {
+      "path": "configs/jrdb/scal3r_long.yaml",
+      "sha256": "39dd2517e1c2af537decfbae83ba8fa29cd6f470fcf08cb5ebee0f364ba53118",
+      "bytes": 15829
+    },
+    {
+      "path": "configs/jrdb/stream3r_long.yaml",
+      "sha256": "d2a4dfd2127652a4e501b226db32e52ea8be009e681c2023a3e4a0b2b1bb8663",
+      "bytes": 15185
+    },
+    {
+      "path": "configs/jrdb/vggt_long.yaml",
+      "sha256": "a48c575211600779a689c341fad5d42382bb1572b68eb8d42b45aa63b2eb111e",
+      "bytes": 14974
+    },
+    {
+      "path": "configs/jrdb/vggt_omega_long.yaml",
+      "sha256": "1cb077eb6108b1243d1b6406220211a7614b13a3673ff44d94615391b0826296",
+      "bytes": 15518
+    },
+    {
+      "path": "configs/kitti/4rc_long.yaml",
+      "sha256": "4564df86c5286088027eca9b6bb2834f45f12e80308c80fca227d6140cd7e3e7",
+      "bytes": 10639
+    },
+    {
+      "path": "configs/kitti/da3_long.yaml",
+      "sha256": "0354588a4d537b4c86456b61bc7e05a287015df40f1b6c49ee1431b9cb721c7a",
+      "bytes": 15735
+    },
+    {
+      "path": "configs/kitti/default.yaml",
+      "sha256": "63cddcbd902cabf4d35f990bbcbc49f75360407ab1a3866982de342c6badfbcf",
+      "bytes": 15310
+    },
+    {
+      "path": "configs/kitti/dvlt_long.yaml",
+      "sha256": "8d754aebe8904fc310c2ba97d9e85c1cfb41f1eeda42d230d5d76f1e9ad6cbde",
+      "bytes": 10841
+    },
+    {
+      "path": "configs/kitti/lingbot_map_long.yaml",
+      "sha256": "8b75068da7e491199dff68dc64c30b45c0ffa95a3d988fe1fcc08c12172e109c",
+      "bytes": 11501
+    },
+    {
+      "path": "configs/kitti/pi3_long.yaml",
+      "sha256": "00c4c11e00d88c04d385fe1ad578866763f4e137310ddbcc3d8863da4cc2ca1b",
+      "bytes": 11350
+    },
+    {
+      "path": "configs/kitti/scal3r_long.yaml",
+      "sha256": "58eda56f57137f80f349d37deb87271c3518916dd951b30172b1313aca48d3b7",
+      "bytes": 15861
+    },
+    {
+      "path": "configs/kitti/scale_profile_reference/4rc_full8_weighted.json",
+      "sha256": "b61e39db8bae981a18f2ebaf2f576a01abe700eea689b0ddbcee15851f10a6be",
+      "bytes": 1438463
+    },
+    {
+      "path": "configs/kitti/scale_profile_reference/pi3_full8_weighted.json",
+      "sha256": "7bdc6457cd080252147c9c9e84e04220427b71f174e1715f1d84bd28b9d5e658",
+      "bytes": 1442373
+    },
+    {
+      "path": "configs/kitti/scale_profile_reference/scal3r_full8_weighted.json",
+      "sha256": "016adf149fbdc7039498586a12b80cc1a8777f65e5a8196c725987b6acad00fd",
+      "bytes": 1438716
+    },
+    {
+      "path": "configs/kitti/stream3r_long.yaml",
+      "sha256": "99ad4a2e60d913262e0b93aa42cfcfec92ead8c27316a61b2e2087a05b294bb9",
+      "bytes": 15711
+    },
+    {
+      "path": "configs/kitti/vggt_long.yaml",
+      "sha256": "d2bcbd22518cf525eac3f59161b9333e7bbdec87487dc5a384eaf401d7b4435c",
+      "bytes": 15766
+    },
+    {
+      "path": "configs/kitti/vggt_omega_long.yaml",
+      "sha256": "f44ae9eee62a22f028e3336a6aa74b4de65310e6edc0ffb331864f74685bb0de",
+      "bytes": 16068
+    },
+    {
+      "path": "configs/nuscenes/4rc_long.yaml",
+      "sha256": "19ff74605af9e7e273edef274acb890de118bb082095431e30986b71b1420557",
+      "bytes": 14727
+    },
+    {
+      "path": "configs/nuscenes/da3_long.yaml",
+      "sha256": "16b51a1f408d8a6b5a7f257825336e454279bf42be93b8bb523e666d2e5d89ff",
+      "bytes": 16006
+    },
+    {
+      "path": "configs/nuscenes/default.yaml",
+      "sha256": "1f8b894ae60fab92999aa13367dce6a649a19a5659bb969f2799c70c422fa983",
+      "bytes": 15272
+    },
+    {
+      "path": "configs/nuscenes/dvlt_long.yaml",
+      "sha256": "5b0284d5fd72f98ba9f149636dc5509beb893d5bc94d71aa6ed72b4423de0322",
+      "bytes": 15970
+    },
+    {
+      "path": "configs/nuscenes/lingbot_map_long.yaml",
+      "sha256": "d89912766091749603cc334ab28c9b6b9f3dc43623f7fcdebcbab00f427c220b",
+      "bytes": 16655
+    },
+    {
+      "path": "configs/nuscenes/pi3_long.yaml",
+      "sha256": "3fc0eaafddf3f7bbf7215c9f70dcd9900013b22a2faf3ac68e09a29051890ab0",
+      "bytes": 15960
+    },
+    {
+      "path": "configs/nuscenes/scal3r_long.yaml",
+      "sha256": "649bc5e002927962c50946320471a2b12d4869b6e9a776aeec3f15b83340a50e",
+      "bytes": 16188
+    },
+    {
+      "path": "configs/nuscenes/stream3r_long.yaml",
+      "sha256": "3d42092045736f1841e76306c1d01e76ddf88935d4764b328d968cf7392a1c76",
+      "bytes": 15859
+    },
+    {
+      "path": "configs/nuscenes/vggt_long.yaml",
+      "sha256": "316b43a74564842a139492cbeb9e3f4a297548e3b9f6550f5256cbb2dee8c798",
+      "bytes": 16042
+    },
+    {
+      "path": "configs/nuscenes/vggt_omega_long.yaml",
+      "sha256": "c4a3f0490b87709eae973fb5dabcc6cd3028df52711ae2bc22ba4191521e4184",
+      "bytes": 16202
+    },
+    {
+      "path": "configs/v2x_radar_i/4rc_long.yaml",
+      "sha256": "67234fcaf0b7e9a28bed3339835d67709281d307ac3bdc441f954f582462bfb7",
+      "bytes": 13418
+    },
+    {
+      "path": "configs/v2x_radar_i/da3_long.yaml",
+      "sha256": "0d92dd8e7802562ffb35c4556bf9d38bacbf3d6be93672f3fff99a3a5fc716c7",
+      "bytes": 15386
+    },
+    {
+      "path": "configs/v2x_radar_i/default.yaml",
+      "sha256": "746cb659f3f754bc2c6282c93146a595693b7aabf16bafbb5e39853b9304a9e9",
+      "bytes": 15236
+    },
+    {
+      "path": "configs/v2x_radar_i/dvlt_long.yaml",
+      "sha256": "b87fd02ad79f095ef2731c2f5fd63da9c2213052a553f5b30ce6cde0e9526d05",
+      "bytes": 15770
+    },
+    {
+      "path": "configs/v2x_radar_i/lingbot_map_long.yaml",
+      "sha256": "3692274db6b5b76692bd668f2ca202b9aa1b0da45696913e40e3e104d0d08dab",
+      "bytes": 15984
+    },
+    {
+      "path": "configs/v2x_radar_i/pi3_long.yaml",
+      "sha256": "dda33ab4ce554f37b3a759de0022f33cdbf7dd230dc2cc611577b65364d4587b",
+      "bytes": 15128
+    },
+    {
+      "path": "configs/v2x_radar_i/scal3r_long.yaml",
+      "sha256": "07974da7f7d0ffbd3dbb5bcc273ce9d58614a64fc2c50dc1863780e6ac93d2e1",
+      "bytes": 15795
+    },
+    {
+      "path": "configs/v2x_radar_i/stream3r_long.yaml",
+      "sha256": "b6f5ac7182b0346472b73f021bae819b315b2d79a9b958d43adac7e5563510e9",
+      "bytes": 15118
+    },
+    {
+      "path": "configs/v2x_radar_i/vggt_long.yaml",
+      "sha256": "81549781b2cbf3a9bfe6af3cd03bbe2a1185646bd60933eda5b6556581a40040",
+      "bytes": 15357
+    },
+    {
+      "path": "configs/v2x_radar_i/vggt_omega_long.yaml",
+      "sha256": "cbcf0f4fc8dd209f9479f692f8817d6ef8f6db8cbd5e0f2603d62c07a05985e5",
+      "bytes": 15654
+    },
+    {
+      "path": "configs/waymo/4rc_long.yaml",
+      "sha256": "1f942a9c3f21097d49b140eb292545231d4751932520eabac3bdb6cecf283110",
+      "bytes": 14080
+    },
+    {
+      "path": "configs/waymo/da3_long.yaml",
+      "sha256": "47de9dd4bee1dcb5bed46872f10f3ce5fd25e974c1272b1c2706c9bb492e6197",
+      "bytes": 15975
+    },
+    {
+      "path": "configs/waymo/default.yaml",
+      "sha256": "6eabd49e2b359d10d675d8b16eb85408529f88582a5643dbf03ef9bf1399edcd",
+      "bytes": 15310
+    },
+    {
+      "path": "configs/waymo/dvlt_long.yaml",
+      "sha256": "ebf9b30451bf6c1a750000ee4d6c93d386834c0ba9ab0431a97386891470ee9a",
+      "bytes": 15855
+    },
+    {
+      "path": "configs/waymo/lingbot_map_long.yaml",
+      "sha256": "7da4e6d6c6efbea38d6c1496eb018ad493b6dcafd46d14268177db21631c28a7",
+      "bytes": 16458
+    },
+    {
+      "path": "configs/waymo/pi3_long.yaml",
+      "sha256": "1ad637a8def27aa97b41ff068cd6bc171ff64507dfa60e81ab099771aeb4e8c5",
+      "bytes": 15718
+    },
+    {
+      "path": "configs/waymo/scal3r_long.yaml",
+      "sha256": "9a612434239551dee2664b006b39bd28c024bcf0f89d080dbfa2b65d26ac70cd",
+      "bytes": 16007
+    },
+    {
+      "path": "configs/waymo/stream3r_long.yaml",
+      "sha256": "f5d3b52ca9859c630967132ee2b959204bf63511cce963acbbc8d704699f74ca",
+      "bytes": 15716
+    },
+    {
+      "path": "configs/waymo/vggt_long.yaml",
+      "sha256": "68f441bb5156aefaa986b42af72ca5af8fe400943cd687916ecd643092c04705",
+      "bytes": 15945
+    },
+    {
+      "path": "configs/waymo/vggt_omega_long.yaml",
+      "sha256": "e4e37cd39e503931db59f06e9bf80ce2781d985874d395d9f26bcc27756ec52b",
+      "bytes": 16109
+    },
+    {
+      "path": "dataset_tools/cleanup_depth_outputs.py",
+      "sha256": "ee5a0d9c41c3ffb4460e6e84b1fbef6dbeac4f2501717628eae62ae94e069e84",
+      "bytes": 8754
+    },
+    {
+      "path": "dataset_tools/download_script.py",
+      "sha256": "cb750ead8cd1be48d2497084af963268ff92bc6c3705e69008d0f3e8922b5384",
+      "bytes": 9237
+    },
+    {
+      "path": "dataset_tools/filter_dataset_summary_by_d1.py",
+      "sha256": "36fa0ba66c45bb47622af86aef83e06c9c01b14e06b60d506e20adb4b417d8f9",
+      "bytes": 31418
+    },
+    {
+      "path": "dataset_tools/get_camera_ego.py",
+      "sha256": "f6a872e0972c9dc396428150e92f00b0cc9ecb76fc0a9c8502246b1c8ca57e8e",
+      "bytes": 37778
+    },
+    {
+      "path": "dataset_tools/nuscenes_converter.py",
+      "sha256": "9fbe763fb5a45b37de3ada75a5f13c5f514867fdbbd9db352d5c833525509941",
+      "bytes": 27065
+    },
+    {
+      "path": "dataset_tools/prepare_kitti_raw_dataset.py",
+      "sha256": "587c5c71d67149aa05b66cb25aaa7a274a379dd17634c41adfeec4280594d813",
+      "bytes": 22498
+    },
+    {
+      "path": "dataset_tools/prepare_nuscenes_dataset.py",
+      "sha256": "707f52621b9310d8ab04b3b92c3739188be93e9533c0dd618a9563e28b017e94",
+      "bytes": 11028
+    },
+    {
+      "path": "dataset_tools/prepare_nuscenes_dataset_v1.py",
+      "sha256": "95b4b785c01fc3b79b2a89c18b6112dfbcf65b0e3e9b94e75178d11ab58261df",
+      "bytes": 20676
+    },
+    {
+      "path": "dataset_tools/recompute_model_summary_filtered.py",
+      "sha256": "b057742b8441814d4abdd8dfb7e91e07b92fb1a29721842a2e3eea80e083780a",
+      "bytes": 19436
+    },
+    {
+      "path": "dataset_tools/remove_sequence_outliers.py",
+      "sha256": "ccc6a99cb06f12a08a8fbd4114b61c161eeb641df21932f8bf82426f5f45550c",
+      "bytes": 6728
+    },
+    {
+      "path": "dataset_tools/varify_dataset.py",
+      "sha256": "b25667a21a1316269c5eb4a425049feea1c1e706568c62ca717f7d4fe2b4ac95",
+      "bytes": 36310
+    },
+    {
+      "path": "dataset_tools/visualize_humanoid_depth_projection.py",
+      "sha256": "430f238e773fafe0072082f207f0b3386eed708e4127f10852943c89f69019f9",
+      "bytes": 21384
+    },
+    {
+      "path": "dataset_tools/visualize_sparse_reconstruction_bev.py",
+      "sha256": "77a42d186eb245519c5d8bcb73e0d0f0e514dbb8d4ada7594b3cb51f0a9108f2",
+      "bytes": 33981
+    },
+    {
+      "path": "docs/config-matrix.md",
+      "sha256": "ea9aff2ec6de684817168f91172e410a19c3563156c69cff148b539da362bacf",
+      "bytes": 2577
+    },
+    {
+      "path": "docs/evaluation.md",
+      "sha256": "770372fa2b7a6c1351e50c4dfb89a854513697148c398a887fb1ba8ef8877f5e",
+      "bytes": 4000
+    },
+    {
+      "path": "docs/runbook.md",
+      "sha256": "ee6fca08b05a75211a3c10407b962b5293c538d290f8072a092aadb2866a3f98",
+      "bytes": 2109
+    },
+    {
+      "path": "docs/semantic-scale.md",
+      "sha256": "97df98372d62610dfe905d2528a5685e863743b32b977e0a2670db7b83f339ff",
+      "bytes": 3956
+    },
+    {
+      "path": "get_metric_scale.py",
+      "sha256": "31d35c6ee2d0e26e0962294d1abb509f64cc07750637f4374772fc20d08e638b",
+      "bytes": 11723
+    },
+    {
+      "path": "LICENSING.md",
+      "sha256": "21aa9bbd518f102adc8f39a14d8a0a1f53e07f69bc1938137eddb55d82802511",
+      "bytes": 1935
+    },
+    {
+      "path": "metric_scale/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "metric_scale/config/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "metric_scale/config/config.py",
+      "sha256": "7ef08eb7d70787ffbbca33cd211ae5df14671ca964f6631d8e01fbf9c028f415",
+      "bytes": 121111
+    },
+    {
+      "path": "metric_scale/config/path_config.py",
+      "sha256": "85e602339511d82d0c907323349963a516be710d029d25fd44bb860dc2128c14",
+      "bytes": 4411
+    },
+    {
+      "path": "metric_scale/metrics/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "metric_scale/metrics/metrics.py",
+      "sha256": "e215c82c823ebbe08366be8993088977d121d024d29588a200634d603f06c3c5",
+      "bytes": 148762
+    },
+    {
+      "path": "metric_scale/models/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "metric_scale/models/da3_long_depth_estimator.py",
+      "sha256": "9647125b44aaba68e6953749855b82530fb644b9b7d32a574e8369fd638bc59f",
+      "bytes": 29710
+    },
+    {
+      "path": "metric_scale/models/dvlt_long_depth_estimator.py",
+      "sha256": "51db3e7cfda9d32f6a55c340b218d28f5416263553c1e9627b18109c4061d3dc",
+      "bytes": 27998
+    },
+    {
+      "path": "metric_scale/models/fourrc_long_depth_estimator.py",
+      "sha256": "7d775922edc7e9a47ce9a63b9e541f481819513f123b607b333cc11531210a4a",
+      "bytes": 27136
+    },
+    {
+      "path": "metric_scale/models/lingbot_map_long_depth_estimator.py",
+      "sha256": "b62863cc048b4f414a310a4244a3e4402f75deb31162e7efcf0ae92f3b66353a",
+      "bytes": 27839
+    },
+    {
+      "path": "metric_scale/models/mllm_agent.py",
+      "sha256": "10f119ce9e2e554ed9c37e39b6af4306a7c1f5b04ee0297f2e48e9a82f27f925",
+      "bytes": 26690
+    },
+    {
+      "path": "metric_scale/models/models.py",
+      "sha256": "74a8a46afa998b3a7efc8df93d36e798817901844bf4cc7280ac9a2963de6035",
+      "bytes": 19738
+    },
+    {
+      "path": "metric_scale/models/output_metadata.py",
+      "sha256": "967dc12dda10ec8d81bee644056812cb274e7848bc35879518e891fc3d4adffc",
+      "bytes": 2399
+    },
+    {
+      "path": "metric_scale/models/pi3x_long_depth_estimator.py",
+      "sha256": "a28d922dff4c7747eccf7e6824a5f0cb0f38c0b4121aa271389f502cbd481b74",
+      "bytes": 26224
+    },
+    {
+      "path": "metric_scale/models/sam2_tracker.py",
+      "sha256": "0a6ae111a968db4dd7a2bb83b3bfc8c61b639b2b276addb43fc9b598771be456",
+      "bytes": 6367
+    },
+    {
+      "path": "metric_scale/models/scal3r_long_depth_estimator.py",
+      "sha256": "69a7e7746c565f2dcdddb82f4975ffab61095e1fa12cd4395434b5918dd664e9",
+      "bytes": 22654
+    },
+    {
+      "path": "metric_scale/models/semantic_scale_estimator.py",
+      "sha256": "e05e5d0c6ca8217ad9554d54b702ade6a3c15ea70d4d432c0ee5c5fc24e64427",
+      "bytes": 112742
+    },
+    {
+      "path": "metric_scale/models/stream3r_long_depth_estimator.py",
+      "sha256": "ee89cc7bb1c73f254abb0a506d531719bbf8044b6a60dd8ade226e9423aa6a5c",
+      "bytes": 32176
+    },
+    {
+      "path": "metric_scale/models/vggt_long_depth_estimator.py",
+      "sha256": "8970078e1e41e51242364c4c105babb0d435fbc0ad4461c4d9e142c787deaa86",
+      "bytes": 28556
+    },
+    {
+      "path": "metric_scale/models/vggt_omega_long_depth_estimator.py",
+      "sha256": "84d035874dfed36210fbc845472aa5da79a954ae95b3b1d6d23bd19d4a737737",
+      "bytes": 30963
+    },
+    {
+      "path": "metric_scale/models/vlm_scale_estimator.py",
+      "sha256": "323849b65e6537f00237b29979a88e92a6eb89e4c3986fc7c7e1a8118bc86dde",
+      "bytes": 12198
+    },
+    {
+      "path": "metric_scale/models/vlm_semantic_scale_anchor.py",
+      "sha256": "3ee62f33a2e1972a2bc26071f1cd8c5e0639b29e4b5aec0ee5ad07f196b89d4a",
+      "bytes": 48236
+    },
+    {
+      "path": "metric_scale/processing/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "metric_scale/processing/cuda_isolated_worker.py",
+      "sha256": "a65b7204c73c5e2246f8b03c817cb5fb0b1fe0c515990bbcdf356a2ea7b62dd0",
+      "bytes": 2152
+    },
+    {
+      "path": "metric_scale/processing/frame_loader.py",
+      "sha256": "374849cdaa797809e0221bd40bcadcfb286e7fc3b28a92a8d806a2f13836ac21",
+      "bytes": 19423
+    },
+    {
+      "path": "metric_scale/processing/processing.py",
+      "sha256": "492f2bbcd6328e94b886668792b240eaf97107620372d9885d96019b61fe492d",
+      "bytes": 128756
+    },
+    {
+      "path": "metric_scale/processing/varify_dataset.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "metric_scale/prompts/3eed_dataset.py",
+      "sha256": "72d2f760bc4361959da57856a5b33b80a868afeaa18b20fbbca5af08d361550a",
+      "bytes": 6468
+    },
+    {
+      "path": "metric_scale/prompts/__init__.py",
+      "sha256": "f0b32b9415713b861b8ea5785f4e2eb4b0bd977ad21dd78899b91a903a2e2e3f",
+      "bytes": 44
+    },
+    {
+      "path": "metric_scale/prompts/argoverse.py",
+      "sha256": "24944ec7cfdf8532f31b2d2b5350d305e216b98b0907c413fe209bd17749e47a",
+      "bytes": 965
+    },
+    {
+      "path": "metric_scale/prompts/cear.py",
+      "sha256": "a0c9f679789b3e9efdca8e2200ae8d23343f6312e61585f6481bab126f358fc0",
+      "bytes": 23687
+    },
+    {
+      "path": "metric_scale/prompts/dair_v2x_i.py",
+      "sha256": "c5aba8019ed90ad8bdae7c1bfacc1f0db7cdb928ec9ec77530388272c52d56a0",
+      "bytes": 20262
+    },
+    {
+      "path": "metric_scale/prompts/default.py",
+      "sha256": "88dce8eacb1e48497db44280debcdd3d2f68e3da2930191697fa2877957f6ab5",
+      "bytes": 8327
+    },
+    {
+      "path": "metric_scale/prompts/droid.py",
+      "sha256": "5227b8fdd962e7de4acc3648c52b25fc43d3fa72de90e91e3015c2b31fd5d6cb",
+      "bytes": 60455
+    },
+    {
+      "path": "metric_scale/prompts/fusionportable.py",
+      "sha256": "1ed19525a4a74ad6deec50f045ad7c6a2f78e68b9f38e978781496387cd36bf3",
+      "bytes": 12799
+    },
+    {
+      "path": "metric_scale/prompts/humanoid_everyday.py",
+      "sha256": "ba2b7fa362082880569d9f11b84651005b91c819e3cf383a50368ad1a43ad0f1",
+      "bytes": 91136
+    },
+    {
+      "path": "metric_scale/prompts/jrdb.py",
+      "sha256": "8b46b04f91abb1c5d908939682f94dc8f3a6511ddea022fd99db50945eeef91c",
+      "bytes": 30017
+    },
+    {
+      "path": "metric_scale/prompts/kitti.py",
+      "sha256": "216b19d9817141d5aaba4fc0fbb515a5706a736fad12447618223ec7951a2072",
+      "bytes": 19888
+    },
+    {
+      "path": "metric_scale/prompts/nuscenes.py",
+      "sha256": "90afc769cf8c7f40d6fcc2bc4d9a2694cf6c79cabbd29fad6bba7cd8d53b8d7e",
+      "bytes": 19891
+    },
+    {
+      "path": "metric_scale/prompts/v2x_radar_i.py",
+      "sha256": "63bf238089915ce8b33d7fdb6c756f8d4fcd0ade7707177d3f01a9c0c37e0607",
+      "bytes": 19900
+    },
+    {
+      "path": "metric_scale/prompts/waymo.py",
+      "sha256": "2316a9b2f3363bd67de4b32fa48799ef1d61005898401c17ba8a7cb1d8ef0c68",
+      "bytes": 19888
+    },
+    {
+      "path": "metric_scale/utils/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "metric_scale/utils/geometry_numpy.py",
+      "sha256": "a3ca5b4a8e763cb5f6d016e6fb3701545a7a822279d054622a976560ced6bfa0",
+      "bytes": 10070
+    },
+    {
+      "path": "metric_scale/utils/geometry_torch.py",
+      "sha256": "8c1e6c4f0cb9d31eaef4b3796b3c3f746bd8827fd26e0f5bce1c4a6342985149",
+      "bytes": 11729
+    },
+    {
+      "path": "metric_scale/utils/utils.py",
+      "sha256": "e14309e3cf2dd3cdb5b2546ddbbffd739462d1dea51f69fda885267d7e41e108",
+      "bytes": 9364
+    },
+    {
+      "path": "metric_scale/visualization/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "metric_scale/visualization/visualization.py",
+      "sha256": "1d00329f48f3d3e02ea3b143595e984b22f7a803dd7fcfdaae15f29d663f8690",
+      "bytes": 8350
+    },
+    {
+      "path": "README.md",
+      "sha256": "6e70457db6750583edc967ffc896165feffb4e68ca4f9e532c622bd2c56fbf75",
+      "bytes": 5062
+    },
+    {
+      "path": "reproducibility/check_setup.py",
+      "sha256": "a5d261b568d26d8ea00d5918024325c70cefa0ee730ea841f334ef0201db3471",
+      "bytes": 5652
+    },
+    {
+      "path": "reproducibility/freeze_external_assets.py",
+      "sha256": "104bf0b75728b0efeb8100414bde94ad81a67e020acc47797c6409e58a737eb8",
+      "bytes": 3227
+    },
+    {
+      "path": "reproducibility/freeze_manifest.py",
+      "sha256": "9470783f4844d47382586ac4a9cc61bb9ef0a4c198f304ff8f78cd57b0193926",
+      "bytes": 2928
+    },
+    {
+      "path": "reproducibility/README.md",
+      "sha256": "f95f3891e0bcea4c56ae4cbcabfb5cb15f39e4325af12f61e4a3b6340e22a040",
+      "bytes": 4672
+    },
+    {
+      "path": "reproducibility/test_active_features.py",
+      "sha256": "bcd1a157f7d36f9ddb4b39533353adc4cdceb8c9583b0585bbb9aa4a33b59fe8",
+      "bytes": 4944
+    },
+    {
+      "path": "reproducibility/test_prompts.py",
+      "sha256": "893d1a89ad322edc01e14f546dcb1c06f9f26ebef53522fe13448fe10f1deff4",
+      "bytes": 1896
+    },
+    {
+      "path": "reproducibility/test_supported_models.py",
+      "sha256": "75f5b0314b8d055d917ac0023108bbf4e131e96309b6fc2628ec565902be9874",
+      "bytes": 2399
+    },
+    {
+      "path": "requirements-base.txt",
+      "sha256": "3447d0083c44cc5610a5db2a912ce8e884b5720498072c08a1ab78e6a44a4a8b",
+      "bytes": 496
+    },
+    {
+      "path": "tests/test_omega_balanced_preprocess.py",
+      "sha256": "e943b96a48c93e4bb5db44c157d897599cb8acb25cdc2acb72cc91c9355a294a",
+      "bytes": 4164
+    },
+    {
+      "path": "tests/test_omega_dataset_intrinsics.py",
+      "sha256": "11c20be2f43c102b009a5a38812b5d96250b522860080a6b78c5d43309b8cb2c",
+      "bytes": 7720
+    },
+    {
+      "path": "vendor/README.md",
+      "sha256": "84757fc0babc76bf00cbd12ce539531f2c3387135e79f4baa035591d6115056d",
+      "bytes": 2262
+    }
+  ]
+}

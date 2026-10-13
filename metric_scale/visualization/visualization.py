@@ -46,14 +46,6 @@ class BEVVisualizer(Visualizer):
                 relative_scale_dir = os.path.join(config.get_path('pi3_output', sequence_name), "relative_scale")
                 absolute_scale_dir = os.path.join(config.get_path('pi3_output', sequence_name), "absolute_scale")
                 visualization_dir = os.path.join(config.get_path('pi3_output', sequence_name), "visualization")
-            elif depth_model == "dust3r_long":
-                relative_scale_dir = config.get_path('dust3r_relative_scale', sequence_name)
-                absolute_scale_dir = config.get_path('dust3r_absolute_scale', sequence_name)
-                visualization_dir = os.path.join(config.get_path('dust3r_output', sequence_name), "visualization")
-            elif depth_model == "must3r_long":
-                relative_scale_dir = config.get_path('must3r_relative_scale', sequence_name)
-                absolute_scale_dir = config.get_path('must3r_absolute_scale', sequence_name)
-                visualization_dir = os.path.join(config.get_path('must3r_output', sequence_name), "visualization")
             elif depth_model == "scal3r_long":
                 relative_scale_dir = config.get_path('scal3r_relative_scale', sequence_name)
                 absolute_scale_dir = config.get_path('scal3r_absolute_scale', sequence_name)
@@ -74,10 +66,6 @@ class BEVVisualizer(Visualizer):
                 relative_scale_dir = config.get_path('vggt_relative_scale', sequence_name)
                 absolute_scale_dir = config.get_path('vggt_absolute_scale', sequence_name)
                 visualization_dir = os.path.join(config.get_path('vggt_output', sequence_name), "visualization")
-            elif depth_model == "moge":
-                relative_scale_dir = os.path.join(os.path.dirname(config.get_path('da3_output', sequence_name)), "moge_output", "relative_scale")
-                absolute_scale_dir = os.path.join(os.path.dirname(config.get_path('da3_output', sequence_name)), "moge_output", "absolute_scale")
-                visualization_dir = os.path.join(os.path.dirname(config.get_path('da3_output', sequence_name)), "moge_output", "visualization")
             elif depth_model == "da3_long":
                 relative_scale_dir = config.get_path('da3_relative_scale', sequence_name)
                 absolute_scale_dir = config.get_path('da3_absolute_scale', sequence_name)

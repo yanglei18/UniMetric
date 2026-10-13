@@ -35,6 +35,9 @@ class Scal3rLongDepthEstimator:
         use_xyz_align: int = 0,
         save_xyz: int = 0,
         use_native_confidence: bool = False,
+        offload_batches: int = 0,
+        offload_outputs: int = 0,
+        cleanup_offload: int = 1,
         delete_temp_files: bool = True,
         temp_root: str | None = None,
     ) -> None:
@@ -49,6 +52,9 @@ class Scal3rLongDepthEstimator:
         self.use_xyz_align = int(use_xyz_align)
         self.save_xyz = int(save_xyz)
         self.use_native_confidence = bool(use_native_confidence)
+        self.offload_batches = int(offload_batches)
+        self.offload_outputs = int(offload_outputs)
+        self.cleanup_offload = int(cleanup_offload)
         self.delete_temp_files = bool(delete_temp_files)
         self.temp_root = temp_root
 
@@ -332,6 +338,9 @@ class Scal3rLongDepthEstimator:
                 use_xyz_align=self.use_xyz_align,
                 save_dpt=1,
                 save_xyz=self.save_xyz,
+                offload_batches=self.offload_batches,
+                offload_outputs=self.offload_outputs,
+                cleanup_offload=self.cleanup_offload,
                 dry_run=False,
             )
             self.run_inference(self.config, request)

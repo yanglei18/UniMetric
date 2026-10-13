@@ -1,157 +1,77 @@
 # UniMetric
 
-UniMetric is the central experiment repository in `Metric-Depth-Project`. It turns outputs from multiple depth and 3D foundation models into measurable metric geometry. It uses VLM semantic anchors, SAM masks, scene planes, sparse LiDAR ground truth, and pose metrics for scale calibration and evaluation.
+UniMetric estimates metric scale for long-sequence depth and 3D reconstruction outputs using VLM height anchors, SAM masks, and scene planes. It evaluates depth, reconstruction, and camera pose. The main entry point is `get_metric_scale.py`.
 
-The project has grown beyond its initial dataset-format validation scripts into a long-sequence geometry evaluation platform for autonomous driving and robotics. Model implementations live in sibling repositories; this repository standardizes inputs, outputs, scale estimation, and metric reports.
+This repository contains project code and experiment configurations. It does **not** include datasets, model weights, API credentials, or third-party model source. The server's `vendor/` directory is a local dependency cache excluded from Git; [vendor/README.md](vendor/README.md) lists upstream sources and license considerations. The licensing authority for the original project code has not yet been confirmed, so there is no root `LICENSE`. Public visibility is not a grant of an open-source license; see [LICENSING.md](LICENSING.md).
 
-## What it does
+## Supported models and datasets
 
-The core task is to compare geometric outputs from depth and 3D reconstruction models on long visual sequences, then use semantic scale anchors to convert relative geometry to metric scale.
+The public code supports exactly these nine depth-model keys:
 
-- Unifies depth maps, point maps, and camera parameters from multiple models.
-- Uses a VLM to identify dynamic and static height anchors and scene planes.
-- Uses SAM to generate object and plane masks from VLM bounding boxes.
-- Produces `consistent_scale` and several `optimized_scale_*` variants with a semantic scale solver.
-- Evaluates sparse depth and point metrics against projected LiDAR, sparse reconstruction proxies, and TUM-style pose ATE/RPE.
-- Provides a dataset-by-model YAML configuration matrix.
+| Model | Configuration key |
+|---|---|
+| Pi3 | `pi3_long` |
+| VGGT | `vggt_long` |
+| VGGT-Omega | `vggt_omega_long` |
+| Depth Anything 3 | `da3_long` |
+| Scal3R | `scal3r_long` |
+| LingBot-Map | `lingbot_map_long` |
+| 4RC | `4rc_long` |
+| DVLT | `dvlt_long` |
+| STream3R | `stream3r_long` |
 
-## Related repositories
+The 12 dataset directories are `3eed_dataset`, `argoverse`, `cear`, `dair_v2x_i`, `droid`, `fusionportable`, `humanoid_everyday`, `jrdb`, `kitti`, `nuscenes`, `v2x_radar_i`, and `waymo`. Each has a `default.yaml` and one YAML per supported model, for 120 dataset configurations. See the [configuration matrix](docs/config-matrix.md).
 
-Sibling repositories under `Metric-Depth-Project/` provide background and local dependencies:
+- `metric_scale/`: configuration parsing, VLM/SAM/depth/scale pipeline, nine model adapters, metrics, and visualization.
+- `configs/`: documented production parameters. Three KITTI reference JSON files are retained because configurations refer to them.
+- `dataset_tools/`: dataset conversion and validation utilities.
+- `tests/` and `reproducibility/`: regression checks, environment preflight, and version records.
 
-- `Depth-Anything-3/`: DA3 and DA3-Streaming.
-- `VGGT-Long/`: long-sequence chunking, overlap, and alignment for VGGT.
-- `Pi-Long/`: long-sequence adaptation for Pi3/Pi3X.
-- `Scal3R/`: large-scale test-time-training reconstruction.
-- `vggt-omega/`: source of the VGGT-Omega wrapper.
-- `lingbot-map/`: source of the streaming/windowed reconstruction wrapper.
-- `STream3R/`: research background for streaming reconstruction; no direct wrapper has been identified here.
+The code retains VGGT-Omega `balanced` preprocessing and dataset-intrinsic modes, the older `depth_only` workflow, JRDB per-sequence `sequence_overrides`, and the full VLM → SAM → depth → scale → metrics pipeline. Argoverse has an explicit prompt module that forwards the historical `default.py` fallback text. Existing metric reports are **not** reused across runs unless `runtime.resume_existing_results: true` is explicitly enabled after confirming that code, YAML, input data, and caches match.
 
-These sibling repositories are not included in this repository. You must provide the required model code and checkpoints separately.
+## Environment and external assets
 
-## Repository layout
-
-```text
-UniMetric/
-├── get_metric_scale.py                  # Main entry point
-├── configs/                             # Dataset/model YAML configuration matrix
-├── dataset_tools/                       # Conversion, validation, cleanup, visualization
-├── metric_scale/
-│   ├── config/                          # YAML configuration and path resolution
-│   ├── processing/                      # VLM/SAM/depth/scale pipeline
-│   ├── models/                          # Depth/3D/VLM/SAM/scale model wrappers
-│   ├── metrics/                         # Geometry, reconstruction, and pose evaluation
-│   ├── prompts/                         # Dataset-specific VLM prompts
-│   ├── utils/
-│   └── visualization/
-├── docs/                                # Usage, configuration, scale, and evaluation guides
-└── plan/                                # Project inventory and architecture notes
-```
-
-## Supported models
-
-`metric_scale.models.models.ModelManager` supports:
-
-- `pi3_long`
-- `vggt_long`
-- `vggt_omega_long`
-- `da3_long`
-- `dust3r_long`
-- `must3r_long`
-- `scal3r_long`
-- `lingbot_map_long`
-- `moge`
-
-Long-sequence wrappers generally split input using `long_chunk_size` and `long_overlap`, then save standardized outputs under `pointmap/`, `conf/`, and `camera_params/`.
-
-## Quick start
-
-Set the API key for your VLM backend before running. The default configuration uses the `doubao` backend and reads its key from an environment variable:
+Python 3.11 is recommended. Install a PyTorch/torchvision pair compatible with your CUDA driver, then the base dependencies:
 
 ```bash
-export DOUBAO_API_KEY=...
+python -m pip install -r requirements-base.txt
 ```
 
-Basic command:
+This is not a one-command installation for all nine models. Prepare each model, SAM2, and the required weights according to [vendor/README.md](vendor/README.md). `reproducibility/env/` contains package-version snapshots from a tested server for comparison, not a portable lockfile. Weight licenses may differ from code licenses.
+
+Configuration paths reflect the original experiment environment. On another machine, replace paths without changing algorithmic settings:
+
+| Configuration field | Local resource |
+|---|---|
+| `runtime.data_path` | Dataset images and annotations |
+| `models.*_project_root`, `models.*_checkpoint`, `models.*_weights` | Model source and weights |
+| `paths.sam_checkpoint`, `paths.sam_config` | SAM2 checkpoint and package configuration |
+| `depth.long_temp_root`, `paths.output_root`, `paths.p3_images` | Writable temporary, result, and P3-image directories |
+
+Doubao configurations read `DOUBAO_API_KEY`; Humanoid Everyday's Qwen API configuration reads `MODEL_KEY` and `BASE_URL`. Never put credential values in YAML or commit them to Git.
+
+## Validate and run
+
+After updating paths and installing dependencies, run the preflight and CPU/static checks:
 
 ```bash
-python get_metric_scale.py --config configs/nuscenes/lingbot_map_long.yaml
+python reproducibility/check_setup.py
+python reproducibility/test_active_features.py
+python reproducibility/test_prompts.py
+python reproducibility/test_supported_models.py
+python -m pytest -q tests/test_omega_balanced_preprocess.py tests/test_omega_dataset_intrinsics.py
 ```
 
-Example overrides:
+For a smoke run, copy a production YAML **outside** this repository and change only the copy: set `runtime.all_sequences: false`, `runtime.sequence_name: [your_sequence]`, `runtime.frame_count: 10`, and `parallel.enable: false`. Then run:
 
 ```bash
-python get_metric_scale.py \
-  --config configs/nuscenes/pi3_long.yaml \
-  --sequence-name scene-0092 \
-  --frame-count 100 \
-  --depth-model pi3_long
+python get_metric_scale.py --config /path/to/smoke.yaml --disable-parallel
 ```
 
-Currently, `ProcessingPipeline._process_sequence_task()` enables only the semantic scale stage by default. The VLM, SAM, P3 image preparation, and depth inference stages are commented out in that function. To regenerate intermediates end to end, enable the relevant stages or follow the staged workflow in the [runbook](docs/runbook.md).
+For a full run, use a production configuration without frame or sequence overrides:
 
-## Configuration matrix
-
-Configurations live at `configs/{dataset}/{model}.yaml`. The main datasets include `argoverse`, `dair_v2x_i`, `kitti`, `nuscenes`, `v2x_radar_i`, and `waymo`. See the [configuration matrix](docs/config-matrix.md) for details.
-
-## Outputs
-
-The usual output root is:
-
-```text
-outputs/{dataset_name}/{sequence_name}/{model}_outputs/
+```bash
+python get_metric_scale.py --config configs/jrdb/pi3_long.yaml
 ```
 
-Important scale variants include:
-
-```text
-relative_scale/
-consistent_scale/
-optimized_scale/
-optimized_scale_legacy/
-optimized_scale_original/
-optimized_scale_weighted_bi/
-optimized_scale_weighted_ifpa/
-selected_scale/
-absolute_scale/
-```
-
-`relative_scale` is the model's original or relative-scale output. The semantic scale stage produces the other variants. See [semantic scale](docs/semantic-scale.md).
-
-## Evaluation
-
-`get_metric_scale.py` invokes `MetricCalculator` to produce sequence-level JSON and Markdown reports, dataset-level `dataset_summary.json` and Markdown reports, sparse depth and point metrics, a sparse reconstruction proxy, TUM-style pose ATE/RPE, and optional distance-bin metrics. See [evaluation](docs/evaluation.md) for metric definitions.
-
-## Dataset format
-
-A sequence usually contains:
-
-```text
-{frame_id}.pcd
-{frame_id}.yaml
-{frame_id}_camera0.jpg
-{frame_id}_camera1.jpg
-{frame_id}_camera2.jpg
-```
-
-The YAML contains camera `cords`, `extrinsic`, and `intrinsic` values, plus `lidar_pose`, `vehicles`, `pedestrians`, and `cyclists`. The main pipeline uses `camera1` by default. Dataset validation and visualization tools are in `dataset_tools/varify_dataset.py`.
-
-## Credentials and local configuration
-
-Do not put API keys, tokens, or credentials in YAML or source files. The current configuration reads the key through an environment variable:
-
-```yaml
-vision:
-  api_key_env: "DOUBAO_API_KEY"
-```
-
-For a different backend, use a local Git-ignored configuration or a shell environment override.
-
-## Further reading
-
-- [Runbook](docs/runbook.md)
-- [Configuration matrix](docs/config-matrix.md)
-- [Semantic scale](docs/semantic-scale.md)
-- [Evaluation](docs/evaluation.md)
-- [Documentation inventory](plan/documentation-inventory.md)
-- [Codebase map](plan/metric-depth-codebase-map.md)
+`runtime.cleanup_depth_outputs_after_metrics: true` removes the current model's depth intermediates after metrics are saved; it does not remove VLM/SAM caches. See the [runbook](docs/runbook.md) and [reproducibility guide](reproducibility/README.md). Static checks of configuration parsing, prompt routing, and Omega regressions do not replace full GPU evaluation, which also requires a working CUDA environment and VLM API credentials.

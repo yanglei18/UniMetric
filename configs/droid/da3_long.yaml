@@ -8,8 +8,8 @@ runtime:
   # Scene domain hint used by prompts / dataset-specific routing.
   scene_domain: "indoor"
 
-  # Depth model to run.
-  # Supported long-sequence models include pi3_long, vggt_long, da3_long, dust3r_long, must3r_long, scal3r_long, stream3r_long, dvlt_long, 4rc_long, and vggt_omega_long.
+  # Selected depth model wrapper; this YAML filename identifies the production model.
+  # The published matrix contains nine depth-model configs per dataset.
   depth_model: "da3_long"
 
   # true: estimate one shared scale for a subsequence / sequence batch.
@@ -24,8 +24,8 @@ runtime:
   # A non-empty list processes only those sequences.
   sequence_name: []
 
-  # Number of frames to process per sequence.
-  # Positive integer: use the first N frames.
+  # Requested frame count for selected-sequence runs and metric reporting.
+  # With all_sequences enabled, the pipeline may process complete sequences.
   frame_count: 1000
 
   # Maximum GT depth (meters) included in metric geometry evaluation.
@@ -106,7 +106,7 @@ vision:
   # Local VLM path or model identifier template.
   model_path: "{qwen_model}"
 
-  # VLM backend type. Typical values: "doubao", "qwen".
+  # VLM backend: doubao or qwen-api for API calls; qwen for a local model.
   model_type: "doubao"
 
   # Environment variable holding the API key for the configured backend.
@@ -164,7 +164,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/Metric-Depth/tmp"
+  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
 
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: "original"

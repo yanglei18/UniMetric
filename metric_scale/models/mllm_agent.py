@@ -470,18 +470,45 @@ class GeminiAPIModel(VisionLanguageModel):
             print(f"Error calling Gemini API: {e}")
             return "Error generating response from Gemini API"
 
+def _env_value(name: str) -> str:
+    return (os.getenv(name) or "").strip()
+
+
+def _normalize_openai_base_url(base_url: str) -> str:
+    base = (base_url or "").strip().rstrip("/")
+    if base and not base.endswith("/v1"):
+        base = f"{base}/v1"
+    return base
+
+
+def _reject_qwen_key_for_doubao(api_key: str) -> None:
+    qwen_key = _env_value("MODEL_KEY")
+    if qwen_key and (api_key or "").strip() == qwen_key:
+        raise ValueError(
+            "Doubao must not use MODEL_KEY. Export DOUBAO_API_KEY with the Doubao key."
+        )
+
+
 class DoubaoAPIModel(VisionLanguageModel):
-    def __init__(self, config: ModelConfig, api_key: str):
+    backend_name = "Doubao"
+    default_model_version = "doubao-seed-1-6-251015"
+
+    def __init__(self, config: ModelConfig, api_key: str, base_url: Optional[str] = None):
         super().__init__(config)
+        if self.backend_name == "Doubao":
+            _reject_qwen_key_for_doubao(api_key)
+            base_url = base_url or os.getenv("DOUBAO_BASE_URL", "https://124.220.71.236:8000/v1")
+        if not base_url:
+            raise ValueError(f"{self.backend_name} API requires a base URL")
         self.api_key = api_key
-        self.base_url = os.getenv("DOUBAO_BASE_URL", "https://124.220.71.236:8000/v1")
+        self.base_url = base_url
         self.client = OpenAI(
             base_url=self.base_url,
             api_key=api_key,
             http_client=httpx.Client(verify=False, follow_redirects=True)
         )
 
-        self.model_version = config.model_version or "doubao-seed-1-6-251015"
+        self.model_version = config.model_version or self.default_model_version
 
     def _load_model(self) -> None:
         pass  # Doubao models are accessed via API
@@ -568,17 +595,36 @@ class DoubaoAPIModel(VisionLanguageModel):
             result = self.client.chat.completions.create(**request_kwargs)
             request_time = time.perf_counter() - request_start
             total_time = time.perf_counter() - total_start
-            self._log_timing("Doubao API", prepare_time, request_time, total_time)
+            self._log_timing(f"{self.backend_name} API", prepare_time, request_time, total_time)
             return self._extract_response_text(result)
         except Exception as e:
             raise RuntimeError(
-                f"Doubao API failed via OpenAI-compatible chat.completions at {self.base_url}: {e}"
+                f"{self.backend_name} API failed via OpenAI-compatible chat.completions at {self.base_url}: {e}"
             )
+
+
+class QwenAPIModel(DoubaoAPIModel):
+    backend_name = "Qwen"
+    default_model_version = "qwen3.7-plus"
+
+    def __init__(self, config: ModelConfig, api_key: str):
+        base_url = _normalize_openai_base_url(_env_value("BASE_URL"))
+        if not base_url:
+            raise ValueError("BASE_URL is required for Qwen API")
+        super().__init__(config, api_key, base_url=base_url)
+        if not config.model_version:
+            self.model_version = _env_value("MODEL_NAME") or self.default_model_version
+
 
 def get_model(config: ModelConfig, api_key: Optional[str] = None, 
             min_pixels: Optional[int] = None, max_pixels: Optional[int] = None) -> VisionLanguageModel:
     """Factory function to create appropriate model instance."""
-    model_type = config.model_type.lower()
+    model_type = config.model_type.lower().replace("_", "-")
+    if model_type in ("qwen-api", "qwenapi"):
+        key = (api_key or "").strip() or _env_value("MODEL_KEY")
+        if not key:
+            raise ValueError("MODEL_KEY is required for Qwen API")
+        return QwenAPIModel(config, key)
     if "qwen" in model_type:
         return QwenVLModel(config)
     elif "deepseek" in model_type:

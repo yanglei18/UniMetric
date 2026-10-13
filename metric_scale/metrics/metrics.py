@@ -39,16 +39,6 @@ class MetricGeometryEvaluator:
         if depth_model == "pi3_long":
             return os.path.join(config.get_path("pi3_output", sequence_name), scale_dir_name)
 
-        if depth_model == "dust3r_long":
-            if scale_type == "absolute":
-                return config.get_path("dust3r_absolute_scale", sequence_name)
-            return os.path.join(config.get_path("dust3r_output", sequence_name), scale_dir_name)
-
-        if depth_model == "must3r_long":
-            if scale_type == "absolute":
-                return config.get_path("must3r_absolute_scale", sequence_name)
-            return os.path.join(config.get_path("must3r_output", sequence_name), scale_dir_name)
-
         if depth_model == "scal3r_long":
             if scale_type == "absolute":
                 return config.get_path("scal3r_absolute_scale", sequence_name)
@@ -83,13 +73,6 @@ class MetricGeometryEvaluator:
             if scale_type == "absolute":
                 return config.get_path("vggt_absolute_scale", sequence_name)
             return os.path.join(config.get_path("vggt_output", sequence_name), scale_dir_name)
-
-        if depth_model == "moge":
-            return os.path.join(
-                os.path.dirname(config.get_path("da3_output", sequence_name)),
-                "moge_output",
-                scale_dir_name,
-            )
 
         if depth_model == "da3_long":
             if scale_type == "absolute":
@@ -2004,7 +1987,9 @@ class MetricCalculator:
     @staticmethod
     def _results_run_id():
         if MetricCalculator._RESULTS_RUN_ID is None:
-            MetricCalculator._RESULTS_RUN_ID = time.strftime("%Y%m%d_%H%M%S")
+            MetricCalculator._RESULTS_RUN_ID = os.environ.get("METRIC_RESULTS_RUN_ID") or time.strftime(
+                "%Y%m%d_%H%M%S"
+            )
         return MetricCalculator._RESULTS_RUN_ID
 
     @staticmethod

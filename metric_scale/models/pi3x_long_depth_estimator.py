@@ -3,7 +3,9 @@ import json
 import math
 import os
 import shutil
+import sys
 import tempfile
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -14,6 +16,10 @@ from torchvision import transforms
 from metric_scale.config.config import config
 from metric_scale.config.path_config import ensure_dir
 from metric_scale.utils.utils import file_utils
+
+_pi3_vendor_root = Path(__file__).resolve().parents[2] / "vendor" / "Pi3"
+if (_pi3_vendor_root / "pi3" / "models" / "pi3x.py").is_file():
+    sys.path.insert(0, str(_pi3_vendor_root))
 from pi3.models.pi3 import Pi3
 from pi3.models.pi3x import Pi3X
 
@@ -217,6 +223,9 @@ class Pi3LongDepthEstimator:
         return torch.stack(tensors, dim=0), metas
 
     def _run_chunk_inference(self, chunk_idx, image_paths, global_start_idx, temp_dir, target_size):
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
         images, metas = self._load_chunk_images_resized(image_paths, target_size)
         images = images.to(self.device)
         autocast_enabled = self.device_type == "cuda"

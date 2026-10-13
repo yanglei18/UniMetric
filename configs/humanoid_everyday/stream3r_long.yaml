@@ -8,8 +8,8 @@ runtime:
   # Scene domain hint used by prompts / dataset-specific routing.
   scene_domain: "indoor"
 
-  # Depth model to run.
-  # Supported long-sequence models include pi3_long, vggt_long, da3_long, dust3r_long, must3r_long, scal3r_long, stream3r_long, dvlt_long, 4rc_long, and vggt_omega_long.
+  # Selected depth model wrapper; this YAML filename identifies the production model.
+  # The published matrix contains nine depth-model configs per dataset.
   depth_model: "stream3r_long"
 
   # true: estimate one shared scale for a subsequence / sequence batch.
@@ -24,8 +24,8 @@ runtime:
   # A non-empty list processes only those sequences.
   sequence_name: []
 
-  # Number of frames to process per sequence.
-  # Positive integer: use the first N frames.
+  # Requested frame count for selected-sequence runs and metric reporting.
+  # With all_sequences enabled, the pipeline may process complete sequences.
   frame_count: 1000
 
   # Maximum GT depth (meters) included in metric geometry evaluation.
@@ -106,21 +106,21 @@ vision:
   # Local VLM path or model identifier template.
   model_path: "{qwen_model}"
 
-  # VLM backend type. Typical values: "doubao", "qwen".
-  model_type: "doubao"
+  # VLM backend: doubao or qwen-api for API calls; qwen for a local model.
+  model_type: "qwen-api"
 
   # Environment variable holding the API key for the configured backend.
-  # Example: export DOUBAO_API_KEY=...
-  api_key_env: "DOUBAO_API_KEY"
+  # Example: export MODEL_KEY=...
+  api_key_env: "MODEL_KEY"
 
   # Backend-specific model version / endpoint name.
-  model_version: "seed-1.8-max"
+  model_version: "qwen3.8-flash"
 
   # Torch dtype used by local models. Typical values: "float16", "bfloat16", "float32".
   torch_dtype: "bfloat16"
 
   # Maximum generation length for VLM responses.
-  max_new_tokens: 400096
+  max_new_tokens: 8192
 
   # Optional reasoning level for supported APIs. Typical values: null, "low", "medium", "high".
   reasoning_effort: null
@@ -164,7 +164,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/Metric-Depth/tmp"
+  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
 
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: "native"
@@ -183,7 +183,7 @@ semantic_scale:
 
   # Which VLM height anchors are used for scale solving.
   # Options: "dynamic", "static", "both".
-  height_anchor_source: "dynamic"
+  height_anchor_source: "static"
 
   # Per-sequence frame-level preprocessing workers for semantic scale batch mode.
   # 0 or 1: serial. >1: threaded preprocessing.
@@ -213,23 +213,23 @@ semantic_scale:
 
   # Minimum VLM confidence required for dynamic anchors.
   # Valid range: [0.0, 1.0].
-  vlm_dynamic_anchor_confidence_threshold: 0.85
+  vlm_dynamic_anchor_confidence_threshold: 0.9
 
   # Minimum VLM confidence required for static anchors.
   # Valid range: [0.0, 1.0].
-  vlm_static_anchor_confidence_threshold: 0.6
+  vlm_static_anchor_confidence_threshold: 0.8
 
   # Lower confidence percentile threshold for anchor quality filtering.
   # Valid range: [0.0, 1.0).
-  anchor_quality_min_percentile: 0.1
+  anchor_quality_min_percentile: 0.0
 
   # Upper confidence percentile threshold for anchor quality filtering.
   # Valid range: [0.0, 1.0).
-  anchor_quality_max_percentile: 0.8
+  anchor_quality_max_percentile: 0.0
 
   # Percentile threshold used when filtering plane / local-ground confidence.
   # Valid range: [0.0, 1.0).
-  plane_conf_percentile: 0.8
+  plane_conf_percentile: 0.3
 
   # Whether to reject per-frame semantic plane proposals whose fitted normal is an outlier.
   plane_normal_outlier_filter_enabled: true
@@ -254,7 +254,7 @@ semantic_scale:
 
   # Optional static-class allowlist for anchors allowed to enter scale optimization.
   # Only matters when height_anchor_source is "static" or "both".
-  optimizer_static_classes: []
+  optimizer_static_classes: ["door", "stanchion", "bollard", "trash can", "cabinet", "locker", "microwave", "coffee maker", "coffee machine", "kettle", "electric kettle", "boiling pot", "shampoo", "shampoo bottle", "bottle", "cup", "mug", "plate", "tennis ball", "toilet paper roll", "dumpling toy", "egg toy", "chair", "office chair", "armchair", "stool", "caution sign", "door handle", "door lock", "magnetic container", "box", "file tray", "pencil case", "basket", "bottle cap", "kettle lid", "duster", "elevator button", "air pump", "caster wheel", "american football", "cube", "toy cube", "fire extinguisher", "eraser", "stapler", "light switch"]
 
   # Compatibility selector for optimized_scale/ and absolute_scale/ aliases.
   # Recommended value: "optimized_scale_original".
@@ -301,27 +301,59 @@ semantic_scale:
   # Simple easy/mid/hard sequence split driven by a previous dataset_summary.json.
   sequence_difficulty:
     enabled: true
-    dataset_summary_path: "{output_root}/{dataset_name}/metric_results/{depth_model}/dataset_summary.json"
+    dataset_summary_path: none
     easy_d1_gain_threshold: 0.5
+    hard_sequences:
+      - Locomanip_walk_towards_a_desk_and_place_a_bottle
+      - Locomanip_hold_a_whiteboard_and_walk_with_it
+      - Locomanip_walk_towards_elevator_and_push_button
+      - Locomanip_walk_towards_a_desk_and_pick_up_a_tennis_ball_and_put_it_in_a_container
+      - Locomanip_walk_towards_a_desk_and_pick_up_a_dumpling
+      - Locomanip_walk_towards_a_desk_and_put_the_shovel_into_a_container
+      - Locomanip_walk_towards_the_desk_and_use_an_air_pump_on_the_desk
+      - Locomanip_clean_the_window
+      - Locomanip_walk_towards_a_desk_and_place_a_stapler_on_a_tray
+      - Locomanip_walk_towards_outside_chair_and_pull_it_out
+      - Locomanip_walk_towards_a_desk_and_put_the_eraser_into_a_container
+      - Locomanip_walk_towards_a_desk_and_place_a_toilet_paper_roll_on_a_tray
+      - Locomanip_walk_towards_a_desk_and_push_the_file_tray_in
+      - Locomanip_walk_towards_a_desk_and_turn_on_the_light_switch
+      - Locomanip_walk_towards_a_stanchion_and_retract_the_strap
+      - Locomanip_walk_towards_fire_extinguisher_and_open_door
+      - Locomanip_walk_towards_a_desk_and_pick_up_a_pencil_case_and_put_it_in_a_container
+      - Locomanip_walk_towards_a_desk_and_drag_the_file_tray_out
+      - Locomanip_pick_up_a_caution_sign_stand_and_walk_to_put_it_agaist_wall
+      - Locomanip_walk_towards_a_desk_and_turn_on_the_boiling_pot
+      - Locomanip_walk_towards_chair_and_rotate_the_chair
+      - Locomanip_clean_the_plate
+      - Locomanip_walk_towards_the_cabinet_and_close_the_cabinet_door
+      - Locomanip_walk_towards_a_open_gate_button_and_open_gate
+      - Locomanip_walk_towards_a_desk_and_pick_up_a_shampoo
+      - Locomanip_walk_towards_a_desk_and_pick_up_the_boiling_pot_from_its_base
+      - Locomanip_walk_towards_chair_and_push_it_in
+      - Locomanip_pick_up_a_duster_turn_around_walk_towards_another_desk_place_it_in_a_container
+      - Locomanip_pick_up_a_magnetic_container_turn_around_walk_towards_whiteboard_stick_it_onto_the_board
+      - Locomanip_throw_away_a_piece_of_paper_to_trashcan
     profiles:
       easy:
         distance_weight_near: 1.0
         distance_weight_middle: 1.0
         distance_weight_distant: 1.0
         optimizer_dynamic_classes: []
-        optimizer_static_classes: []
+        optimizer_static_classes: ["door", "stanchion", "bollard", "trash can", "cabinet", "locker", "microwave", "coffee maker", "coffee machine", "kettle", "electric kettle", "boiling pot", "shampoo", "shampoo bottle", "bottle", "cup", "mug", "plate", "tennis ball", "toilet paper roll", "dumpling toy", "egg toy", "chair", "office chair", "armchair", "stool", "caution sign", "door handle", "door lock", "magnetic container", "box", "file tray", "pencil case", "basket", "bottle cap", "kettle lid", "duster", "elevator button", "air pump", "caster wheel", "american football", "cube", "toy cube", "fire extinguisher", "eraser", "stapler", "light switch"]
       mid:
         distance_weight_near: 1.0
         distance_weight_middle: 1.0
         distance_weight_distant: 1.0
         optimizer_dynamic_classes: []
-        optimizer_static_classes: []
+        optimizer_static_classes: ["door", "stanchion", "bollard", "trash can", "cabinet", "locker", "microwave", "coffee maker", "coffee machine", "kettle", "electric kettle", "boiling pot", "shampoo", "shampoo bottle", "bottle", "cup", "mug", "plate", "tennis ball", "toilet paper roll", "dumpling toy", "egg toy", "chair", "office chair", "armchair", "stool", "caution sign", "door handle", "door lock", "magnetic container", "box", "file tray", "pencil case", "basket", "bottle cap", "kettle lid", "duster", "elevator button", "air pump", "caster wheel", "american football", "cube", "toy cube", "fire extinguisher", "eraser", "stapler", "light switch"]
       hard:
         distance_weight_near: 1.0
         distance_weight_middle: 1.0
         distance_weight_distant: 1.0
+        vlm_static_anchor_confidence_threshold: 0.91
         optimizer_dynamic_classes: []
-        optimizer_static_classes: []
+        optimizer_static_classes: ["__no_static_anchor__"]
 
   # Relative strength of the inside-interval center penalty for interval prior.
   consensus_prior_interval_inside_ratio: 0.2
@@ -340,7 +372,7 @@ semantic_scale:
 
 models:
   # Local STream3R repository root.
-  stream3r_project_root: "/data1/yanglei/FoundationModel/STream3R"
+  stream3r_project_root: "/home/yanglei/STream3R"
 
   # STream3R checkpoint path.
   stream3r_checkpoint: "/data1/yanglei/FoundationModel/STream3R"

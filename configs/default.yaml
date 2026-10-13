@@ -6,10 +6,8 @@ runtime:
   # Dataset root directory.
   data_path: "data/official-data/nuScenes/"
 
-  # Depth model to run.
-  # Supported values in the current project:
-  # "pi3_long", "vggt_long", "dust3r_long",
-  # "must3r_long", "scal3r_long", "stream3r_long", "lingbot_map_long", "moge".
+  # Selected depth model wrapper; this YAML filename identifies the production model.
+  # The published matrix contains nine depth-model configs per dataset.
   depth_model: "pi3_long"
 
   # true: estimate one shared scale for a subsequence / sequence batch.
@@ -24,8 +22,8 @@ runtime:
   # Both string and list forms are supported.
   sequence_name: []
 
-  # Number of frames to process per sequence.
-  # Positive integer: use the first N frames.
+  # Requested frame count for selected-sequence runs and metric reporting.
+  # With all_sequences enabled, the pipeline may process complete sequences.
   frame_count: 60
 
   # Maximum GT depth (meters) included in metric geometry evaluation.
@@ -110,7 +108,7 @@ vision:
   # Local VLM path or model identifier template.
   model_path: "{qwen_model}"
 
-  # VLM backend type. Typical values: "doubao", "qwen".
+  # VLM backend: doubao or qwen-api for API calls; qwen for a local model.
   model_type: "doubao"
 
   # Environment variable holding the API key for the configured backend.
@@ -332,6 +330,7 @@ semantic_scale:
 models:
   # Local checkpoint path for Pi3 / Pi3X.
   pi3_weights: "/data1/yanglei/MetricDepth/weights/Pi3X"
+
 paths:
   # Base project path template.
   project_root: "{project_root}"

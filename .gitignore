@@ -1,10 +1,45 @@
-data/
-demo/
-checkpoints
-outputs/
-p3_images/
-pretrained_model/
-__pycache__/
+# Local datasets, checkpoints, caches and results (symlinks on the old server)
+/data/
+/checkpoints
+/outputs
+/p3_images
+/pretrained_model/
+
+# Third-party source is kept locally for reproductions, but is not part of the
+# public project license. See vendor/README.md for upstream sources and terms.
+/vendor/*
+!/vendor/README.md
+
+# Generated runs and temporary work
+/logs/
+/run_logs/
+/tmp/
+/temp/
+/config-backups/
+/configs/.*before*/
+*.log
 *.out
-../Metric-Depth-Claude/
-*.zip
+*.bak
+*.bak_*
+*.tmp
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local editors, assistants, credentials and OS artifacts
+/.agents/
+/.claude/
+/.codex/
+/.mutagen.yml
+.DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Machine-specific validation output
+/reproducibility/check_setup_report*.json
+/reproducibility/config-parameter-preservation-report.json
+/reproducibility/external-assets-manifest.json
+/reproducibility/local-source-and-config-manifest.json

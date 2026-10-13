@@ -6,8 +6,9 @@ runtime:
 
   # 3EED is an outdoor campus dataset captured by drone and quadruped cameras.
   scene_domain: "outdoor"
-  # Depth model to run.
-  # Supported long-sequence models include pi3_long, vggt_long, da3_long, dust3r_long, must3r_long, scal3r_long, stream3r_long, dvlt_long, 4rc_long, and vggt_omega_long.
+
+  # Selected depth model wrapper; this YAML filename identifies the production model.
+  # The published matrix contains nine depth-model configs per dataset.
   depth_model: "4rc_long"
 
   # true: estimate one shared scale for a subsequence / sequence batch.
@@ -16,15 +17,16 @@ runtime:
 
   # true: process every sequence under data_path.
   # false: use sequence_name or current sequence routing.
-  all_sequences: true
+  all_sequences: false
 
   # [] or "" means all sequences.
   # A non-empty list processes only those sequences.
   sequence_name: []
 
-  # Number of frames to process per sequence.
-  # Positive integer: use the first N frames.
-  frame_count: 2000
+  # Requested frame count for selected-sequence runs and metric reporting.
+  # With all_sequences enabled, the pipeline may process complete sequences.
+  frame_count: 1000
+
   # Maximum GT depth (meters) included in metric geometry evaluation.
   # Set to null to disable distance filtering during metrics.
   metric_depth_threshold: 100
@@ -79,8 +81,8 @@ runtime:
   # true: save all visualization outputs; false: disable visualization outputs to save time and disk.
   enable_visualization: false
 
-  # true: after metrics are saved, remove files/subdirectories inside the current depth model output directory, e.g. 4rc_outputs/*.
-  cleanup_depth_outputs_after_metrics: true
+  # true: after metrics are saved, remove files/subdirectories inside the current depth model output directory, e.g. scal3r_outputs/*.
+  cleanup_depth_outputs_after_metrics: false
 
 parallel:
   # Enable sequence-level multi-GPU scheduling when available.
@@ -103,7 +105,7 @@ vision:
   # Local VLM path or model identifier template.
   model_path: "{qwen_model}"
 
-  # VLM backend type. Typical values: "doubao", "qwen".
+  # VLM backend: doubao or qwen-api for API calls; qwen for a local model.
   model_type: "doubao"
 
   # Environment variable holding the API key for the configured backend.
@@ -161,10 +163,10 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/Metric-Depth/tmp"
+  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
 
   # Saved prediction resolution. Options: "original", "native".
-  output_resolution: "original"
+  output_resolution: "native"
 
   # Sampling mode for native-resolution predictions. Options: "nearest", "bilinear".
   native_sampling_mode: "nearest"
@@ -192,12 +194,15 @@ semantic_scale:
   # Whether to reject low-quality anchors before scale solving.
   use_anchor_quality_filter: true
 
+  # Whether SAM keeps only anchors intersecting a floor box and another dynamic/static anchor box.
+  use_sam_anchor_bbox_intersection_filter: false
+
   # Whether to apply strict depth-geometry filtering before scale solving.
   # false relaxes min anchor points to 1 and min relative height to 0.
   use_depth_geometry_filter: true
 
   # Whether to save semantic scale solver intermediate JSON files under semantic_scale_debug.
-  save_scale_intermediate_results: false
+  save_scale_intermediate_results: true
 
   # Minimum valid 3D points required inside an anchor mask when strict depth geometry filtering is enabled.
   depth_geometry_min_anchor_points: 32
@@ -210,11 +215,11 @@ semantic_scale:
 
   # Minimum VLM confidence required for dynamic anchors.
   # Valid range: [0.0, 1.0].
-  vlm_dynamic_anchor_confidence_threshold: 0.85
+  vlm_dynamic_anchor_confidence_threshold: 0.9
 
   # Minimum VLM confidence required for static anchors.
   # Valid range: [0.0, 1.0].
-  vlm_static_anchor_confidence_threshold: 0.6
+  vlm_static_anchor_confidence_threshold: 0.9
 
   # Lower confidence percentile threshold for anchor quality filtering.
   # Valid range: [0.0, 1.0).
@@ -230,9 +235,12 @@ semantic_scale:
 
   # Whether to reject per-frame semantic plane proposals whose fitted normal is an outlier.
   plane_normal_outlier_filter_enabled: true
+
   # Maximum angular deviation from the robust reference normal for keeping a plane proposal.
   plane_normal_filter_max_angle_deg: 25.0
+
   # Strength of priority-based modulation applied to type_weight in optimized-scale solving.
+  # 0.0 disables modulation; larger values increase the gap between high-priority and low-priority anchors.
   optimized_scale_priority_modulation_strength: 0.3
 
   # Distance-level modulation applied before confidence weighting.
@@ -245,12 +253,14 @@ semantic_scale:
   distance_weight_distant: 1.0
 
   # Optional dynamic-class allowlist for anchors allowed to enter scale optimization.
-  optimizer_dynamic_classes: []
-
+  # Leave empty to allow all detected dynamic classes.
+  optimizer_dynamic_classes: ["car", "suv", "pedestrian", "person"]
   # Optional static-class allowlist for anchors allowed to enter scale optimization.
-  optimizer_static_classes: ["traffic cone"]
+  # Only matters when height_anchor_source is "static" or "both".
+  optimizer_static_classes: []
 
   # Compatibility selector for optimized_scale/ and absolute_scale/ aliases.
+  # Recommended value: "optimized_scale_original".
   default_optimized_variant: "optimized_scale_original"
 
   # Save and evaluate the legacy optimized scale variant.
@@ -281,9 +291,11 @@ semantic_scale:
   max_optimized_shift_ratio: 0.03
 
   # Search mode used by the weighted optimized variants.
+  # Options: "global", "consensus_bounded".
   weighted_search_mode: "global"
 
   # Soft consensus prior added to the weighted optimizer objective.
+  # Options: "none", "point", "interval".
   consensus_prior_mode: "point"
 
   # Strength of the soft consensus prior.
@@ -293,7 +305,7 @@ semantic_scale:
   sequence_difficulty:
     enabled: true
     dataset_summary_path: "{output_root}/{dataset_name}/metric_results/{depth_model}/dataset_summary.json"
-    easy_d1_gain_threshold: 0.5
+    easy_d1_gain_threshold: 0.2
     profiles:
       easy:
         distance_weight_near: 1.0
@@ -327,7 +339,7 @@ semantic_scale:
   bi_keep_ratio: 0.6
 
   # Minimum width of atomic segments retained during BI interval partition.
-  bi_min_segment_width: 1e-06
+  bi_min_segment_width: "1e-06"
 
 models:
   # Local 4RC repository root.
@@ -335,11 +347,6 @@ models:
 
   # 4RC checkpoint or checkpoint directory.
   fourrc_checkpoint: "/data1/yanglei/FoundationModel/4RC"
-  fourrc_image_size: 512
-  fourrc_patch_size: 14
-  fourrc_dtype: "bf16-mixed"
-  fourrc_use_center_as_anchor: false
-  fourrc_preprocess_mode: "resize_only"
 
 paths:
   # Base project path template.
@@ -384,11 +391,17 @@ paths:
   # SAM aligned-anchor point cloud directory.
   sam_aligned_anchor: "{sam_output}/aligned_anchor_plys"
 
-  # 4RC outputs.
-  fourrc_output: "{output}/4rc_outputs"
-
   # Prepared P3 image directory.
   p3_images: "{project_root}/p3_images/{sequence_name}"
 
+  # 4RC outputs.
+  fourrc_output: "{output}/4rc_outputs"
 
+  # 4RC relative-scale output directory.
+  fourrc_relative_scale: "{fourrc_output}/relative_scale"
 
+  # 4RC absolute-scale compatibility output directory.
+  fourrc_absolute_scale: "{fourrc_output}/absolute_scale"
+
+  # 4RC depth visualization directory.
+  fourrc_depth_visualization: "{fourrc_output}/depth_visualizations"

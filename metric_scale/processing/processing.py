@@ -16,6 +16,11 @@ from metric_scale.models.models import model_manager
 from metric_scale.models.mllm_agent import ModelConfig, get_model
 from metric_scale.models.vlm_semantic_scale_anchor import VLMSemanticScaleAnchor
 from metric_scale.visualization.visualization import DepthVisualizer
+from metric_scale.processing.cuda_isolated_worker import (
+    run_depth_tasks_on_gpu,
+    run_sam_tasks_on_gpu,
+    run_sequence_pipeline_on_gpu,
+)
 from metric_scale.utils.utils import timer, file_utils, data_utils, sequence_utils
 
 
@@ -58,6 +63,7 @@ def _run_depth_tasks_on_gpu(gpu_id, task_payloads, result_queue):
                 start_index=task["start_index"],
                 model_type=task["model_type"],
                 device=device,
+                sequence_path=task.get("sequence_path"),
             )
             model_manager.release_model(f"depth_{task['model_type']}_{device}")
             result_queue.put(
@@ -130,13 +136,50 @@ def _run_sequence_pipeline_on_gpu(gpu_id, task_payloads, result_queue):
             torch.cuda.set_device(gpu_id)
 
         pipeline = ProcessingPipeline()
+        device_suffix = "" if device in (None, "cpu") else f"_{device}"
+
+        # Run SAM/P3 for every assigned sequence first, then free SAM before Pi3X.
+        # Sharing both models on a 24GB GPU at DROID resolution (672x378, chunk 40+) OOMs.
         for task in task_payloads:
-            task_start = time.time()
-            pipeline._process_sequence_task(
+            if pipeline._existing_sequence_metric_path(task["sequence_name"]):
+                continue
+            pipeline._process_sam_for_sequence(
                 task["sequence_path"],
                 task["sequence_name"],
                 device=device,
             )
+            pipeline._prepare_p3_for_sequence(task["sequence_name"], device=device)
+
+        model_manager.release_model(f"sam_tracker{device_suffix}")
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        for task in task_payloads:
+            task_start = time.time()
+            if pipeline._existing_sequence_metric_path(task["sequence_name"]):
+                pipeline._finalize_sequence_metrics_and_cleanup(
+                    task["sequence_path"],
+                    task["sequence_name"],
+                    device=device,
+                )
+            else:
+                pipeline._process_depth_for_sequence(
+                    task["sequence_path"],
+                    task["sequence_name"],
+                    device=device,
+                )
+                pipeline._process_scale_for_sequence(
+                    task["sequence_path"],
+                    task["sequence_name"],
+                    device=device,
+                )
+                pipeline._finalize_sequence_metrics_and_cleanup(
+                    task["sequence_path"],
+                    task["sequence_name"],
+                    device=device,
+                )
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             result_queue.put(
                 {
                     "status": "ok",
@@ -168,9 +211,7 @@ class FrameProcessor:
     def load_frame(sequence_path, camera_id, frame_id):
         """加载帧数据"""
         frame_data = FrameLoader(sequence_path, camera_id=camera_id, frame_id=frame_id)
-        if frame_data.process_data():
-            if config.enable_visualization:
-                frame_data.save_result()
+        frame_data.process_data()
         return frame_data
 
 class VLMProcessor:
@@ -178,7 +219,10 @@ class VLMProcessor:
 
     @staticmethod
     def _is_api_vlm_mode():
-        return "qwen" not in config.vision_model_type.lower()
+        model_type = config.vision_model_type.lower().replace("_", "-")
+        if model_type in ("qwen-api", "qwenapi"):
+            return True
+        return "qwen" not in model_type
 
     @staticmethod
     def _get_thread_local_scale_anchor():
@@ -205,13 +249,43 @@ class VLMProcessor:
         return scale_anchor
 
     @staticmethod
+    def _vlm_result_path(results_dir, frame_id):
+        return os.path.join(results_dir, f"{frame_id}_camera1.json")
+
+    @staticmethod
+    def _mine_height_anchors(scale_anchor, image_path):
+        source = config.height_anchor_source
+        dataset_name = config.dataset
+        if source == "static":
+            dynamic_height_anchors = []
+            static_height_anchors = scale_anchor.mine_static_height_anchors(
+                image_path, dataset_name=dataset_name
+            )
+        elif source == "dynamic":
+            dynamic_height_anchors = scale_anchor.mine_dynamic_height_anchors(
+                image_path, dataset_name=dataset_name
+            )
+            static_height_anchors = []
+        else:
+            dynamic_height_anchors = scale_anchor.mine_dynamic_height_anchors(
+                image_path, dataset_name=dataset_name
+            )
+            static_height_anchors = scale_anchor.mine_static_height_anchors(
+                image_path, dataset_name=dataset_name
+            )
+        semantic_planes = scale_anchor.mine_scene_semantic_planes(
+            image_path, dataset_name=dataset_name
+        )
+        return dynamic_height_anchors, static_height_anchors, semantic_planes
+
+    @staticmethod
     def _process_single_frame(sequence_path, sequence_name, frame_id, visualization_dir, results_dir, device_label=None):
         frame_data = FrameProcessor.load_frame(sequence_path, camera_id=1, frame_id=frame_id)
         scale_anchor = VLMProcessor._get_thread_local_scale_anchor()
 
-        dynamic_height_anchors = scale_anchor.mine_dynamic_height_anchors(frame_data.image_path, dataset_name=config.dataset)
-        static_height_anchors = scale_anchor.mine_static_height_anchors(frame_data.image_path, dataset_name=config.dataset)
-        semantic_planes = scale_anchor.mine_scene_semantic_planes(frame_data.image_path, dataset_name=config.dataset)
+        dynamic_height_anchors, static_height_anchors, semantic_planes = VLMProcessor._mine_height_anchors(
+            scale_anchor, frame_data.image_path
+        )
 
         object_count = 0
         for anchor in dynamic_height_anchors:
@@ -266,6 +340,25 @@ class VLMProcessor:
             print("No frames provided for VLM processing.")
             return
 
+        pending_frame_ids = []
+        skipped_existing = 0
+        for frame_id in frame_ids:
+            existing = VLMProcessor._vlm_result_path(results_dir, frame_id)
+            if config.resume_existing_results and os.path.isfile(existing) and os.path.getsize(existing) > 2:
+                skipped_existing += 1
+                continue
+            pending_frame_ids.append(frame_id)
+        if skipped_existing:
+            print(
+                f"{log_prefix} Skip {skipped_existing} existing VLM JSON file(s) "
+                f"for sequence {sequence_name}."
+            )
+        if not pending_frame_ids:
+            print(f"{log_prefix} VLM already complete for {sequence_name} ({total_frames} frames).")
+            return
+        frame_ids = pending_frame_ids
+        total_frames = len(frame_ids)
+
         print(f"{log_prefix} VLM processing {total_frames} frame(s) for sequence {sequence_name}.")
 
         if VLMProcessor._is_api_vlm_mode() and config.parallel_vlm_api and len(frame_ids) > 1:
@@ -301,10 +394,9 @@ class VLMProcessor:
             print(f"  {log_prefix} VLM progress {frame_index}/{total_frames}: processing frame {frame_id}")
             frame_data = FrameProcessor.load_frame(sequence_path, camera_id=1, frame_id=frame_id)
 
-            # 提取高度锚点和语义平面
-            dynamic_height_anchors = scale_anchor.mine_dynamic_height_anchors(frame_data.image_path, dataset_name=config.dataset)
-            static_height_anchors = scale_anchor.mine_static_height_anchors(frame_data.image_path, dataset_name=config.dataset)
-            semantic_planes = scale_anchor.mine_scene_semantic_planes(frame_data.image_path, dataset_name=config.dataset)
+            dynamic_height_anchors, static_height_anchors, semantic_planes = VLMProcessor._mine_height_anchors(
+                scale_anchor, frame_data.image_path
+            )
 
             # 为锚点和平面添加object_id
             object_count = 0
@@ -491,7 +583,11 @@ class SAMProcessor:
             output_subdir = os.path.join(output_dir, image_name)
             file_utils.ensure_directory(output_subdir)
             
-            masks_batch = masks_batch[0]
+            # SAM2 squeezes the per-box channel axis when a frame has a single
+            # prompt, so normalize to [n_boxes, 1, H, W] before indexing.
+            masks_batch = np.asarray(masks_batch[0])
+            if masks_batch.ndim == 3:
+                masks_batch = masks_batch[:, None]
             for idx in range(masks_batch.shape[0]):
                 binary_mask = (masks_batch[idx, 0] * 255).astype(np.uint8)
                 mask_path = os.path.join(output_subdir, f"{object_classes[idx]}_mask_{object_ids[idx]}.png")
@@ -556,10 +652,6 @@ class DepthProcessor:
         """Resolve depth output directories without initializing the depth model."""
         if model_type == "pi3_long":
             output_dir = config.get_path('pi3_output', sequence_name)
-        elif model_type == "dust3r_long":
-            output_dir = config.get_path('dust3r_output', sequence_name)
-        elif model_type == "must3r_long":
-            output_dir = config.get_path('must3r_output', sequence_name)
         elif model_type == "scal3r_long":
             output_dir = config.get_path('scal3r_output', sequence_name)
         elif model_type == "lingbot_map_long":
@@ -574,8 +666,6 @@ class DepthProcessor:
             output_dir = config.get_path('vggt_omega_output', sequence_name)
         elif model_type == "vggt_long":
             output_dir = config.get_path('vggt_output', sequence_name)
-        elif model_type == "moge":
-            output_dir = os.path.join(os.path.dirname(config.get_path('da3_output', sequence_name)), "moge_output")
         elif model_type == "da3_long":
             output_dir = config.get_path('da3_output', sequence_name)
         else:
@@ -631,9 +721,10 @@ class DepthProcessor:
                 )
                 DepthProcessor.save_p3_depth_visualizations(relative_scale_dir, depth_visualization_dir)
         elif model_type in {"vggt_long", "vggt_omega_long", "dvlt_long", "4rc_long", "stream3r_long"}:
-            geometry_kwargs = {}
-            if model_type == "vggt_omega_long":
-                geometry_kwargs = {"calibration_dir": sequence_path, "expected_frame_ids": frame_ids}
+            geometry_kwargs = (
+                {"calibration_dir": sequence_path, "expected_frame_ids": frame_ids}
+                if model_type == "vggt_omega_long" else {}
+            )
             results = depth_estimator.process(
                 input_dir,
                 interval=1,
@@ -679,54 +770,6 @@ class DepthProcessor:
                     relative_scale_dir,
                     start_frame=start_index,
                     frame_ids=frame_ids,
-                )
-        elif model_type == "dust3r_long":
-            results = depth_estimator.process(
-                input_dir,
-                interval=1,
-                pixel_limit=input_pixel_limit,
-                max_long_edge=input_max_long_edge,
-                start_frame=start_index,
-                frame_count=len(frame_ids),
-            )
-            if results is not None:
-                if config.enable_visualization:
-                    depth_estimator.save_visualizations(
-                        results,
-                        depth_visualization_dir,
-                        start_frame=start_index,
-                        frame_ids=frame_ids,
-                    )
-                depth_estimator.save_results(
-                    results,
-                    relative_scale_dir,
-                    start_frame=start_index,
-                    frame_ids=frame_ids,
-                    save_depth=True,
-                )
-        elif model_type == "must3r_long":
-            results = depth_estimator.process(
-                input_dir,
-                interval=1,
-                pixel_limit=input_pixel_limit,
-                max_long_edge=input_max_long_edge,
-                start_frame=start_index,
-                frame_count=len(frame_ids),
-            )
-            if results is not None:
-                if config.enable_visualization:
-                    depth_estimator.save_visualizations(
-                        results,
-                        depth_visualization_dir,
-                        start_frame=start_index,
-                        frame_ids=frame_ids,
-                    )
-                depth_estimator.save_results(
-                    results,
-                    relative_scale_dir,
-                    start_frame=start_index,
-                    frame_ids=frame_ids,
-                    save_depth=True,
                 )
         elif model_type == "scal3r_long":
             results = depth_estimator.process(
@@ -776,22 +819,6 @@ class DepthProcessor:
                     frame_ids=frame_ids,
                     save_depth=True,
                 )
-        elif model_type == "moge":
-            prediction = depth_estimator.process(input_dir, interval=1, start_frame=start_index, frame_count=len(frame_ids))
-            if prediction is not None:
-                if config.enable_visualization:
-                    depth_estimator.save_visualizations(
-                        prediction,
-                        depth_visualization_dir,
-                        start_frame=start_index,
-                        frame_ids=frame_ids,
-                    )
-                depth_estimator.save_results(
-                    prediction,
-                    relative_scale_dir,
-                    start_frame=start_index,
-                    frame_ids=frame_ids,
-                )
         else:
             raise ValueError(f"Unsupported depth model: {model_type}")
 
@@ -829,10 +856,6 @@ class SemanticPlaneScaleProcessor:
     def _get_scale_output_dirs(depth_model, sequence_name):
         if depth_model == "pi3_long":
             base_output_dir = config.get_path('pi3_output', sequence_name)
-        elif depth_model == "dust3r_long":
-            base_output_dir = config.get_path('dust3r_output', sequence_name)
-        elif depth_model == "must3r_long":
-            base_output_dir = config.get_path('must3r_output', sequence_name)
         elif depth_model == "scal3r_long":
             base_output_dir = config.get_path('scal3r_output', sequence_name)
         elif depth_model == "lingbot_map_long":
@@ -847,8 +870,6 @@ class SemanticPlaneScaleProcessor:
             base_output_dir = config.get_path('vggt_omega_output', sequence_name)
         elif depth_model == "vggt_long":
             base_output_dir = config.get_path('vggt_output', sequence_name)
-        elif depth_model == "moge":
-            base_output_dir = os.path.join(os.path.dirname(config.get_path('da3_output', sequence_name)), "moge_output")
         elif depth_model == "da3_long":
             base_output_dir = config.get_path('da3_output', sequence_name)
         else:
@@ -973,6 +994,7 @@ class SemanticPlaneScaleProcessor:
         debug_dir,
         current_filename=None,
     ):
+        _ = debug_dir, current_filename
         fallback_info = {
             "applied": False,
             "source": "estimated",
@@ -987,20 +1009,15 @@ class SemanticPlaneScaleProcessor:
             )
             return consistent_scale, optimized_scale, fallback_info
 
-        history_mean, history_count, source = (
-            SemanticPlaneScaleProcessor._resolve_consistent_scale_history_mean(
-                debug_dir, current_filename=current_filename
-            )
-        )
         fallback_info.update(
             {
-                "applied": True,
-                "source": source,
-                "history_mean": history_mean,
-                "history_count": history_count,
+                "applied": False,
+                "source": "no_intervals",
+                "history_mean": None,
+                "history_count": 0,
             }
         )
-        return history_mean, history_mean, fallback_info
+        return consistent_scale, optimized_scale, fallback_info
 
     @staticmethod
     def _metric_variant_to_optimized_key(metric_variant):
@@ -1136,6 +1153,11 @@ class SemanticPlaneScaleProcessor:
             else:
                 height_anchors = dynamic_height_anchors + static_height_anchors
 
+            height_anchors = [
+                anchor
+                for anchor in height_anchors
+                if scale_estimator._is_valid_height_interval(anchor)
+            ]
             selected_anchor_count += len(height_anchors)
             for anchor in height_anchors:
                 if scale_estimator.use_vlm_anchor_confidence_filter:
@@ -1934,11 +1956,17 @@ class P3ImagePreparer:
                 json_path = os.path.join(vlm_results_dir, json_file)
                 vlm_results.append(file_utils.read_json(json_path))
         
-        # 复制图像
+        # 复制图像。并行模型会共用同一份 p3_images，必须整文件替换，
+        # 不能边写边读。
         for result in vlm_results:
             src_image_path = result["image_path"]
             dest_image_path = os.path.join(p3_images_dir, os.path.basename(src_image_path))
-            shutil.copy2(src_image_path, dest_image_path)
+            src_size = os.path.getsize(src_image_path)
+            if config.resume_existing_results and os.path.exists(dest_image_path) and os.path.getsize(dest_image_path) == src_size:
+                continue
+            tmp_path = f"{dest_image_path}.{os.getpid()}.tmp"
+            shutil.copy2(src_image_path, tmp_path)
+            os.replace(tmp_path, dest_image_path)
 
 class ProcessingPipeline:
     """处理管道"""
@@ -2008,9 +2036,145 @@ class ProcessingPipeline:
         timer.end(timer_key)
         timer.print_results(timer_key)
 
+    def _sam_outputs_complete(self, sequence_name, frame_ids):
+        if not config.resume_existing_results:
+            return False
+        sam_dir = config.get_path("sam_output", sequence_name)
+        if not os.path.isdir(sam_dir):
+            return False
+        existing = set(os.listdir(sam_dir))
+        results_dir = config.get_path("vlm_results", sequence_name)
+        needed = set()
+        for frame_id in frame_ids:
+            json_path = os.path.join(results_dir, f"{frame_id}_camera1.json")
+            if not os.path.isfile(json_path):
+                return False
+            data = file_utils.read_json(json_path)
+            has_box = bool(
+                data.get("static_height_anchors")
+                or data.get("dynamic_height_anchors")
+                or data.get("semantic_planes")
+            )
+            if has_box:
+                needed.add(f"{frame_id}_camera1")
+        if not needed:
+            return True
+        return needed.issubset(existing)
+
+    def _depth_outputs_complete(self, sequence_name, frame_ids):
+        if not config.resume_existing_results:
+            return False
+        _, _, relative_scale_dir = DepthProcessor._get_depth_output_dirs(sequence_name, config.depth_model)
+        pointmap_dir = os.path.join(relative_scale_dir, "pointmap")
+        if not os.path.isdir(pointmap_dir):
+            return False
+        existing = {
+            os.path.splitext(name)[0]
+            for name in os.listdir(pointmap_dir)
+            if name.endswith(".npy")
+            and os.path.getsize(os.path.join(pointmap_dir, name)) > 100
+        }
+        needed = {f"{frame_id}_camera1" for frame_id in frame_ids}
+        return bool(needed) and needed.issubset(existing)
+
+    def _metric_results_parent(self):
+        return os.path.join(config.get_path("output_root"), config.dataset_name, "metric_results")
+
+    def _existing_sequence_metric_path(self, sequence_name):
+        if not config.resume_existing_results:
+            return None
+        parent = self._metric_results_parent()
+        if not os.path.isdir(parent):
+            return None
+        prefix = f"{config.depth_model}_"
+        matches = []
+        for name in os.listdir(parent):
+            if not name.startswith(prefix):
+                continue
+            path = os.path.join(parent, name, "sequences", f"{sequence_name}.json")
+            if os.path.isfile(path) and os.path.getsize(path) > 100:
+                matches.append(path)
+        if not matches:
+            return None
+        matches.sort(key=lambda path: os.path.getmtime(path), reverse=True)
+        return matches[0]
+
+    def _cleanup_depth_outputs(self, sequence_name):
+        output_dir, _, _ = DepthProcessor._get_depth_output_dirs(sequence_name, config.depth_model)
+        if not output_dir or not os.path.isdir(output_dir):
+            return []
+        removed_paths = []
+        for entry_name in os.listdir(output_dir):
+            entry_path = os.path.join(output_dir, entry_name)
+            if os.path.islink(entry_path):
+                os.unlink(entry_path)
+            elif os.path.isdir(entry_path):
+                shutil.rmtree(entry_path)
+            elif os.path.isfile(entry_path):
+                os.remove(entry_path)
+            removed_paths.append(entry_path)
+        return removed_paths
+
+    def _copy_sequence_metric_into_current_run(self, sequence_name, existing_path):
+        from metric_scale.metrics.metrics import metric_calculator
+
+        current_path = metric_calculator._sequence_result_path(config.depth_model, sequence_name)
+        if os.path.abspath(existing_path) == os.path.abspath(current_path):
+            return current_path
+        file_utils.ensure_directory(os.path.dirname(current_path))
+        shutil.copy2(existing_path, current_path)
+        txt_src = existing_path[:-5] + ".txt"
+        txt_dst = current_path[:-5] + ".txt"
+        if os.path.isfile(txt_src):
+            shutil.copy2(txt_src, txt_dst)
+        return current_path
+
+    def _finalize_sequence_metrics_and_cleanup(self, sequence_path, sequence_name, device=None):
+        from metric_scale.metrics.metrics import metric_calculator
+        from metric_scale.visualization.visualization import result_visualizer
+
+        log_prefix = _device_prefix(device)
+        existing = self._existing_sequence_metric_path(sequence_name)
+        if existing:
+            self._copy_sequence_metric_into_current_run(sequence_name, existing)
+            print(f"  {log_prefix} Skip metrics; already saved for {sequence_name}")
+            if config.cleanup_depth_outputs_after_metrics:
+                removed_paths = self._cleanup_depth_outputs(sequence_name)
+                print(
+                    f"  {log_prefix} Cleaned leftover depth outputs for {sequence_name} "
+                    f"(removed {len(removed_paths)} entries)"
+                )
+            return
+
+        result_visualizer.visualize_all_results(
+            sequence_path,
+            config.frame_count,
+            config.depth_model,
+            sequence_name,
+        )
+        sequence_result = metric_calculator.calculate_all_metrics(
+            sequence_path,
+            config.frame_count,
+            config.depth_model,
+            sequence_name,
+            distance_threshold=config.metric_depth_threshold,
+        )
+        metric_calculator.save_sequence_result(sequence_result, config.depth_model)
+        if config.cleanup_depth_outputs_after_metrics:
+            removed_paths = self._cleanup_depth_outputs(sequence_name)
+            output_dir, _, _ = DepthProcessor._get_depth_output_dirs(sequence_name, config.depth_model)
+            print(
+                f"  {log_prefix} Cleaned depth model outputs for sequence: {sequence_name} "
+                f"({output_dir}, removed {len(removed_paths)} entries)"
+            )
+
     def _process_sam_for_sequence(self, sequence_path, sequence_name, device=None):
         log_prefix = _device_prefix(device)
         print(f"\n--- {log_prefix} Processing sequence: {sequence_name} ---")
+        frame_ids = self._get_sequence_frame_ids(sequence_path)
+        if self._sam_outputs_complete(sequence_name, frame_ids):
+            print(f"  {log_prefix} Skip SAM; outputs already complete for {sequence_name} ({len(frame_ids)} frames).")
+            return
         vlm_results_dir = config.get_path('vlm_results', sequence_name)
         subsequences = self._get_sequence_subsequences(sequence_path)
 
@@ -2033,6 +2197,10 @@ class ProcessingPipeline:
     def _process_depth_for_sequence(self, sequence_path, sequence_name, device=None):
         log_prefix = _device_prefix(device)
         print(f"\n--- {log_prefix} Processing sequence: {sequence_name} ---")
+        frame_ids = self._get_sequence_frame_ids(sequence_path)
+        if self._depth_outputs_complete(sequence_name, frame_ids):
+            print(f"  {log_prefix} Skip depth; pointmaps already complete for {sequence_name} ({len(frame_ids)} frames).")
+            return
         subsequences = self._get_sequence_subsequences(sequence_path)
 
         current_start_index = 0
@@ -2232,6 +2400,7 @@ class ProcessingPipeline:
             for subsequence_index, subsequence_frame_ids in enumerate(subsequences, start=1):
                 tasks.append(
                     {
+                        "sequence_path": sequence_path,
                         "sequence_name": sequence_name,
                         "frame_ids": subsequence_frame_ids,
                         "vlm_results_dir": vlm_results_dir,
@@ -2273,7 +2442,7 @@ class ProcessingPipeline:
                 continue
             expected_results += len(assigned_tasks)
             process = ctx.Process(
-                target=_run_sam_tasks_on_gpu,
+                target=run_sam_tasks_on_gpu,
                 args=(gpu_id, assigned_tasks, result_queue),
             )
             process.start()
@@ -2402,7 +2571,7 @@ class ProcessingPipeline:
                 continue
             expected_results += len(assigned_tasks)
             process = ctx.Process(
-                target=_run_depth_tasks_on_gpu,
+                target=run_depth_tasks_on_gpu,
                 args=(gpu_id, assigned_tasks, result_queue),
             )
             process.start()
@@ -2463,6 +2632,8 @@ class ProcessingPipeline:
         model_manager.release_model('semantic_plane_scale')
 
     def _should_parallelize_sequences(self):
+        if config._get_section("runtime").get("depth_only", False):
+            return False
         if not config.parallel:
             return False
         if not torch.cuda.is_available():
@@ -2471,7 +2642,7 @@ class ProcessingPipeline:
             return False
         if len(self.sequences) <= 1:
             return False
-        return self._should_process_all_frames()
+        return True
 
     def _build_sequence_tasks(self):
         return [
@@ -2511,7 +2682,7 @@ class ProcessingPipeline:
                     continue
                 expected_results += len(assigned_tasks)
                 process = ctx.Process(
-                    target=_run_sequence_pipeline_on_gpu,
+                    target=run_sequence_pipeline_on_gpu,
                     args=(gpu_id, assigned_tasks, result_queue),
                 )
                 process.start()
@@ -2565,11 +2736,43 @@ class ProcessingPipeline:
                 result_queue.cancel_join_thread()
     
     def _process_sequence_task(self, sequence_path, sequence_name, device=None):
-        # self._process_vlm_for_sequence(sequence_path, sequence_name, device=device)
-        # self._process_sam_for_sequence(sequence_path, sequence_name, device=device)
-        # self._prepare_p3_for_sequence(sequence_name, device=device)
+        if config._get_section("runtime").get("depth_only", False):
+            import tempfile
+            frame_ids = self._get_sequence_frame_ids(sequence_path)
+            vlm_dir = config.get_path("vlm_results", sequence_name)
+            sources = []
+            for frame_id in frame_ids:
+                name = f"{frame_id}_camera1"
+                image_path = os.path.join(sequence_path, name + ".jpg")
+                if not os.path.isfile(image_path):
+                    raise FileNotFoundError(image_path)
+                if not os.path.isfile(os.path.join(vlm_dir, name + ".json")):
+                    raise FileNotFoundError(f"Missing existing VLM result: {name}")
+                sources.append(image_path)
+            # Preserve the old depth-only mode: a fresh input directory avoids stale frames.
+            with tempfile.TemporaryDirectory(prefix="metric_depth_only_") as input_dir:
+                for image_path in sources:
+                    shutil.copy2(image_path, os.path.join(input_dir, os.path.basename(image_path)))
+                old_input = config._config["paths"].get("p3_images")
+                config._config["paths"]["p3_images"] = input_dir
+                try:
+                    self._process_depth_for_sequence(sequence_path, sequence_name, device=device)
+                finally:
+                    if old_input is None:
+                        config._config["paths"].pop("p3_images", None)
+                    else:
+                        config._config["paths"]["p3_images"] = old_input
+            return
+        if self._existing_sequence_metric_path(sequence_name):
+            self._finalize_sequence_metrics_and_cleanup(sequence_path, sequence_name, device=device)
+            return
+        self._process_sam_for_sequence(sequence_path, sequence_name, device=device)
+        device_suffix = "" if device is None else f"_{device}"
+        model_manager.release_model(f"sam_tracker{device_suffix}")
+        self._prepare_p3_for_sequence(sequence_name, device=device)
         self._process_depth_for_sequence(sequence_path, sequence_name, device=device)
         self._process_scale_for_sequence(sequence_path, sequence_name, device=device)
+        self._finalize_sequence_metrics_and_cleanup(sequence_path, sequence_name, device=device)
         
     def run(self):
         """运行整个处理流程"""
@@ -2578,6 +2781,11 @@ class ProcessingPipeline:
         print("=" * 80)
         
         self.prepare_sequences()
+
+        # A clean checkout must be able to build VLM JSON before SAM/depth/scale.
+        # When resume_existing_results is enabled, the VLM stage skips saved JSON.
+        if not config._get_section("runtime").get("depth_only", False):
+            self.process_vlm()
 
         if self._should_parallelize_sequences():
             self._process_sequences_parallel()

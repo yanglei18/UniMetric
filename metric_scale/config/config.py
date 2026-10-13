@@ -352,14 +352,19 @@ class Config:
             "weighted_search_mode",
             "optimized_scale_priority_modulation_strength",
             "max_optimized_shift_ratio",
+            "min_optimized_to_consistent_ratio",
+            "selected_scale_default",
+            "vlm_dynamic_anchor_confidence_threshold",
+            "vlm_static_anchor_confidence_threshold",
         }
         if key not in valid_keys:
             raise ValueError(
                 f"Unsupported semantic_scale.sequence_difficulty.profiles override: {key}. "
                 "Expected only: consensus_prior_strength, distance_weight_near, "
                 "distance_weight_middle, distance_weight_distant, "
-                "dynamic_anchor_height_scale, "
-                "optimizer_dynamic_classes, optimizer_static_classes."
+                "dynamic_anchor_height_scale, optimizer_dynamic_classes, optimizer_static_classes, "
+                "vlm_dynamic_anchor_confidence_threshold, "
+                "vlm_static_anchor_confidence_threshold."
             )
 
     def _sequence_difficulty_section(self):
@@ -397,12 +402,34 @@ class Config:
             )
         return value
 
+    @staticmethod
+    def _resolve_existing_dataset_summary_path(summary_path):
+        if not summary_path:
+            return None
+        if os.path.isfile(summary_path):
+            return summary_path
+        results_dir = os.path.dirname(os.path.dirname(summary_path))
+        model_name = os.path.basename(os.path.dirname(summary_path))
+        if not model_name or not os.path.isdir(results_dir):
+            return summary_path
+        prefix = model_name + "_"
+        candidates = []
+        for entry in os.listdir(results_dir):
+            if entry != model_name and not entry.startswith(prefix):
+                continue
+            candidate = os.path.join(results_dir, entry, "dataset_summary.json")
+            if os.path.isfile(candidate):
+                candidates.append(candidate)
+        if not candidates:
+            return summary_path
+        return max(candidates)
+
     @property
     def sequence_difficulty_dataset_summary_path(self):
         raw_value = self._sequence_difficulty_section().get("dataset_summary_path")
         if raw_value in (None, "", "none", "None"):
             return None
-        return self._resolve_template(raw_value)
+        return self._resolve_existing_dataset_summary_path(self._resolve_template(raw_value))
 
     @property
     def sequence_difficulty_metric_variant(self):
@@ -531,7 +558,7 @@ class Config:
                 self._validate_profile_override_key(key)
                 if key in {"optimizer_dynamic_classes", "optimizer_static_classes"}:
                     normalized_profile[key] = self._normalize_string_list(value)
-                elif key in {"height_anchor_source", "default_optimized_variant", "weighted_search_mode"}:
+                elif key in {"height_anchor_source", "default_optimized_variant", "weighted_search_mode", "selected_scale_default"}:
                     normalized_profile[key] = str(value).strip()
                 elif key in {"anchor_quality_min_percentile", "anchor_quality_max_percentile",
                              "depth_geometry_min_relative_height"}:
@@ -542,12 +569,15 @@ class Config:
                             f"{value}. Expected a finite float >= 0.0."
                         )
                     normalized_profile[key] = parsed_value
-                elif key == "consensus_prior_strength":
+                elif key in {
+                    "vlm_dynamic_anchor_confidence_threshold",
+                    "vlm_static_anchor_confidence_threshold",
+                }:
                     parsed_value = float(value)
-                    if parsed_value < 0.0:
+                    if not 0.0 <= parsed_value <= 1.0:
                         raise ValueError(
                             f"Unsupported semantic_scale.sequence_difficulty.profiles.{profile_name}.{key}: "
-                            f"{parsed_value}. Expected a float >= 0.0."
+                            f"{parsed_value}. Expected a float in [0.0, 1.0]."
                         )
                     normalized_profile[key] = parsed_value
                 elif key == "dynamic_anchor_height_scale":
@@ -556,6 +586,14 @@ class Config:
                         raise ValueError(
                             f"Unsupported semantic_scale.sequence_difficulty.profiles.{profile_name}.{key}: "
                             f"{parsed_value}. Expected a finite float in (0.0, 3.0]."
+                        )
+                    normalized_profile[key] = parsed_value
+                elif key == "consensus_prior_strength":
+                    parsed_value = float(value)
+                    if parsed_value < 0.0:
+                        raise ValueError(
+                            f"Unsupported semantic_scale.sequence_difficulty.profiles.{profile_name}.{key}: "
+                            f"{parsed_value}. Expected a float >= 0.0."
                         )
                     normalized_profile[key] = parsed_value
                 else:
@@ -576,6 +614,52 @@ class Config:
                     + ", ".join(missing_names)
                 )
         return normalized_profiles
+
+    @property
+    def sequence_difficulty_hard_sequences(self):
+        raw_value = self._sequence_difficulty_section().get("hard_sequences", [])
+        if raw_value in (None, "", [], ()):
+            return tuple()
+        if isinstance(raw_value, str):
+            items = [raw_value]
+        elif isinstance(raw_value, (list, tuple, set)):
+            items = list(raw_value)
+        else:
+            raise ValueError(
+                "semantic_scale.sequence_difficulty.hard_sequences must be a list of sequence names."
+            )
+        names = []
+        seen = set()
+        for item in items:
+            name = str(item).strip()
+            if not name or name in seen:
+                continue
+            names.append(name)
+            seen.add(name)
+        return tuple(names)
+
+    def _apply_yaml_hard_sequences(self, sequence_name, profile):
+        if sequence_name not in self.sequence_difficulty_hard_sequences:
+            return profile
+        if profile is None:
+            profile = {
+                "sequence_name": sequence_name,
+                "mode": self.sequence_difficulty_mode,
+                "metric_status": "yaml_hard_sequences",
+                "easy_d1_gain_threshold": self.sequence_difficulty_easy_d1_gain_threshold,
+                "baseline_variant": self.sequence_difficulty_baseline_variant,
+                "baseline_rel": None,
+                "baseline_delta1": None,
+            }
+        else:
+            profile = copy.deepcopy(profile)
+        profile["profile_name"] = "hard"
+        profile["overrides"] = copy.deepcopy(self.sequence_difficulty_profiles["hard"])
+        reason = str(profile.get("classification_reason") or "").strip()
+        profile["classification_reason"] = (
+            f"yaml_hard_sequences;{reason}" if reason else "yaml_hard_sequences"
+        )
+        return profile
 
     def _validate_sequence_difficulty_thresholds(self):
         mode = self.sequence_difficulty_mode
@@ -1098,8 +1182,11 @@ class Config:
         self._validate_sequence_difficulty_thresholds()
         summary_payload = self._load_sequence_difficulty_summary()
         if summary_payload is None:
-            self._sequence_difficulty_profile_cache[sequence_name] = None
-            return None
+            profile = self._apply_yaml_hard_sequences(sequence_name, None)
+            self._sequence_difficulty_profile_cache[sequence_name] = (
+                None if profile is None else copy.deepcopy(profile)
+            )
+            return None if profile is None else copy.deepcopy(profile)
         sequence_results = summary_payload["sequence_results"]
         matched_result = None
         for item in sequence_results:
@@ -1108,16 +1195,15 @@ class Config:
                 break
         if matched_result is None:
             profile = self._missing_sequence_difficulty_profile(sequence_name)
-            profile["dataset_summary_path"] = self.sequence_difficulty_dataset_summary_path
-            self._sequence_difficulty_profile_cache[sequence_name] = copy.deepcopy(profile)
-            return profile
-        profile = self.classify_sequence_difficulty_result(
-            matched_result,
-            include_overrides=True,
-        )
+        else:
+            profile = self.classify_sequence_difficulty_result(
+                matched_result,
+                include_overrides=True,
+            )
         profile["dataset_summary_path"] = self.sequence_difficulty_dataset_summary_path
+        profile = self._apply_yaml_hard_sequences(sequence_name, profile)
         self._sequence_difficulty_profile_cache[sequence_name] = copy.deepcopy(profile)
-        return profile
+        return copy.deepcopy(profile)
 
     def activate_semantic_scale_sequence_profile(self, sequence_name):
         profile = self.resolve_semantic_scale_sequence_profile(sequence_name)
@@ -1198,16 +1284,34 @@ class Config:
     @property
     def api_key(self):
         vision_cfg = self._get_section("vision")
+        model_type = str(vision_cfg.get("model_type", "") or "").strip().lower().replace("_", "-")
         api_key_env = str(vision_cfg.get("api_key_env", "") or "").strip()
-        if api_key_env:
-            return os.environ.get(api_key_env, "")
+        qwen_key = (os.environ.get("MODEL_KEY") or "").strip()
 
-        api_key = vision_cfg.get("api_key", "")
-        if isinstance(api_key, str):
-            api_key = api_key.strip()
-            if api_key.startswith("$") and len(api_key) > 1:
-                return os.environ.get(api_key[1:], "")
-        return api_key or ""
+        if model_type in ("qwen-api", "qwenapi"):
+            if api_key_env:
+                return os.environ.get(api_key_env, "") or qwen_key
+            return qwen_key
+
+        if api_key_env:
+            resolved = os.environ.get(api_key_env, "")
+        else:
+            api_key = vision_cfg.get("api_key", "")
+            if isinstance(api_key, str):
+                api_key = api_key.strip()
+                if api_key.startswith("$") and len(api_key) > 1:
+                    resolved = os.environ.get(api_key[1:], "")
+                else:
+                    resolved = api_key
+            else:
+                resolved = api_key or ""
+
+        resolved = resolved or ""
+        if "doubao" in model_type and resolved and qwen_key and resolved.strip() == qwen_key:
+            raise ValueError(
+                "Doubao must not use MODEL_KEY. Export DOUBAO_API_KEY with the Doubao key."
+            )
+        return resolved
 
     @property
     def model_version(self):
@@ -1284,21 +1388,6 @@ class Config:
         return self._get_section("runtime").get("depth_model", "pi3_long")
 
     @property
-    def dust3r_model_name(self):
-        return self._resolve_template(self._get_section("models").get("dust3r_model_name", "dust3r"))
-
-    @property
-    def must3r_model_name(self):
-        return self._resolve_template(self._get_section("models").get("must3r_model_name", "must3r"))
-
-    @property
-    def must3r_retrieval_ckpt_path(self):
-        value = self._get_section("models").get("must3r_retrieval_ckpt_path")
-        if value in (None, "", "none", "None"):
-            return None
-        return self._resolve_template(value)
-
-    @property
     def scal3r_project_root(self):
         return self._resolve_template(
             self._get_section("models").get("scal3r_project_root", "{project_root}/../Scal3R")
@@ -1328,6 +1417,18 @@ class Config:
     @property
     def scal3r_use_native_confidence(self):
         return bool(self._get_section("models").get("scal3r_use_native_confidence", False))
+
+    @property
+    def scal3r_use_loop(self):
+        return int(bool(self._get_section("models").get("scal3r_use_loop", 0)))
+
+    @property
+    def scal3r_offload_batches(self):
+        return int(bool(self._get_section("models").get("scal3r_offload_batches", 0)))
+
+    @property
+    def scal3r_offload_outputs(self):
+        return int(bool(self._get_section("models").get("scal3r_offload_outputs", 0)))
 
     @property
     def lingbot_map_project_root(self):
@@ -1885,6 +1986,10 @@ class Config:
         return bool(self._get_section("semantic_scale").get("use_sam_anchor_bbox_intersection_filter", False))
 
     @property
+    def fallback_degenerate_plane_mask(self):
+        return bool(self._get_section("semantic_scale").get("fallback_degenerate_plane_mask", False))
+
+    @property
     def use_depth_geometry_filter(self):
         return bool(self._get_section("semantic_scale").get("use_depth_geometry_filter", True))
 
@@ -2419,6 +2524,11 @@ class Config:
         return bool(self._get_section("runtime").get("cleanup_depth_outputs_after_metrics", False))
 
     @property
+    def resume_existing_results(self):
+        """Opt-in reuse; existing files alone cannot prove matching YAML parameters."""
+        return bool(self._get_section("runtime").get("resume_existing_results", False))
+
+    @property
     def pi3_weights(self):
         return self._resolve_template(self._get_section("models").get("pi3_weights"))
 
@@ -2429,10 +2539,6 @@ class Config:
     @property
     def da3_model_name(self):
         return self._resolve_template(self._get_section("models").get("da3_model_name"))
-
-    @property
-    def moge_model_name(self):
-        return self._resolve_template(self._get_section("models").get("moge_model_name"))
 
     def _active_depth_model_summary_lines(self) -> list[str]:
         model = str(self.depth_model)
@@ -2466,20 +2572,14 @@ class Config:
             ]
         if model == "da3_long":
             return [f"da3_model_name: {self.da3_model_name}"]
-        if model == "moge":
-            return [f"moge_model_name: {self.moge_model_name}"]
-        if model == "dust3r_long":
-            return [f"dust3r_model_name: {self.dust3r_model_name}"]
-        if model == "must3r_long":
-            return [
-                f"must3r_model_name: {self.must3r_model_name}",
-                f"must3r_retrieval_ckpt_path: {self.must3r_retrieval_ckpt_path}",
-            ]
         if model == "scal3r_long":
             return [
                 f"scal3r_project_root: {self.scal3r_project_root}",
                 f"scal3r_config_path: {self.scal3r_config_path}",
                 f"scal3r_checkpoint: {self.scal3r_checkpoint}",
+                f"scal3r_use_loop: {self.scal3r_use_loop}",
+                f"scal3r_offload_batches: {self.scal3r_offload_batches}",
+                f"scal3r_offload_outputs: {self.scal3r_offload_outputs}",
             ]
         if model == "lingbot_map_long":
             return [
@@ -2591,6 +2691,7 @@ class Config:
             f"sequence_difficulty_enabled: {self.sequence_difficulty_enabled}",
             f"sequence_difficulty_mode: {self.sequence_difficulty_mode}",
             f"sequence_difficulty_dataset_summary_path: {self.sequence_difficulty_dataset_summary_path}",
+            f"sequence_difficulty_hard_sequences: {list(self.sequence_difficulty_hard_sequences)}",
         ]
         if self.sequence_difficulty_mode == "best_variant_vs_baseline":
             lines.extend(
@@ -2665,8 +2766,6 @@ class Config:
             "da3_output",
             "pi3_output",
             "vggt_output",
-            "dust3r_output",
-            "must3r_output",
             "scal3r_output",
             "lingbot_map_output",
             "vggt_omega_output",

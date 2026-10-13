@@ -584,7 +584,7 @@ If none, return [].
 """.strip()
 
 
-def get_anchor_type_priors(task_name: str) -> Dict[str, AnchorTypePrior]:
+def get_anchor_type_priors_v1(task_name: str) -> Dict[str, AnchorTypePrior]:
     if task_name in {"dynamic_height_anchors", "height_anchors"}:
         return dict(DYNAMIC_ANCHOR_TYPE_PRIORS)
     if task_name == "static_height_anchors":
@@ -592,7 +592,7 @@ def get_anchor_type_priors(task_name: str) -> Dict[str, AnchorTypePrior]:
     raise ValueError(f"Unsupported anchor prior task: {task_name}")
 
 
-def get_prompt(task_name: str, scene_domain: str = "indoor") -> str:
+def get_prompt_v1(task_name: str, scene_domain: str = "indoor") -> str:
     scene_domain = str(scene_domain or "indoor").strip().lower()
     if scene_domain != "indoor":
         raise ValueError(
@@ -608,4 +608,402 @@ def get_prompt(task_name: str, scene_domain: str = "indoor") -> str:
         return DYNAMIC_HEIGHT_ANCHORS_PROMPT
     if task_name == "scene_planes":
         return SCENE_PLANES_PROMPT
+    raise ValueError(f"Unsupported prompt task: {task_name}")
+
+
+# ---------------------------------------------------------------------------
+# v2 prompts: keep v1 unchanged, add Robotiq 2F-85 gripper metric priors.
+# DROID sequence yaml has no per-sequence gripper field. Official DROID
+# hardware and this project's 110 sequences all use one gripper: 2F-85.
+# ---------------------------------------------------------------------------
+
+DROID_GRIPPER_MODEL = "Robotiq 2F-85 Adaptive Gripper"
+
+DROID_GRIPPER_HARDWARE_PRIOR = """
+DROID collection gripper prior (dataset-wide hardware, not a per-frame guess):
+- Official DROID platform uses one gripper on every collection unit: Robotiq 2F-85 Adaptive Gripper, mounted on a Franka Panda / FR3 wrist.
+- This project's local DROID split has 110/110 sequences. Sequence yaml records robot_serial but has no gripper field; all sequences share the same DROID hardware gripper, so use Robotiq 2F-85 for every sequence.
+- Do not invent another gripper (Robotiq 2F-140, Franka Hand, or generic two-finger gripper).
+
+Official Robotiq 2F-85 parameters to copy as scale priors:
+- model: Robotiq 2F-85 Adaptive Gripper
+- finger opening / stroke: 0.000 m to 0.085 m (varies with grasp; this is opening width, NOT height)
+- maximum gripper body height: 0.1628 m
+- maximum gripper body width: 0.1486 m
+- gripper mass: 0.900-0.925 kg
+- fingertip position resolution: 0.0004 m
+- minimum encompassing object diameter: 0.043 m
+- grasp force: 20-235 N
+- finger speed: 0.020-0.150 m/s
+- payload: 2.5 kg typical, up to 5 kg in the product sheet
+
+How to use these numbers:
+- Do NOT return object_class "gripper" as a static height anchor. The 0.1628 m body height does not match peak-to-bottom of a tilted, wrist-mounted gripper.
+- Never label the gripper, robot arm, fingers, or grasped object as a height anchor.
+- Never put 0.085 into height_interval. 85 mm is the finger stroke, not an object height.
+""".strip()
+
+STATIC_ANCHOR_TYPE_PRIORS_V2: Dict[str, AnchorTypePrior] = {
+    "door": {"level": "very_high", "weight": 0.95, "priority": 2},
+    "counter": {"level": "high", "weight": 0.85, "priority": 3},
+    "cabinet": {"level": "high", "weight": 0.85, "priority": 4},
+    "drawer": {"level": "high", "weight": 0.85, "priority": 5},
+    "dresser": {"level": "high", "weight": 0.85, "priority": 6},
+    "table": {"level": "high", "weight": 0.85, "priority": 7},
+    "workbench": {"level": "high", "weight": 0.85, "priority": 8},
+    "toilet": {"level": "high", "weight": 0.85, "priority": 9},
+    "chair": {"level": "medium", "weight": 0.70, "priority": 10},
+    "stool": {"level": "medium", "weight": 0.70, "priority": 11},
+    "hamper": {"level": "low", "weight": 0.55, "priority": 12},
+    "trash can": {"level": "low", "weight": 0.55, "priority": 13},
+    "toaster": {"level": "low", "weight": 0.55, "priority": 14},
+    "box": {"level": "low", "weight": 0.55, "priority": 15},
+    "bottle": {"level": "low", "weight": 0.55, "priority": 16},
+    "cup": {"level": "low", "weight": 0.55, "priority": 17},
+    "book": {"level": "low", "weight": 0.55, "priority": 18},
+    "bowl": {"level": "low", "weight": 0.55, "priority": 19},
+    "brick": {"level": "low", "weight": 0.55, "priority": 20},
+}
+
+STATIC_LEVEL_GUIDANCE_V2 = format_level_guidance(STATIC_ANCHOR_TYPE_PRIORS_V2)
+STATIC_PRIORITY_ORDER_V2 = format_priority_order(STATIC_ANCHOR_TYPE_PRIORS_V2)
+STATIC_PRIOR_TABLE_V2 = format_prior_table_lines(STATIC_ANCHOR_TYPE_PRIORS_V2)
+
+DYNAMIC_HEIGHT_ANCHORS_PROMPT_V2 = f"""
+{DYNAMIC_HEIGHT_ANCHORS_PROMPT}
+
+Additional v2 hardware note:
+- The two-finger claw in DROID images is the Robotiq 2F-85 gripper, not a person and not a dynamic height anchor.
+- Never label the gripper, robot arm, or fingers as person.
+""".strip()
+
+STATIC_HEIGHT_ANCHORS_PROMPT_V2 = f"""
+You are a physical AI and computer vision expert.
+Your task: identify high-quality static height semantic anchors for DROID indoor robot manipulation scenes.
+
+{DROID_GRIPPER_HARDWARE_PRIOR}
+
+Core objective:
+- DROID is dominated by indoor manipulation around a Franka arm, a Robotiq 2F-85 gripper, tables, workbenches, counters, drawers, dressers, toilets, hampers, cabinets, and small task objects.
+- Do not return the gripper, robot arm, or fingers as a height anchor.
+- Return only large, stable, complete static objects whose full top-to-base vertical extent is visible and meaningful for metric scale.
+- For DROID, prefer objects resting on the selected manipulation plane.
+- The downstream "floor" label usually means the tabletop/workbench/counter support surface, not the room floor.
+- Reject background room furniture that is not on the selected manipulation plane.
+- Return at most 2 static anchors per frame.
+- Prefer near anchors first, then clean middle anchors. Do not return distant static anchors.
+- Prefer rigid task objects such as cups, bottles, bowls, boxes, toasters, books, and bricks when they are on the selected manipulation plane and complete enough to give a clean height cue.
+- A usable static anchor must be a single physical object, visually large, isolated, and complete from top to base.
+- Each returned anchor must represent exactly one physical object instance, never a group, stack, nested set, pair, or object-plus-contents region.
+- Never return the same physical instance twice under different class names or with two different boxes.
+- A tabletop surface alone is a plane, not a height anchor.
+- Reject soft or flat tabletop manipulation objects: cloths, towels, cables, tools, utensils, erasers, plates, lids, power strips, remotes, mice, trays, and other clutter.
+- Reject robot arms, robot bases, grippers, cameras, tripods, monitors, laptops, cables, fixtures, shelves fused into clutter, and generic lab equipment.
+- Treat truncation and occlusion as reject conditions. Do not return an anchor with is_truncated=true or is_occluded=true.
+- If the object is ambiguous, tiny, distant, floating, wall-mounted without base, only a top surface, only a front panel, or lacks a reliable top-to-base cue, return [] instead of guessing.
+- Only use exact class names from the candidate list below. Do not invent synonyms.
+
+Decision tree:
+1. Check whether the object is one recognizable static object from the candidate list. If not, reject.
+2. Check scale-anchor visual reliability before assigning a class:
+   - Reject tiny, far, blurry, low-contrast, reflective, or backlit objects.
+   - Reject objects merged with robot hardware, shelves, drawers, clutter, other furniture, people, walls, or glass reflections.
+   - Keep only objects whose top, sides/supports/body, and base are visible enough for one clean SAM mask.
+   - Reject the gripper, robot arm, fingers, and grasped object.
+3. Check distance_level from coarse visual impression only:
+   near = large and prominent foreground object
+   middle = clearly visible mid-range object whose full top-to-base extent is still large and crisp
+   distant = far-away background object, very small object, or weak silhouette
+   - Reject every distant candidate.
+4. Check whether the object height remains reliably observable from top to bottom. If not, reject.
+5. Check truncation:
+   - If the object is cut by the image boundary, set is_truncated=true.
+   - Do not return truncated anchors.
+6. Check occlusion:
+   - Set is_occluded=true only when another physical object blocks part of the target body.
+   - If another object blocks the top, body, supports, legs, bottom, or base/floor contact, reject.
+7. Class-specific keep / reject:
+   - gripper: reject. Do not return the Robotiq 2F-85 as a height anchor.
+   - door: keep a full standard door leaf or full door-frame region with visible header/top and bottom threshold/floor contact.
+   - counter: keep a complete kitchen/lab counter or counter cabinet with visible top and lower base/front reaching the floor.
+   - cabinet: keep a complete cabinet, drawer unit, cart cabinet, or storage cabinet with visible top and bottom/base.
+   - table: keep a single complete table/desk with tabletop and multiple legs/base visible.
+   - workbench: keep a complete lab/work bench with top and legs/base visible.
+   - chair: reject background chairs in DROID manipulation scenes unless the chair itself is the manipulated tabletop object, which is rare.
+   - stool: reject background stools in DROID manipulation scenes unless the stool itself is the manipulated tabletop object, which is rare.
+   - drawer: keep a full drawer unit or drawer stack with visible top and bottom/base.
+   - dresser: keep a complete dresser with the full body visible from top to base.
+   - toilet: keep one complete toilet with visible tank/top, seat/body, and base/floor contact.
+   - hamper: keep one rigid upright hamper or clothes hamper with visible rim/top and base.
+   - trash can: keep one upright rigid bin/trash can with visible top rim/lid and bottom/base.
+   - toaster / box / bottle / cup / book / bowl / brick: keep only standalone rigid instances with visible top and base or rim.
+8. Tie-break:
+   - Prefer near over middle, and middle over distant.
+   - If two valid anchors are equally clear, prefer the earlier class in the priority order below.
+9. Final pairwise instance check before returning JSON:
+   - Compare every pair of proposed anchor boxes.
+   - Reject duplicate or nested proposals.
+
+Reasoning rules:
+- Do not estimate metric distance or use geometry, perspective, exact pixel size, depth, or measurement.
+- You may use coarse visual prominence to reject small/distant weak anchors.
+- Use only semantic category prior + common knowledge.
+- Keep the height interval as precise as possible while remaining realistic for the visible object subtype.
+- Typical height intervals:
+  door: [1.95, 2.15]
+  counter: [0.85, 1.05]
+  low cabinet/drawer unit: [0.60, 1.10]
+  tall cabinet: [1.50, 2.20]
+  drawer unit: [0.60, 1.20]
+  dresser: [0.80, 1.80]
+  table or desk: [0.70, 0.90]
+  workbench: [0.75, 1.05]
+  toilet: [0.55, 0.90]
+  chair full back height: [0.75, 1.10]
+  stool: [0.45, 0.80]
+  hamper: [0.45, 0.90]
+  trash can: [0.45, 0.95]
+
+Category priors:
+- For each returned anchor, also output "level", "type_weight", and "priority".
+- These three fields must STRICTLY match the class prior table below for the chosen object_class.
+- Do not infer them from image appearance. Copy them exactly from the table.
+- Static class prior table:
+{STATIC_PRIOR_TABLE_V2}
+
+Class disambiguation and priority rules:
+- Prefer clearer and more standardized DROID indoor static anchors in this order:
+  {STATIC_PRIORITY_ORDER_V2}
+- If two candidate static anchors are equally clear and equally complete, prefer the earlier class in the above order.
+- If many similar objects exist, keep only the clearest one or two valid anchors and order clearer anchors first.
+
+Bounding box format:
+- object_bbox_2d must be normalized to [0,1000]:
+  [x1, y1, x2, y2], where (0,0) is top-left and (1000,1000) is bottom-right.
+- Draw a tight box around only one complete object instance.
+- Two returned anchor boxes must not substantially overlap or contain one another.
+
+For each anchor, output exactly:
+1) object_class (lowercase, exact label from candidate list)
+2) object_bbox_2d (normalized [0,1000], integers)
+3) height_interval (meters) as [min,max], floats
+4) distance_level (must be exactly one of: near, middle, distant)
+5) level (must exactly match the class prior table)
+6) type_weight (must exactly match the class prior table)
+7) priority (must exactly match the class prior table)
+8) confidence in [0,1]
+9) reason (short common-sense justification)
+10) is_occluded (boolean, true only if another physical object blocks part of the object)
+11) is_truncated (boolean, true only if the object is cut off by the image edge)
+
+Return JSON array only. Example:
+[
+  {{
+    "object_class": "cup",
+    "object_bbox_2d": [410, 180, 560, 420],
+    "height_interval": [0.08, 0.18],
+    "distance_level": "near",
+    "level": "low",
+    "type_weight": 0.55,
+    "priority": 17,
+    "confidence": 0.93,
+    "reason": "Complete cup on the table with visible rim and base.",
+    "is_occluded": false,
+    "is_truncated": false
+  }}
+]
+If none, return [].
+
+Candidate static built-environment objects (use these exact lowercase labels only):
+- door
+- counter
+- cabinet
+- drawer
+- dresser
+- table
+- workbench
+- toilet
+- chair
+- stool
+- hamper
+- trash can
+- toaster
+- box
+- bottle
+- cup
+- book
+- bowl
+- brick
+""".strip()
+
+STATIC_ANCHOR_CATEGORY_DISCOVERY_PROMPT_V2 = f"""
+You are a physical AI and computer vision expert.
+Your task: describe the DROID robot manipulation scene and list object categories that could be usable static height anchors.
+
+{DROID_GRIPPER_HARDWARE_PRIOR}
+
+Scene meaning:
+- DROID images usually show a Franka robot arm and a Robotiq 2F-85 gripper working on a tabletop, desk, workbench, counter, tray, cabinet top, or lab bench.
+- Treat this support surface as the local manipulation plane. It may not be the room floor.
+- In this project the downstream label "floor" means this selected floor-like manipulation plane, usually the tabletop/workbench/counter surface.
+- Also list object categories for physical objects resting on, attached to, or immediately supported by this selected manipulation plane.
+- Reject background room objects that are not on the manipulation plane, even if they are complete and easy to recognize.
+
+Return categories only when they could be useful for metric scale:
+- Keep rigid upright tabletop/work-surface objects with a visible top-to-base vertical extent: box, bottle, cup, mug, bowl, block, brick, container, small appliance.
+- Never list gripper, robot arm, fingers, power strip, remote, mouse, tray, scissors, button, cutting board, tape, cabinet, stool, pot, basket, jar, bin, can, roll, or other flat/thin objects.
+- Reject chairs, stools, desks, tables, workbenches, counters, cabinets, drawers, doors, wall boards, monitors, and room furniture unless the object itself is a small item physically sitting on the selected manipulation plane.
+- Prefer common category names, lowercase singular nouns.
+- List one object category per entry. Do not emit compound categories such as "cup and bowl", "box with blocks", "stacked containers", or "assorted objects".
+- Do not list robot arms, hands, grippers, cables, cloths, towels, paper sheets, plates, lids, flat mats, shadows, walls, screens, reflections, labels, or amorphous clutter.
+- Do not list categories that are only tiny, heavily occluded, cropped, or visually ambiguous in this image.
+- Return at most 12 categories, ordered by usefulness as height anchors.
+
+Return JSON object only:
+{{
+  "scene_description": "short description of the manipulation scene",
+  "manipulation_plane": "tabletop|workbench|counter|cabinet top|floor|unknown",
+  "candidate_static_classes": ["category", "..."]
+}}
+If no useful categories exist, return {{"scene_description": "...", "manipulation_plane": "unknown", "candidate_static_classes": []}}.
+""".strip()
+
+SCENE_PLANES_PROMPT_V2 = f"""
+{SCENE_PLANES_PROMPT}
+
+Additional v2 hardware note:
+- The Robotiq 2F-85 gripper is a rigid object, not a horizontal reference plane.
+- Never choose the gripper, fingers, robot arm, or grasped object as the primary plane.
+""".strip()
+
+
+def build_static_height_anchors_prompt_v2(candidate_static_classes: Sequence[str]) -> str:
+    normalized = []
+    seen = set()
+    for class_name in candidate_static_classes:
+        value = str(class_name or "").strip().lower().replace("-", " ").replace("_", " ")
+        if not value or value in seen:
+            continue
+        seen.add(value)
+        normalized.append(value)
+    candidate_list = format_candidate_list(normalized)
+    return f"""
+You are a physical AI and computer vision expert.
+Your task: identify high-quality static height semantic anchors for DROID robot manipulation scenes.
+
+{DROID_GRIPPER_HARDWARE_PRIOR}
+
+Open-vocabulary setup:
+- A previous VLM pass inspected this exact image and found the candidate categories below.
+- You may output only these exact lowercase labels. Do not invent new labels in this second pass.
+- Never return gripper, robot arm, fingers, or flat/thin objects even if they appear in the image.
+- If none of these categories has a clean complete instance, return [].
+
+Candidate static objects:
+{candidate_list}
+
+Core objective:
+- Prefer rigid upright tabletop objects with a clean top-to-base extent: cup, mug, bottle, bowl, box, brick, toaster, container, small appliance.
+- Return only large, stable, complete static objects whose full top-to-base vertical extent is visible and meaningful for metric scale.
+- Return at most 2 static anchors per frame.
+- Prefer near anchors first, then clean middle anchors. Do not return distant static anchors.
+- DROID frames are centered on a manipulation plane: tabletop, desk surface, workbench top, counter top, cabinet top, tray surface, or visible room floor.
+- The downstream "floor" label means this selected floor-like manipulation plane. For tabletop manipulation data, it usually means the tabletop/workbench/counter surface, not the room floor.
+- Keep tabletop objects only if they rest on the selected manipulation plane.
+- A usable static anchor must be a single rigid physical object, visually large, isolated, and complete from top to base.
+- Each returned anchor must represent exactly one physical object instance, never a group, stack, nested set, pair, or object-plus-contents region.
+- Never return the same physical instance twice under different class names or with two different boxes.
+- Reject soft, flat, flexible, or thickness-poor objects: cloths, towels, cables, paper sheets, flat plates, lids, mats, power strips, remotes, mice, trays, tape, and amorphous clutter.
+- Reject robot arms, robot bases, hands, grippers, cameras, tripods, monitors, laptops, cables, wall surfaces, reflections, background chairs, background desks, background tables, background cabinets, room doors, whiteboards, and room furniture.
+- Treat truncation and occlusion as reject conditions. Do not return an anchor with is_truncated=true or is_occluded=true.
+- If the object is ambiguous, tiny, distant, floating, wall-mounted without base, only a top surface, only a front panel, or lacks a reliable top-to-base cue, return [] instead of guessing.
+
+Decision tree:
+1. Check whether the object is one recognizable static object from the candidate list. If not, reject.
+2. Check scale-anchor visual reliability before assigning a class:
+   - Reject tiny, far, blurry, low-contrast, reflective, or backlit objects.
+   - Reject the gripper, robot arm, fingers, and any grasped object.
+   - Reject any object whose bottom/contact point is not on the selected manipulation plane.
+   - Keep only objects whose top/rim, sides/body, and base/bottom contact are visible enough for one clean SAM mask.
+3. Check distance_level from coarse visual impression only:
+   near = large and prominent foreground object
+   middle = clearly visible mid-range object whose full top-to-base extent is still large and crisp
+   distant = far-away background object, very small object, or weak silhouette
+   - Reject every distant candidate.
+4. Check whether the object height remains reliably observable from top to bottom. If not, reject.
+5. Check truncation:
+   - If the object is cut by the image boundary, set is_truncated=true.
+   - Do not return truncated anchors.
+6. Check occlusion:
+   - Set is_occluded=true only when another physical object blocks part of the target body.
+   - A grasped object between the fingers is not a height anchor. Do not return it.
+7. Tie-break:
+   - Prefer larger, more rigid, more complete, more standardized objects.
+   - Prefer near over middle.
+8. Final pairwise instance check before returning JSON:
+   - Reject duplicate or nested proposals.
+
+Reasoning rules:
+- Do not estimate metric distance or use geometry, perspective, exact pixel size, depth, or measurement.
+- Keep the height_interval realistic for the visible subtype. Use broad intervals when category size varies.
+- Examples: cup/mug [0.08,0.18], bottle [0.12,0.35], bowl [0.06,0.18], box/container [0.05,0.45], block/brick [0.03,0.15], small appliance [0.10,0.35].
+
+Category weights:
+- For each returned anchor, output "level", "type_weight", and "priority".
+- Assign level by anchor usefulness:
+  very_high: large rigid object with standardized height
+  high: complete rigid container, appliance, or stand on the selected manipulation plane with clear height
+  medium: complete standalone bottle, mug, cup, bowl, box, block, brick
+  low: valid but size-variable rigid small objects
+- type_weight must match level:
+{WEIGHT_MAPPING_LINES}
+- priority is 1 for the best returned anchor and 2 for the second returned anchor.
+
+Bounding box format:
+- object_bbox_2d must be normalized to [0,1000]:
+  [x1, y1, x2, y2], where (0,0) is top-left and (1000,1000) is bottom-right.
+- Draw a tight box around only one complete object instance.
+- Two returned anchor boxes must not substantially overlap or contain one another. If clean non-overlapping boxes are impossible, return only the best single anchor.
+
+For each anchor, output exactly:
+1) object_class (lowercase, exact label from candidate list)
+2) object_bbox_2d (normalized [0,1000], integers)
+3) height_interval (meters) as [min,max], floats
+4) distance_level (must be exactly one of: near, middle, distant)
+5) level (must be exactly one of: very_high, high, medium, low)
+6) type_weight
+7) priority
+8) confidence in [0,1]
+9) reason (short common-sense justification)
+10) is_occluded (boolean, true only if another physical object blocks part of the object)
+11) is_truncated (boolean, true only if the object is cut off by the image edge)
+
+Return JSON array only. If none, return [].
+""".strip()
+
+
+def get_anchor_type_priors(task_name: str) -> Dict[str, AnchorTypePrior]:
+    if task_name in {"dynamic_height_anchors", "height_anchors"}:
+        return dict(DYNAMIC_ANCHOR_TYPE_PRIORS)
+    if task_name == "static_height_anchors":
+        return dict(STATIC_ANCHOR_TYPE_PRIORS_V2)
+    raise ValueError(f"Unsupported anchor prior task: {task_name}")
+
+
+def get_prompt(task_name: str, scene_domain: str = "indoor") -> str:
+    scene_domain = str(scene_domain or "indoor").strip().lower()
+    if scene_domain != "indoor":
+        raise ValueError(
+            f"DROID prompt only supports scene_domain='indoor', but got: {scene_domain}"
+        )
+    if task_name == "dynamic_height_anchors":
+        return DYNAMIC_HEIGHT_ANCHORS_PROMPT_V2
+    if task_name == "static_height_anchors":
+        return STATIC_HEIGHT_ANCHORS_PROMPT_V2
+    if task_name == "static_anchor_category_discovery":
+        return STATIC_ANCHOR_CATEGORY_DISCOVERY_PROMPT_V2
+    if task_name == "height_anchors":
+        return DYNAMIC_HEIGHT_ANCHORS_PROMPT_V2
+    if task_name == "scene_planes":
+        return SCENE_PLANES_PROMPT_V2
     raise ValueError(f"Unsupported prompt task: {task_name}")

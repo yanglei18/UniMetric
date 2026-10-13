@@ -15,6 +15,7 @@ from metric_scale.config.path_config import (
     get_sam_aligned_anchor_dir,
     get_sam_output_dir,
 )
+from metric_scale.models.vlm_semantic_scale_anchor import VLMSemanticScaleAnchor
 
 # Try to import Numba for acceleration
 try:
@@ -66,6 +67,7 @@ class SemanticPlaneScaleEstimator:
         self.use_depth_confidence = config.use_depth_confidence
         self.use_anchor_quality_filter = config.use_anchor_quality_filter
         self.use_depth_geometry_filter = config.use_depth_geometry_filter
+        self.fallback_degenerate_plane_mask = config.fallback_degenerate_plane_mask
         self.depth_geometry_min_anchor_points = config.depth_geometry_min_anchor_points
         self.depth_geometry_min_relative_height = config.depth_geometry_min_relative_height
         self.use_vlm_anchor_confidence_filter = config.use_vlm_anchor_confidence_filter
@@ -1151,6 +1153,53 @@ class SemanticPlaneScaleEstimator:
         self.image_size_cache[image_path] = image_size
         return image_size
 
+    def _humanoid_box_reject_stage(
+        self,
+        anchor,
+        image_path,
+        fallback_hw=None,
+        present_classes=None,
+        sequence_name=None,
+    ):
+        if str(getattr(config, "dataset", "") or "").strip() != "humanoid_everyday":
+            return None
+        class_stage = VLMSemanticScaleAnchor.rejected_humanoid_conflicting_class(
+            anchor,
+            present_classes,
+        )
+        if class_stage:
+            return class_stage
+        bbox = anchor.get("object_bbox_2d")
+        if not bbox or len(bbox) != 4:
+            return None
+        image_size = self._get_image_size(image_path)
+        if image_size is None:
+            if fallback_hw is None:
+                return None
+            image_h, image_w = fallback_hw
+        else:
+            image_h, image_w = image_size
+        box = [int(v) for v in bbox]
+        source = "/".join(
+            part for part in (str(image_path or ""), str(sequence_name or "")) if part
+        )
+        return VLMSemanticScaleAnchor.rejected_humanoid_static_box_stage(
+            anchor,
+            box,
+            (int(image_w), int(image_h)),
+            present_classes=present_classes,
+            source=source,
+        )
+
+    def _clip_mask_to_bbox(self, mask, bbox, image_path, target_shape):
+        if mask is None or bbox is None:
+            return mask
+        x1, y1, x2, y2 = self._scale_bbox_to_mask_shape(bbox, image_path, target_shape)
+        clipped = np.zeros_like(mask)
+        if y2 > y1 and x2 > x1:
+            clipped[y1:y2, x1:x2] = mask[y1:y2, x1:x2]
+        return clipped
+
     def _scale_bbox_to_mask_shape(self, bbox, image_path, target_shape):
         target_h, target_w = target_shape
         image_size = self._get_image_size(image_path)
@@ -1197,6 +1246,9 @@ class SemanticPlaneScaleEstimator:
                 if mask.shape != (H, W):
                     mask = cv2.resize(mask, (W, H), interpolation=cv2.INTER_NEAREST)
                 mask = mask > 128
+                bbox = anchor.get("object_bbox_2d")
+                if bbox:
+                    mask = self._clip_mask_to_bbox(mask, bbox, image_path, (H, W))
                 self.mask_cache[cache_key] = mask
                 return mask
 
@@ -1251,31 +1303,29 @@ class SemanticPlaneScaleEstimator:
                 plane_mask |= mask
                 continue
             
-            # Check if mask file exists
+            # A degenerate saved plane mask falls back to the VLM plane box
+            # when the bboxplane configuration enables this behavior.
             if os.path.exists(mask_path):
-                # Load mask
-                mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
-                if mask is not None:
-                    # Resize mask to match depth map shape if needed
-                    if mask.shape != (H, W):
-                        mask = cv2.resize(mask, (W, H), interpolation=cv2.INTER_NEAREST)
-                    # Convert to binary mask
-                    mask = mask > 128
-                    # Cache the result
-                    self.mask_cache[cache_key] = mask
-                    # Combine with plane_mask
-                    plane_mask |= mask
-            else:
-                # If mask file doesn't exist, use bounding box as fallback
-                bbox = plane.get("plane_bbox_2d")
-                if bbox:
-                    x1, y1, x2, y2 = self._scale_bbox_to_mask_shape(
-                        bbox,
-                        image_path,
-                        (H, W),
-                    )
-                    # Create bounding box mask
-                    plane_mask[y1:y2, x1:x2] = True
+                loaded = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+                if loaded is not None:
+                    degenerate = min(loaded.shape[:2]) <= 1 or int(np.count_nonzero(loaded > 128)) == 0
+                    if not (self.fallback_degenerate_plane_mask and degenerate):
+                        if loaded.shape != (H, W):
+                            loaded = cv2.resize(loaded, (W, H), interpolation=cv2.INTER_NEAREST)
+                        mask = loaded > 128
+                        self.mask_cache[cache_key] = mask
+                        plane_mask |= mask
+                        continue
+                elif not self.fallback_degenerate_plane_mask:
+                    continue
+            bbox = plane.get("plane_bbox_2d")
+            if bbox:
+                x1, y1, x2, y2 = self._scale_bbox_to_mask_shape(
+                    bbox,
+                    image_path,
+                    (H, W),
+                )
+                plane_mask[y1:y2, x1:x2] = True
         
         return plane_mask
 
@@ -1569,6 +1619,34 @@ class SemanticPlaneScaleEstimator:
             return global_plane_normal, "global_fallback"
         return global_plane_normal, "global"
 
+    @staticmethod
+    def _is_valid_height_interval(anchor):
+        interval = anchor.get("height_interval") if isinstance(anchor, dict) else None
+        if not isinstance(interval, (list, tuple)) or len(interval) != 2:
+            return False
+        try:
+            low, high = float(interval[0]), float(interval[1])
+        except (TypeError, ValueError):
+            return False
+        return low > 0.0 and high >= low
+
+    def _drop_anchors_missing_height_interval(self, height_anchors, vlm_results=None):
+        kept = []
+        dropped = []
+        for anchor in height_anchors:
+            if self._is_valid_height_interval(anchor):
+                kept.append(anchor)
+            else:
+                dropped.append(anchor)
+        if dropped:
+            image_path = None if not isinstance(vlm_results, dict) else vlm_results.get("image_path")
+            print(
+                "Skip height anchors without valid height_interval: "
+                f"image={image_path} n={len(dropped)} "
+                f"classes={[anchor.get('object_class') for anchor in dropped]}"
+            )
+        return kept
+
     def _prepare_dynamic_anchor(self, anchor):
         prepared = {**anchor, "anchor_group": anchor.get("anchor_group", "dynamic")}
         interval = prepared.get("height_interval")
@@ -1586,20 +1664,22 @@ class SemanticPlaneScaleEstimator:
         static_height_anchors = vlm_results.get("static_height_anchors", [])
 
         if self.height_anchor_source == "dynamic":
-            return self._filter_height_anchors_for_optimizer([
+            height_anchors = [
                 self._prepare_dynamic_anchor(anchor)
                 for anchor in dynamic_height_anchors
-            ])
-        if self.height_anchor_source == "static":
-            return self._filter_height_anchors_for_optimizer([
+            ]
+        elif self.height_anchor_source == "static":
+            height_anchors = [
                 {**anchor, "anchor_group": anchor.get("anchor_group", "static")}
                 for anchor in static_height_anchors
-            ])
-        height_anchors = (
-            [self._prepare_dynamic_anchor(anchor) for anchor in dynamic_height_anchors]
-            + [{**anchor, "anchor_group": anchor.get("anchor_group", "static")} for anchor in static_height_anchors]
-        )
-        return self._filter_height_anchors_for_optimizer(height_anchors)
+            ]
+        else:
+            height_anchors = (
+                [self._prepare_dynamic_anchor(anchor) for anchor in dynamic_height_anchors]
+                + [{**anchor, "anchor_group": anchor.get("anchor_group", "static")} for anchor in static_height_anchors]
+            )
+        height_anchors = self._filter_height_anchors_for_optimizer(height_anchors)
+        return self._drop_anchors_missing_height_interval(height_anchors, vlm_results)
 
     def _is_anchor_class_enabled(self, anchor):
         anchor_group = str(anchor.get("anchor_group", "unknown") or "").strip().lower()
@@ -1867,6 +1947,12 @@ class SemanticPlaneScaleEstimator:
         if global_plane_normal is None:
             print("No valid plane found from all frames, skipping")
             return None, 0, None, [], []
+
+        present_classes = {
+            str(anchor.get("object_class") or "").strip().lower()
+            for data in frame_data
+            for anchor in data["height_anchors"]
+        }
         
         # Step 4: Process all anchors from all frames
         for data in frame_data:
@@ -1905,6 +1991,30 @@ class SemanticPlaneScaleEstimator:
                             "object_id": anchor.get("object_id"),
                             "height_interval": anchor["height_interval"],
                             "scale_interval": None,
+                            **weight_info,
+                            **vlm_conf_info,
+                        }
+                    )
+                    continue
+                box_stage = self._humanoid_box_reject_stage(
+                    anchor,
+                    image_path,
+                    fallback_hw=world_pointmap.shape[:2],
+                    present_classes=present_classes,
+                    sequence_name=sequence_name,
+                )
+                if box_stage:
+                    all_anchor_measurements.append(
+                        {
+                            "image_path": image_path,
+                            "frame_name": os.path.basename(image_path).split(".")[0],
+                            "sequence_name": sequence_name,
+                            "anchor_group": anchor.get("anchor_group", "unknown"),
+                            "object_class": anchor.get("object_class"),
+                            "object_id": anchor.get("object_id"),
+                            "height_interval": anchor["height_interval"],
+                            "scale_interval": None,
+                            "depth_geometry_filter_stage": box_stage,
                             **weight_info,
                             **vlm_conf_info,
                         }
@@ -2217,6 +2327,10 @@ class SemanticPlaneScaleEstimator:
         
         # 批量处理高度锚点
         frame_name = os.path.basename(image_path).split(".")[0]
+        present_classes = {
+            str(anchor.get("object_class") or "").strip().lower()
+            for anchor in height_anchors
+        }
         ply_dir = os.path.join(
             get_sam_aligned_anchor_dir(sequence_name, dataset_name=config.dataset_name),
             frame_name,
@@ -2240,6 +2354,30 @@ class SemanticPlaneScaleEstimator:
                         "object_id": anchor.get("object_id"),
                         "height_interval": anchor["height_interval"],
                         "scale_interval": None,
+                        **weight_info,
+                        **vlm_conf_info,
+                    }
+                )
+                continue
+            box_stage = self._humanoid_box_reject_stage(
+                anchor,
+                image_path,
+                fallback_hw=world_pointmap.shape[:2],
+                present_classes=present_classes,
+                sequence_name=sequence_name,
+            )
+            if box_stage:
+                anchor_measurements.append(
+                    {
+                        "image_path": image_path,
+                        "frame_name": frame_name,
+                        "sequence_name": sequence_name,
+                        "anchor_group": anchor.get("anchor_group", "unknown"),
+                        "object_class": anchor.get("object_class"),
+                        "object_id": anchor.get("object_id"),
+                        "height_interval": anchor["height_interval"],
+                        "scale_interval": None,
+                        "depth_geometry_filter_stage": box_stage,
                         **weight_info,
                         **vlm_conf_info,
                     }

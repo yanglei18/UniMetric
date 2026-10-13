@@ -1,0 +1,20 @@
+# Tested Python 3.11 base versions from the old-server QWen environment.
+# Install PyTorch/torchvision for your CUDA driver separately first.
+# SAM2 and each depth model's own package/weights are separate dependencies.
+PyYAML==6.0.3
+numpy==1.26.4
+opencv-python==4.11.0.86
+pillow==11.3.0
+scipy==1.17.0
+matplotlib==3.10.7
+open3d==0.18.0
+openai==2.16.0
+httpx==0.28.1
+einops==0.8.1
+hydra-core==1.3.2
+omegaconf==2.3.0
+huggingface_hub==1.5.0
+safetensors==0.6.2
+pandas==2.3.3
+tqdm==4.67.1
+pytest==9.0.3

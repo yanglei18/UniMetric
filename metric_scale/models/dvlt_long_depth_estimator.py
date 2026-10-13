@@ -84,7 +84,7 @@ class DVLTLongDepthEstimator(VGGTLongDepthEstimator):
         self.dvlt_class = getattr(model_module, "DVLT", None) or getattr(model_module, "DVLTModel")
 
     def _build_model(self) -> Any:
-        model = self.dvlt_class(img_size=self.image_size, patch_size=self.patch_size)
+        model = self.dvlt_class(img_size=self.image_size, patch_size=self.patch_size, load_patch_embed_weights=False)
         print(f"Loading DVLT checkpoint: {self.checkpoint}")
         model.load_pretrained(self.checkpoint, strict=True)
         model.setup_test(self.accelerator)
