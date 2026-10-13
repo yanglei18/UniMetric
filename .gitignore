@@ -1,0 +1,10 @@
+data/
+demo/
+checkpoints
+outputs/
+p3_images/
+pretrained_model/
+__pycache__/
+*.out
+../Metric-Depth-Claude/
+*.zip

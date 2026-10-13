@@ -1,0 +1,420 @@
+runtime:
+  # Logical dataset name used in outputs and prompt routing.
+  # Common values: "argoverse", "v2x-radar-i".
+  dataset: "v2x-radar-i"
+
+  # Dataset root directory.
+  data_path: "data/official-data/v2x-radar-i/"
+
+  # Depth model to run.
+  # Supported values in the current project: long is better!
+  # "pi3_long", "vggt_long", "vggt_omega_long", "da3_long", "dust3r_long", "must3r_long", "scal3r_long", "stream3r_long"
+  # "moge".
+  depth_model: "vggt_omega_long"
+
+  # true: estimate one shared scale for a subsequence / sequence batch.
+  # false: estimate scale frame by frame.
+  use_shared_scale: true
+
+  # true: process every sequence under data_path.
+  # false: use sequence_name or current sequence routing.
+  all_sequences: false
+
+  # [] or "" means all sequences.
+  # A non-empty list processes only those sequences, for example:
+  # sequence_name: ["scene-0092", "scene-0015", "scene-0013"]
+  sequence_name: []
+
+  # Number of frames to process per sequence.
+  # Positive integer: use the first N frames.
+  frame_count: 1000
+
+  # Maximum GT depth (meters) included in metric geometry evaluation.
+  # Set to null to disable distance filtering during metrics.
+  metric_depth_threshold: 100
+
+  # Distance-bin edges (meters) used for segmented metric geometry reports.
+  # This yields bins: 0-20m / 20-40m / 40-60m / 60m+.
+  enable_metric_depth_bins: false
+  metric_depth_bins: [20, 40, 60]
+
+  # true: report a LiDAR-referenced sparse 3D reconstruction proxy.
+  # This samples predictions only at LiDAR-projected camera pixels.
+  enable_sparse_reconstruction: true
+
+  # Sparse reconstruction evaluation mode: frame | sequence.
+  # frame: evaluate each frame independently.
+  # sequence: fuse each subsequence into its first camera coordinate.
+  sparse_reconstruction_mode: frame
+
+  # Sparse reconstruction global SE3 alignment source: trajectory | point_cloud.
+  # trajectory: fit SE3 from predicted and GT camera trajectories.
+  # point_cloud: fit SE3 directly from sparse pred/GT point pairs.
+  sparse_reconstruction_alignment: point_cloud
+
+  # Pose source for sequence-level sparse reconstruction: pred | gt.
+  # pred uses depth model predicted camera trajectory; gt uses dataset GT camera trajectory.
+  sparse_reconstruction_pose_source: gt
+
+  # Minimum valid LiDAR-projected samples required for sparse reconstruction metrics.
+  sparse_reconstruction_min_points: 10
+
+  # true: report TUM-style camera trajectory metrics from saved camera_params.
+  # ATE uses SE3 alignment only; no Sim3 scale correction is applied.
+  enable_pose_evaluation: true
+
+  # Pose evaluation grouping mode: subsequence | sequence.
+  # subsequence is safer when depth inference is split by subsequence_size.
+  pose_evaluation_mode: subsequence
+
+  # Pose source for TUM pose evaluation: pred | gt.
+  # pred evaluates depth model predicted trajectory; gt is a sanity-check upper bound.
+  pose_evaluation_pose_source: pred
+
+  # Minimum valid poses required for ATE/RPE in each pose group.
+  pose_eval_min_frames: 2
+
+  # Manual multiplier for predicted camera translations. Keep 1.0 for scale-aware evaluation.
+  pose_eval_scale: 1.0
+
+  # Used when long sequences are split into smaller subsequences.
+  subsequence_size: 1000
+
+  # Global visualization switch.
+  # true: save all visualization outputs, including depth, SAM/VLM, metric pose,
+  # sparse reconstruction, semantic scale, and final result visualizations.
+  # false: disable all visualization outputs to save time and disk.
+  enable_visualization: false
+
+  # true: after metrics are saved, remove files/subdirectories inside the
+  # current depth model output directory, e.g. scal3r_outputs/*.
+  cleanup_depth_outputs_after_metrics: true
+
+parallel:
+  # Enable sequence-level multi-GPU scheduling when available.
+  enable: true
+
+  # Upper bound on GPU workers used by the main pipeline.
+  max_gpus: 10
+
+  # Enable parallel API-based VLM requests inside the VLM stage.
+  vlm_api_enable: true
+
+  # Worker count for parallel VLM API calls.
+  max_vlm_workers: 1
+
+  # Used by metric geometry evaluation and postprocess frame cache building.
+  # 0 or 1: serial. >1: threaded parallelism.
+  metric_workers: 8
+
+vision:
+  # Local VLM path or model identifier template.
+  model_path: "{qwen_model}"
+
+  # VLM backend type. Typical values: "doubao", "qwen".
+  model_type: "doubao"
+
+  # Environment variable holding the API key for the configured backend.
+  # Example: export DOUBAO_API_KEY=...
+  api_key_env: "DOUBAO_API_KEY"
+
+  # Backend-specific model version / endpoint name.
+  model_version: "seed-1.8-max"   # seed-1.8-max, kimi-k2.5
+
+  # Torch dtype used by local models. Typical values:
+  # "float16", "bfloat16", "float32".
+  torch_dtype: "bfloat16"
+
+  # Maximum generation length for VLM responses.
+  max_new_tokens: 400096
+
+  # Optional reasoning level for supported APIs.
+  # Typical values: null, "low", "medium", "high".
+  reasoning_effort: null
+
+  # Optional backend setting.
+  # Typical values: null, "enabled", "disabled".
+  thinking_type: "disabled"
+
+  # Optional token budget when explicit thinking is supported.
+  thinking_budget_tokens: null
+
+  # Standard generation controls.
+  temperature: 0.2
+  top_p: null
+  num_beams: 1
+
+  # Used when preparing video-style VLM input.
+  max_video_frames: 50
+  video_fps: 10.0
+
+depth:
+  # Legacy pixel-budget fallback for model input resizing.
+  input_pixel_limit: 255000
+
+  # Optional upper bound for model input longest side (pixels).
+  # null: keep legacy pixel_limit-based resizing.
+  input_max_long_edge: null
+
+
+  # Number of frames per chunk for long-sequence depth estimation.
+  long_chunk_size: 60
+
+  # Overlap between adjacent chunks.
+  long_overlap: 20
+
+  # Whether to remove temporary files created during long-sequence inference.
+  long_delete_temp_files: true
+
+  # Optional custom temp directory. Empty string means default behavior.
+  long_temp_root: "/data1/yanglei/Metric-Depth/tmp"
+
+
+  # Saved prediction resolution. Options: "original", "native".
+  output_resolution: "native"
+
+  # Sampling mode for native-resolution predictions. Options: "nearest", "bilinear".
+  native_sampling_mode: "nearest"
+ 
+semantic_scale:
+  # Relative height estimation mode.
+  # Options: "peak_to_bottom", "peak_to_ground".
+  relative_height_mode: "peak_to_bottom"
+
+  # Plane reference mode for shared-scale estimation.
+  # Options: "global_plane", "per_frame_plane".
+  shared_plane_mode: "global_plane"
+
+  # Which VLM height anchors are used for scale solving.
+  # Options: "dynamic", "static", "both".
+  height_anchor_source: "both"
+
+  # Per-sequence frame-level preprocessing workers for semantic scale batch mode.
+  # 0 or 1: serial. >1: threaded preprocessing.
+  frame_parallel_workers: 10
+
+  # Whether to use the depth confidence map when filtering plane / ground.
+  use_depth_confidence: true
+
+  # Whether to reject low-quality anchors before scale solving.
+  use_anchor_quality_filter: true
+
+  # Whether to apply strict depth-geometry filtering before scale solving.
+  # false relaxes min anchor points to 1 and min relative height to 0.
+  use_depth_geometry_filter: true
+  # Whether to save semantic scale solver intermediate JSON files under semantic_scale_debug.
+  save_scale_intermediate_results: false
+
+  # Minimum valid 3D points required inside an anchor mask when strict depth geometry filtering is enabled.
+  depth_geometry_min_anchor_points: 32
+
+  # Minimum measured relative height required when strict depth geometry filtering is enabled.
+  depth_geometry_min_relative_height: 0.001
+
+  # Whether to reject VLM anchors with low model confidence before scale solving.
+  use_vlm_anchor_confidence_filter: true
+
+  # Minimum VLM confidence required for dynamic anchors.
+  # Valid range: [0.0, 1.0].
+  vlm_dynamic_anchor_confidence_threshold: 0.85
+
+  # Minimum VLM confidence required for static anchors.
+  # Valid range: [0.0, 1.0].
+  vlm_static_anchor_confidence_threshold: 0.6
+
+  # Lower confidence percentile threshold for anchor quality filtering.
+  # Valid range: [0.0, 1.0).
+  anchor_quality_min_percentile: 0.0
+
+  # Upper confidence percentile threshold for anchor quality filtering.
+  # Valid range: [0.0, 1.0).
+  anchor_quality_max_percentile: 0.0
+
+  # Percentile threshold used when filtering plane / local-ground confidence.
+  # Valid range: [0.0, 1.0).
+  plane_conf_percentile: 0.8
+
+  # Whether to reject per-frame semantic plane proposals whose fitted normal is an outlier.
+  plane_normal_outlier_filter_enabled: true
+  # Maximum angular deviation from the robust reference normal for keeping a plane proposal.
+  plane_normal_filter_max_angle_deg: 25.0
+  # Strength of priority-based modulation applied to type_weight in optimized-scale solving.
+  # 0.0 disables modulation; larger values increase the gap between high-priority and low-priority anchors.
+  optimized_scale_priority_modulation_strength: 0.3
+
+  # Distance-level modulation applied before confidence weighting.
+  # These correspond to VLM output field `distance_level`:
+  # near / middle / distant.
+  distance_weight_near: 1.0
+  distance_weight_middle: 1.0
+  distance_weight_distant: 1.0
+
+  # Optional class allowlists for anchors that are allowed to enter scale optimization.
+  # Leave empty to keep the current behavior and allow all detected classes.
+  optimizer_dynamic_classes: []
+  optimizer_static_classes: ["traffic cone"]
+
+  # All optimized variants are now solved and evaluated together:
+  # - optimized_scale_legacy
+  # - optimized_scale_original
+  # - optimized_scale_weighted_bi
+  # - optimized_scale_weighted_ifpa
+  #
+  # Therefore the default config only needs one selector for the compatibility aliases
+  # `optimized_scale/` and `absolute_scale/`.
+  #
+  # Supported values:
+  # - optimized_scale_legacy
+  # - optimized_scale_original
+  # - optimized_scale_weighted_bi
+  # - optimized_scale_weighted_ifpa
+  #
+  # The older pair
+  #   scale_refinement_solver + consensus_interval_solver
+  # is still supported for backward compatibility, but is no longer needed here.
+  default_optimized_variant: "optimized_scale_original"
+  # Save and evaluate optional optimized scale variants.
+  # Disabled variants skip their output directories and metric rows.
+  enable_optimized_scale_legacy: false
+  enable_optimized_scale_original: true
+  enable_optimized_scale_weighted_bi: false
+  enable_optimized_scale_weighted_ifpa: false
+
+  # Save and evaluate a gated final scale output.
+  # Optimized scale is selected only when it stays close to the robust consensus scale.
+  enable_selected_scale: false
+  selected_scale_default: "consistent_scale"
+  # null means this gate is disabled; selected_scale currently only gates optimized by shift.
+  min_valid_intervals_for_optimized: null
+  min_consistent_count_for_optimized: null
+  max_optimized_shift_ratio: 0.03
+
+  # Shared hyperparameters for all weighted optimized variants.
+  # `optimized_scale_legacy` is not affected by the settings below.
+
+  # Search mode used by the weighted optimized variants.
+  # - global: weighted search over the full interval union
+  # - consensus_bounded: weighted search restricted to each variant's Stage-1 consensus interval
+  weighted_search_mode: "global"
+
+  # Soft consensus prior added to the weighted optimizer objective.
+  # - none:
+  #   no solver-specific consensus prior
+  # - point:
+  #   quadratic penalty toward the solver's consensus point
+  # - interval:
+  #   center-aware interval prior: light penalty inside the interval toward its center,
+  #   stronger penalty outside the interval
+  consensus_prior_mode: "point"
+
+  # Strength of the soft consensus prior.
+  # Larger values pull the solution more strongly toward the Stage-1 consensus output.
+  consensus_prior_strength: 0.5
+
+  # Simple easy/mid/hard sequence split driven by a previous dataset_summary.json.
+  # The code reads the JSON next to dataset_summary.txt because the JSON keeps
+  # the per-sequence metrics in a stable structure.
+  #
+  # Default rule used here:
+  # - baseline: relative_scale
+  # - candidates: consistent_scale + all optimized_scale_* variants
+  # - metric: depth_frame_mean.delta1
+  # - easy: any candidate improves d1 by at least easy_d1_gain_threshold
+  # - hard: after excluding easy, any valid candidate has lower d1 than relative_scale
+  # - mid: everything else
+  sequence_difficulty:
+    enabled: true
+    dataset_summary_path: "{output_root}/{dataset_name}/metric_results/{depth_model}/dataset_summary.json"
+    easy_d1_gain_threshold: 0.5
+    # In practice, you only need to tune the three profiles below.
+    # optimizer_static_classes only matters when height_anchor_source is
+    # "static" or "both".
+    profiles:
+      easy:
+        distance_weight_near: 1.0
+        distance_weight_middle: 1.0
+        distance_weight_distant: 1.0
+        optimizer_dynamic_classes: []
+        optimizer_static_classes: ["traffic cone"]
+      mid:
+        distance_weight_near: 1.0
+        distance_weight_middle: 1.0
+        distance_weight_distant: 1.0
+        # optimizer_dynamic_classes: []
+        optimizer_dynamic_classes: []
+        optimizer_static_classes: ["traffic cone"]
+      hard:
+        distance_weight_near: 1.0
+        distance_weight_middle: 1.0
+        distance_weight_distant: 1.0
+        # optimizer_dynamic_classes: []
+        optimizer_dynamic_classes: []
+        optimizer_static_classes: ["traffic cone"]
+
+  # Relative strength of the inside-interval center penalty for interval prior.
+  # 0.0 means no penalty inside the interval; larger values make the prior prefer the interval center more strongly.
+  consensus_prior_interval_inside_ratio: 0.2
+
+  # Number of discrete grid points used by IF&PA preference aggregation.
+  ifpa_num_bins: 128
+
+  # Whether IF&PA uses interval weights during preference aggregation.
+  ifpa_use_weight: true
+
+  # Weighted BI keeps atomic segments whose coverage weight exceeds this ratio of total interval weight.
+  bi_keep_ratio: 0.6
+
+  # Minimum width of atomic segments retained during BI interval partition.
+  bi_min_segment_width: 1.0e-6
+
+models:
+
+  # Local VGGT-Omega project root and checkpoint.
+  vggt_omega_project_root: "/data1/yanglei/FoundationModel/vggt-omega"
+  vggt_omega_checkpoint: "{vggt_omega_project_root}/checkpoints/vggt_omega_1b_512.pt"
+  vggt_omega_image_resolution: 512
+  vggt_omega_preprocess_mode: "resize_only"
+  vggt_omega_enable_alignment: false
+paths:
+  # Base project path template.
+  project_root: "{project_root}"
+
+  # Output root template.
+  output_root: "{project_root}/outputs"
+
+  # Directory holding local pretrained models.
+  pretrained_model_dir: "{project_root}/pretrained_model"
+
+  # Default Qwen model path template.
+  qwen_model: "{pretrained_model_dir}/Qwen3-VL-30B-A3B-Instruct"
+
+  # SAM config file path.
+  sam_config: "configs/sam2.1/sam2.1_hiera_l.yaml"
+
+  # SAM checkpoint path.
+  sam_checkpoint: "{project_root}/checkpoints/sam2.1_hiera_large.pt"
+
+  # Alias for the active dataset path.
+  vehicle_data: "{data_path}"
+
+  # Sequence-level output root.
+  output: "{output_root}/{dataset_name}/{sequence_name}"
+
+  # VLM outputs and subdirectories.
+  vlm_output: "{output}/vlm_outputs"
+  vlm_results: "{vlm_output}/results"
+  vlm_visualization: "{vlm_output}/visualization"
+
+  # SAM outputs and subdirectories.
+  sam_output: "{output}/sam_outputs"
+  sam_visualization: "{sam_output}/visualization"
+  sam_aligned_anchor: "{sam_output}/aligned_anchor_plys"
+
+
+  # VGGT-Omega outputs.
+  vggt_omega_output: "{output}/vggt_omega_outputs"
+  vggt_omega_relative_scale: "{vggt_omega_output}/relative_scale"
+  vggt_omega_absolute_scale: "{vggt_omega_output}/absolute_scale"
+
+  # Prepared P3 image directory.
+  p3_images: "{project_root}/p3_images/{sequence_name}"
