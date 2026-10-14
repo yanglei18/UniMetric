@@ -1,5 +1,5 @@
 # nuscenes / vggt_long production configuration.
-# Comments explain options; the parameter values below are unchanged.
+# Algorithmic parameters are preserved; resource paths are repository-relative.
 
 # Dataset/sequence selection, evaluation settings, and output lifecycle.
 
@@ -8,7 +8,7 @@ runtime:
   # Common values: "argoverse", "v2x-radar-i".
   dataset: nuscenes
   # Dataset root directory.
-  data_path: data/official-data/nuScenes/
+  data_path: 'data/metric_bench/nuScenes'
   # Selected depth model wrapper; this YAML filename identifies the production model.
   # The published matrix contains nine depth-model configs per dataset.
   depth_model: vggt_long
@@ -137,7 +137,7 @@ depth:
   # Whether to remove temporary files created during long-sequence inference.
   long_delete_temp_files: true
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: /data1/yanglei/outputs/Metric-Depth-new-repro/tmp
+  long_temp_root: '{project_root}/tmp'
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: native
   # Sampling mode for native-resolution predictions. Options: "nearest", "bilinear".
@@ -317,7 +317,7 @@ semantic_scale:
 
 models:
   # Local checkpoint path for VGGT.
-  vggt_weights: /data1/yanglei/VGGT-1B
+  vggt_weights: '{pretrained_model_dir}/VGGT-1B'
 # Input/output path templates resolved for this run.
 
 paths:
@@ -350,4 +350,4 @@ paths:
   vggt_relative_scale: '{vggt_output}/relative_scale'
   vggt_absolute_scale: '{vggt_output}/absolute_scale'
   # Prepared P3 image directory.
-  p3_images: '{project_root}/p3_images/{sequence_name}'
+  p3_images: '{project_root}/p3_images/{dataset_name}/{sequence_name}'

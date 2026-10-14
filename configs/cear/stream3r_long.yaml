@@ -1,5 +1,5 @@
 # cear / stream3r_long production configuration.
-# Comments explain options; the parameter values below are unchanged.
+# Algorithmic parameters are preserved; resource paths are repository-relative.
 
 # Dataset/sequence selection, evaluation settings, and output lifecycle.
 
@@ -7,7 +7,7 @@ runtime:
   # Logical dataset name used in outputs and prompt routing.
   dataset: cear
   # Dataset root directory.
-  data_path: data/official-data/CEAR_indoor
+  data_path: 'data/metric_bench/CEAR'
   # Scene domain hint used by prompts / dataset-specific routing.
   scene_domain: indoor
   # Selected depth model wrapper; this YAML filename identifies the production model.
@@ -132,7 +132,7 @@ depth:
   # Whether to remove temporary files created during long-sequence inference.
   long_delete_temp_files: true
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: /data1/yanglei/outputs/Metric-Depth-new-repro/tmp
+  long_temp_root: '{project_root}/tmp'
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: native
   # Sampling mode for native-resolution predictions. Options: "nearest", "bilinear".
@@ -302,9 +302,9 @@ semantic_scale:
 
 models:
   # Local STream3R repository root.
-  stream3r_project_root: /data1/yanglei/FoundationModel/STream3R
+  stream3r_project_root: '{project_root}/vendor/STream3R'
   # STream3R checkpoint path.
-  stream3r_checkpoint: /data1/yanglei/FoundationModel/STream3R
+  stream3r_checkpoint: '{pretrained_model_dir}/STream3R'
 # Input/output path templates resolved for this run.
 
 paths:

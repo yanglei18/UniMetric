@@ -1,5 +1,5 @@
 # cear / da3_long production configuration.
-# Comments explain options; the parameter values below are unchanged.
+# Algorithmic parameters are preserved; resource paths are repository-relative.
 
 # Dataset/sequence selection, evaluation settings, and output lifecycle.
 
@@ -7,7 +7,7 @@ runtime:
   # Logical dataset name used in outputs and prompt routing.
   dataset: cear
   # Dataset root directory.
-  data_path: data/official-data/CEAR_indoor
+  data_path: 'data/metric_bench/CEAR'
   # Scene domain hint used by prompts / dataset-specific routing.
   scene_domain: indoor
   # Selected depth model wrapper; this YAML filename identifies the production model.
@@ -132,7 +132,7 @@ depth:
   # Whether to remove temporary files created during long-sequence inference.
   long_delete_temp_files: true
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: /data1/yanglei/outputs/Metric-Depth-new-repro/tmp
+  long_temp_root: '{project_root}/tmp'
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: original
   # Sampling mode for native-resolution predictions. Options: "nearest", "bilinear".
@@ -297,7 +297,7 @@ semantic_scale:
 
 models:
   # Depth Anything 3 model identifier or local path.
-  da3_model_name: /data2/yanglei/DepthAnything/DepthAnything/DA3-LARGE
+  da3_model_name: '{pretrained_model_dir}/DA3-LARGE'
 # Input/output path templates resolved for this run.
 
 paths:

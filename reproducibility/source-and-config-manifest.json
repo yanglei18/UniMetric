@@ -16,448 +16,458 @@
   "files": [
     {
       "path": ".gitignore",
-      "sha256": "d75ef97683a2f66216b405d18c56e50d837d725bfb6b24fad501fe453e6d87ed",
-      "bytes": 892
+      "sha256": "a487315f85ebd5e355784b77f925297fac010f84684386a3a741bb4e02a9defe",
+      "bytes": 923
+    },
+    {
+      "path": "LICENSING.md",
+      "sha256": "21aa9bbd518f102adc8f39a14d8a0a1f53e07f69bc1938137eddb55d82802511",
+      "bytes": 1935
+    },
+    {
+      "path": "README.md",
+      "sha256": "009eba370514511e2434757499517cae05d461ffbccf14c1da97a7e49ecce162",
+      "bytes": 16976
     },
     {
       "path": "configs/3eed_dataset/4rc_long.yaml",
-      "sha256": "22da0c2ba1e3b6d87bbd9046c7cc9c3c6eb961023daa9f7fd2c4b700c89c52c9",
-      "bytes": 14387
+      "sha256": "c290e83b5b8bb08be548f1c84e191b5850e8c76c0faa3c872dcfc749bc09a460",
+      "bytes": 14357
     },
     {
       "path": "configs/3eed_dataset/da3_long.yaml",
-      "sha256": "b406424488ed289275e2eb538146da48ced7413d78a8b2700489e39490550196",
-      "bytes": 15676
+      "sha256": "4583f4bbf57a173ffd8d2170c626206fda7c1f6bfb1ab819a7dd90bf563d09f8",
+      "bytes": 15626
     },
     {
       "path": "configs/3eed_dataset/default.yaml",
-      "sha256": "036a027ac57e8f6cc1ff3bbae15d225edcf0528a9ec6c9672156cdc123e8317d",
-      "bytes": 15388
+      "sha256": "5c6124cbf02494ba77f819e8fa96a03b24425231cceeafafc20a8187db3fafa9",
+      "bytes": 15346
     },
     {
       "path": "configs/3eed_dataset/dvlt_long.yaml",
-      "sha256": "70dea3a1e245aaeb44914e8d2cffa9345ad6de2cd00f955b83d883aeff785569",
-      "bytes": 15966
+      "sha256": "2d323be472a30ec04764b7f867efca705d346ae2faedc1c24395ee424f3b9b65",
+      "bytes": 15935
     },
     {
       "path": "configs/3eed_dataset/lingbot_map_long.yaml",
-      "sha256": "3c44b3033e454618d23838878e4975541f42d09dd4397662a4fc50518a888c00",
-      "bytes": 16820
+      "sha256": "36911b131e2a8b94a37c237603dcad52452a5c1052a7eea65abbfb7af4243015",
+      "bytes": 16739
     },
     {
       "path": "configs/3eed_dataset/pi3_long.yaml",
-      "sha256": "bd2938dba915a0a90f1721d0cf09430a8aa4ab6aefc0fd30665505deda461250",
-      "bytes": 15530
+      "sha256": "4fa9e9ca46ec6b5803fc235d2d8933029796992540ce6f042ae5f9e72d581f34",
+      "bytes": 15488
     },
     {
       "path": "configs/3eed_dataset/scal3r_long.yaml",
-      "sha256": "043bf782ac9135ea0c68730b3c6563b7ef6915222dfa33fa44d73da0dc95c25c",
-      "bytes": 16343
+      "sha256": "2df3fd32414450c1759f00edb09f4112c40ea9c1f951fcc8c72638676b751939",
+      "bytes": 16295
     },
     {
       "path": "configs/3eed_dataset/stream3r_long.yaml",
-      "sha256": "fe1d1f3a0dd92bd755d7880c6b7421d91d90ff87ee79334d462351b73156491a",
-      "bytes": 16046
+      "sha256": "4a90e03216475b4a0f49a7aa140c871d54be4bd6ba0856cbffa68a35abcf618a",
+      "bytes": 15999
     },
     {
       "path": "configs/3eed_dataset/vggt_long.yaml",
-      "sha256": "06a4663a91c848d1a6bbb84a970a3c0a3e37eed0ba311c815d2bf25c376a0cc1",
-      "bytes": 16125
+      "sha256": "9dd751c0cb6e29e5c5c2e3b02638a45f780fd91ebf20ae3f29d10fd18fceebe7",
+      "bytes": 16103
     },
     {
       "path": "configs/3eed_dataset/vggt_omega_long.yaml",
-      "sha256": "36f6b2c6cc3a97910bba24ffa881b99661a40acec763b92c717c3780c71d2b75",
-      "bytes": 16975
+      "sha256": "aa906e78261b2caede98f52e4186b181e28bba4f4ddfb6f2ea2b82f6f6a8c5ed",
+      "bytes": 16932
     },
     {
       "path": "configs/argoverse/4rc_long.yaml",
-      "sha256": "91462076f1e3d1b6827a7292f1864c7afa0ae09398fd428a6e90567d3310446a",
-      "bytes": 13622
+      "sha256": "875da091a85d8e0d7b88249d2938979ea9eaac295c51296807318f204c7278ca",
+      "bytes": 13604
     },
     {
       "path": "configs/argoverse/da3_long.yaml",
-      "sha256": "71a25ef57bd06d5a57137a2cdc85be59b5bc8e33a93ad6ee0863dd7eac00ea2a",
-      "bytes": 15660
+      "sha256": "744bf3ee7e6c503bb1a18b65578e989cada0d027e9019f16351e8125f338343c",
+      "bytes": 15622
     },
     {
       "path": "configs/argoverse/default.yaml",
-      "sha256": "75a2375187d3f3d641b5680f1b65f56dbd74e3957e63a110c1c779afa895a849",
-      "bytes": 15274
+      "sha256": "2616afe5712a2fe24fbc5f249fe1d5764c929e8348ef63740f0eaa562a4f5f95",
+      "bytes": 15244
     },
     {
       "path": "configs/argoverse/dvlt_long.yaml",
-      "sha256": "99f40ac0aa9f98b8c3d7e36f52573e31a1e033ae3608c1febdf9d2ed82739291",
-      "bytes": 15321
+      "sha256": "979508a4632079c152bb32533d45ba70075d8feaad6c7f214bd4774c723576e7",
+      "bytes": 15302
     },
     {
       "path": "configs/argoverse/lingbot_map_long.yaml",
-      "sha256": "ee5161c29cdc49b508a3ab7e21c409daaba1d32f6d27bf08b27c63715eec7b49",
-      "bytes": 15994
+      "sha256": "eb28c729b2ee4b0ebe0b40274b2faa78665c0c9763ffb7d2e6847d45b89e5376",
+      "bytes": 15964
     },
     {
       "path": "configs/argoverse/pi3_long.yaml",
-      "sha256": "e64bf73b5d7bafb2e2ae9f7087f8f06f990dc83b029aaa8f0ba0dc7fff20593c",
-      "bytes": 15272
+      "sha256": "0f015b22a55df9b0b8f18f8786270f585866c36a260e87b0e906b8432d055ea4",
+      "bytes": 15242
     },
     {
       "path": "configs/argoverse/scal3r_long.yaml",
-      "sha256": "921917a9275ea77859324790e20326b1cd7fac7676260944be1913485b7af309",
-      "bytes": 15616
+      "sha256": "55d77534b204770ce2241f945048749a31fb4e92a9623d7eac6bc65d0fd79f53",
+      "bytes": 15580
     },
     {
       "path": "configs/argoverse/stream3r_long.yaml",
-      "sha256": "e09483b9d9928a3fc90a5de81bf0e662e3eb86ec2a8b2fa41e7284c970f3561c",
-      "bytes": 15263
+      "sha256": "66b3a639d5e705e19fe8f7d41864b2c6dc020deb445295753f492c8fb13deb05",
+      "bytes": 15228
     },
     {
       "path": "configs/argoverse/vggt_long.yaml",
-      "sha256": "cea52357bfd8eed111662a651369b3b51636b91bf40a4f5bd57168ce17cf7c68",
-      "bytes": 15360
+      "sha256": "f9cc57e4278c7cc4c2f6c908dd931b0a2f7b9fbe49fbc3fa9c45b087abccf782",
+      "bytes": 15350
     },
     {
       "path": "configs/argoverse/vggt_omega_long.yaml",
-      "sha256": "d94743843fde754c7872a4b1188089b504fab9ab473418a7287592fdc5404572",
-      "bytes": 15867
+      "sha256": "f1de59286e4b877b98c9060b9c3ec83a6e4cbeade61e89dd9f11ce27371f72ec",
+      "bytes": 15836
     },
     {
       "path": "configs/cear/4rc_long.yaml",
-      "sha256": "7258243212f45a9e1115a4941738a7a5921ed0755c6e2d8dabb715b8eab01a2d",
-      "bytes": 15508
+      "sha256": "efc94bcbb5c40169aa6a6698bcde3b3686f7947fb507af775503e048ef3b5088",
+      "bytes": 15144
     },
     {
       "path": "configs/cear/da3_long.yaml",
-      "sha256": "da17a8f2431c17309ebd1b571b687cb37510bbd99ebf59aaf7d260fa9bab5622",
-      "bytes": 15368
+      "sha256": "b2143d3103fd6d6845925b2b7c75050b9eafc26b4a6912ca99f778daa0a4518f",
+      "bytes": 14986
     },
     {
       "path": "configs/cear/default.yaml",
-      "sha256": "2299ef84c33faee71597ca1165eb6947dbbdfdeaff6d92e50101ba9cf18fc242",
-      "bytes": 13730
+      "sha256": "9bde928ba1316774ca100edf0b8a7f502c0797045671c2569a747d61cb3b14df",
+      "bytes": 13694
     },
     {
       "path": "configs/cear/dvlt_long.yaml",
-      "sha256": "549a0f8652ab9c520c2ab48df4141fe0187315ac21ad5911f2a44ce79e1188db",
-      "bytes": 15490
+      "sha256": "02007018adb7112bb5afa05a7cb9580a96ba6b3c154d72b8d406c7a2655365cf",
+      "bytes": 15123
     },
     {
       "path": "configs/cear/lingbot_map_long.yaml",
-      "sha256": "d934adad91d025929fa9db67ffa2960d2859171de66096a2197bd14177df81e6",
-      "bytes": 16261
+      "sha256": "0e62d4b611c88f92e269f21781a2c251fc0d4803592d28ad9a0d6a5b07e91dd0",
+      "bytes": 15831
     },
     {
       "path": "configs/cear/pi3_long.yaml",
-      "sha256": "a20ae28d91c2a75d93ed60f4c9ffee6ca1ece86cfd7aca6669268a8f61bc6dc5",
-      "bytes": 15106
+      "sha256": "8f6b0de6f3f633a1a5355d002df777aa6a5c13216db272f918bec331eb0aeb13",
+      "bytes": 14736
     },
     {
       "path": "configs/cear/scal3r_long.yaml",
-      "sha256": "647ae54fb217d8fcb9e3717c58edcb3b243aa810e4571667f77b87428972ee0a",
-      "bytes": 16030
+      "sha256": "37497410a09d14cfcb0724c7e905b39e75492e8d7d29cdcdb7a8223b2be601a3",
+      "bytes": 15989
     },
     {
       "path": "configs/cear/stream3r_long.yaml",
-      "sha256": "2827cdf7ea50e238ab93ae93c9c88a937701c5e250d3458eb0fb7869118bec06",
-      "bytes": 15789
+      "sha256": "5756145671cd5971034cc8be4103fed887f039572d03c0eee687c446db94dbf4",
+      "bytes": 15403
     },
     {
       "path": "configs/cear/vggt_long.yaml",
-      "sha256": "0171425e3f82a642a7813f59933fda934d71d7b3f79f69ef1c7957e60c8efe0b",
-      "bytes": 15396
+      "sha256": "aada5b56825764a9e0cba01f148756a40c2213ef53e69cec94dd7a8ca3dfc68c",
+      "bytes": 15040
     },
     {
       "path": "configs/cear/vggt_omega_long.yaml",
-      "sha256": "5b4013d08f1d5b7002c33b1178a15461a7fcf1cac7087385febf3ab1a19af7a6",
-      "bytes": 15912
+      "sha256": "59df7081037712ae692e8e7392c7f998fa1ffd041b839d59607dd936b465a9da",
+      "bytes": 15527
     },
     {
       "path": "configs/dair_v2x_i/4rc_long.yaml",
-      "sha256": "0c1a6d2b90a957dc64a59366f76e4ccdea622eeb62f34b92a2262715502bfc13",
+      "sha256": "42fea3036870e8b296a258dbf90cfa26c1d5306d30e61919308a12ac1ffdd0b6",
       "bytes": 14021
     },
     {
       "path": "configs/dair_v2x_i/da3_long.yaml",
-      "sha256": "f6895c8f64022706b0c467e3abd01bb0d7ad65c5421d56680f0310f096b57942",
-      "bytes": 15467
+      "sha256": "49a1fef2d28ae5962cd74129f35f49dfd028780d7086adfba5e900319b34cb7f",
+      "bytes": 15445
     },
     {
       "path": "configs/dair_v2x_i/default.yaml",
-      "sha256": "9a5477726258914e1814ee8647badd3df85933793a7e6b083a72aa4737bb59ad",
-      "bytes": 13635
+      "sha256": "b2d3fba1a914e3b837427b91f5ecf4b473a6e95593536f1a534b56eead046054",
+      "bytes": 13605
     },
     {
       "path": "configs/dair_v2x_i/dvlt_long.yaml",
-      "sha256": "dcc4e6053ccd43f74309efebc3c58a5d1f24f41581d71a15aeb6f01d9361839e",
-      "bytes": 15478
+      "sha256": "780d0e961774bfd7c06c112b89be6be439ed9364ba774213955b7929d1baf130",
+      "bytes": 15475
     },
     {
       "path": "configs/dair_v2x_i/lingbot_map_long.yaml",
-      "sha256": "5b0636b5a5c6e6dab966e668d73359702c31243bcd21f989fb3c0e76efbb8be7",
-      "bytes": 16051
+      "sha256": "c66ea512c94b958ada1799ef1e123e7b34b2d7321c41bb2e09662b5cb45d63d7",
+      "bytes": 16044
     },
     {
       "path": "configs/dair_v2x_i/pi3_long.yaml",
-      "sha256": "38fbe81a5fa0d3b641e0251399b234bef3351c8289be0010d966045d8e05d657",
-      "bytes": 15315
+      "sha256": "0494778bbb33ee5ded63f222726ba48cd5f09a2214fb45c4625c67d9d9bc4db3",
+      "bytes": 15285
     },
     {
       "path": "configs/dair_v2x_i/scal3r_long.yaml",
-      "sha256": "e5fca81714da59fe4901d4c5b5ed1fba0606ee5eaa25251dae27e53badaece3e",
-      "bytes": 15602
+      "sha256": "d1184d5affe0cf47b1193f6425c170e9cc761bf79d107a7fec506857b34bc8f8",
+      "bytes": 15566
     },
     {
       "path": "configs/dair_v2x_i/stream3r_long.yaml",
-      "sha256": "728b95fc12d12f4ad412c22d75406ed736f1d97ce4e6ee41334a75a2990c85e7",
-      "bytes": 15322
+      "sha256": "1eb54ac1d154d124219f472a77e0e6597efff99161abc958a03c92f77d8b934a",
+      "bytes": 15305
     },
     {
       "path": "configs/dair_v2x_i/vggt_long.yaml",
-      "sha256": "3706bb4d3b2a8acb14af8252a0b39adb13ba45a2a3277d259f7015d4a945327b",
-      "bytes": 15401
+      "sha256": "555caafb546bcbbfdfb9c0a07a21d771fc9ea5dbd5e76794a9bc45e3d49c9ec5",
+      "bytes": 15407
     },
     {
       "path": "configs/dair_v2x_i/vggt_omega_long.yaml",
-      "sha256": "20f211eefbf5fcf7bd9386243d942841c2b2f01be69d5e0b0eca0235ca727211",
-      "bytes": 15701
+      "sha256": "0e759c6e9a0464214cc88768e6cd34ef4a8417ff0bb9838abe0c70c6a47ecac3",
+      "bytes": 15686
     },
     {
       "path": "configs/default.yaml",
-      "sha256": "c54b903943b9ce17e794e830aa26e0fdabbaa0a915e531db1b41a2a6a6888f64",
-      "bytes": 13565
+      "sha256": "28f867fc4c36e08c6906819d8c708695fb4770677cc01668c45397dba5b02af0",
+      "bytes": 13553
     },
     {
       "path": "configs/droid/4rc_long.yaml",
-      "sha256": "a19bb2caf05723565e319be4e13d08cc3ce71a1724f966aaffc0c40b6a6857fd",
-      "bytes": 14363
+      "sha256": "2116bdbccace52b0f41174c9b9a312867e1d17d104c486c6ecf82f4bcd2a19ec",
+      "bytes": 14353
     },
     {
       "path": "configs/droid/da3_long.yaml",
-      "sha256": "49bbf11842478d1f6636c0fa65c0dcc7bc42f4a2d8eb1be30479a970c10f1576",
-      "bytes": 14133
+      "sha256": "9d6061bf667ff0f0b33910665cafe0d3441fc48993616f3cdcb455c448b0b77c",
+      "bytes": 14096
     },
     {
       "path": "configs/droid/default.yaml",
-      "sha256": "8ffe256f1bfdcc330e802621ac899a94eae6b78fdc17fe4ecf16ac4043a670f6",
-      "bytes": 13725
+      "sha256": "3774dfabf5ba8db41c42f93227985d8e2806b2e868f98450819c0efd9f73891f",
+      "bytes": 13696
     },
     {
       "path": "configs/droid/dvlt_long.yaml",
-      "sha256": "4facfb4f1cd88e74a4cc2438e3ff713030a14b50cf454dd171e645734341b5fb",
-      "bytes": 14254
+      "sha256": "8dd9fa522c9030e082e06c3dc1f247319dd3bbd2b9997301a80148a3cdd163c9",
+      "bytes": 14236
     },
     {
       "path": "configs/droid/lingbot_map_long.yaml",
-      "sha256": "fead80bffcec7ddee4ee2fff97b99a735cd86695385cacb274c733d04230be6e",
-      "bytes": 15008
+      "sha256": "991f6952d5a67a0c8b53f9cb254dc7bf979d4028b7dc7e4c1cc0a32e2ce3208f",
+      "bytes": 14940
     },
     {
       "path": "configs/droid/pi3_long.yaml",
-      "sha256": "7a9fe19a563bc7c304d7fa954e58480b24c96dc8e4d3cdc505240fa7e39f3151",
-      "bytes": 14052
+      "sha256": "6c3a12ed28980ff0c986e6a46b421c21a20208b6d797d365d64909745a5f638a",
+      "bytes": 14030
     },
     {
       "path": "configs/droid/scal3r_long.yaml",
-      "sha256": "da0bacfe18ff2dd6de3907c88aaa22ee9e5a7d72f3b36aeb932683638e47b026",
-      "bytes": 14413
+      "sha256": "c81922f3e85ba71acc7b646625a8a70de9d9775069299e3d7f7a1c92651636af",
+      "bytes": 14378
     },
     {
       "path": "configs/droid/stream3r_long.yaml",
-      "sha256": "9442712f804d8d1bf35f60e5f091c45378d7e894febf95c78f0217d9e450b8dc",
-      "bytes": 14335
+      "sha256": "0b8525cfb561d97bbc51b0267dd607e2610bdab633e3fb326dd69bea759be189",
+      "bytes": 14301
     },
     {
       "path": "configs/droid/vggt_long.yaml",
-      "sha256": "281d530441b918f0522d06128cab1901953847820711d091f44d75e923f9c215",
-      "bytes": 14159
+      "sha256": "a34a03bbfe75730e9e85c94c44511232c00a3e031da4c8e97c318871feb86107",
+      "bytes": 14150
     },
     {
       "path": "configs/droid/vggt_omega_long.yaml",
-      "sha256": "f27808caf6b58ef73ae918b458138a93867d6ccee1189035900a531737779e73",
-      "bytes": 14756
+      "sha256": "99a16219ad24b1b714ed13d563b71958396a5cc0f7cc03f4f5fa9ba90470eb00",
+      "bytes": 14733
     },
     {
       "path": "configs/fusionportable/4rc_long.yaml",
-      "sha256": "117928d02dbac5570536f5b195c152d2407f26030f715ca2fb8541491e9f5709",
-      "bytes": 14516
+      "sha256": "98501ffcccba163cb36fbcd93900d82535ed3236f7312489748cd2ef5608cc53",
+      "bytes": 14499
     },
     {
       "path": "configs/fusionportable/da3_long.yaml",
-      "sha256": "74fa8e54e82d682b7464d95ac179bca4af9201da75a55944d6e62f89fe6f702c",
-      "bytes": 14657
+      "sha256": "e786cc7c3c76583a007e2c08ee6e4842fdb30f7d41136c721ca929e298f3fbfd",
+      "bytes": 14620
     },
     {
       "path": "configs/fusionportable/default.yaml",
-      "sha256": "c847c08e85eebfc4bc565762da39b1db917710de33cd843e135622e9c29e02cb",
-      "bytes": 13743
+      "sha256": "26dd5abfe4cfd680f7fd652a61e9735954098618d298c5a7ed5a16941fdedf18",
+      "bytes": 13714
     },
     {
       "path": "configs/fusionportable/dvlt_long.yaml",
-      "sha256": "78fbff605aa01473ae61fb035e90c1c464c44bbbd6443a02186cb5cec914fecc",
-      "bytes": 14580
+      "sha256": "27560e5408df930e9762f5b68faf21c6fb0852a1d4d0eaebbb34fb54f2eb9c4a",
+      "bytes": 14562
     },
     {
       "path": "configs/fusionportable/lingbot_map_long.yaml",
-      "sha256": "55a5451d7f6934cfeadb0b4414688c5916c1646ba5e26419c90c3bdf4a35ae70",
-      "bytes": 15232
+      "sha256": "57bfecf38facc566178fe2f859733012f754ccccee3232ddb734c06da1960f67",
+      "bytes": 15164
     },
     {
       "path": "configs/fusionportable/pi3_long.yaml",
-      "sha256": "fb1b8385912f7d022b226e9bc6d8d5bac61316a4529559ec8acbdd335cf55ba4",
-      "bytes": 14216
+      "sha256": "eb250501b2eb1bafb0c4604fe54fcb5747b786f3e29ad971906e19d2903a73e6",
+      "bytes": 14187
     },
     {
       "path": "configs/fusionportable/scal3r_long.yaml",
-      "sha256": "5b121193ca0d54b421f05339dc5070bf87b31bd13aa0f1b7663fa57d37bfcd0d",
-      "bytes": 14937
+      "sha256": "f52f15e14aa32edce11cdecc64c69df94a3cf5f38128a43d1edc147b8edea9f0",
+      "bytes": 14902
     },
     {
       "path": "configs/fusionportable/stream3r_long.yaml",
-      "sha256": "d0e07a901e0c5f6eb6cd9698e4f356042386098278aa39c2eb851ad2f6572bd9",
-      "bytes": 15280
+      "sha256": "64de8bd83fb3bdec7cdfc3634b65a6d0b9ef6ff0f71f0b1f338346bc303124bb",
+      "bytes": 14815
     },
     {
       "path": "configs/fusionportable/vggt_long.yaml",
-      "sha256": "140e220f402c7a58650d508b0d89b380ffa736b1bed017a750ad67f767150921",
-      "bytes": 14405
+      "sha256": "bf9b4967c3b87069a9220d1efda663cf10873ddeb7b3b72a33e3d69e0c7fe935",
+      "bytes": 14396
     },
     {
       "path": "configs/fusionportable/vggt_omega_long.yaml",
-      "sha256": "3350c516e582d573dc32799a4a75d39934438883255e35524b5f7383e8c90a34",
-      "bytes": 14901
+      "sha256": "708eb43ffa63d677b87b073988a8ef98882f9c22c93a4953407131ff7d62a12a",
+      "bytes": 14871
     },
     {
       "path": "configs/humanoid_everyday/4rc_long.yaml",
-      "sha256": "732fac58cce71ad5f2992895017b3e3d068d234721d8ea8cade6cfe9c2f4956c",
-      "bytes": 18088
+      "sha256": "d359bb5ba71010d6fec4b679f9cdd105c8d75256fd5b4e3874dbe7d53c49e34f",
+      "bytes": 17636
     },
     {
       "path": "configs/humanoid_everyday/da3_long.yaml",
-      "sha256": "92d8fdb9942402e991d9b0f8db2427a021ecb8b2e171a74051efe1d6f9eea5e6",
-      "bytes": 17919
+      "sha256": "512b62937f1bdf31ca8457a85d0a6fe9577177b6d2f8f5f1ecac6daaa83bd44d",
+      "bytes": 17881
     },
     {
       "path": "configs/humanoid_everyday/default.yaml",
-      "sha256": "c272dd286036492c636113be787ac1356b7844a984e6777d9eae1b5099fdbf3e",
-      "bytes": 17375
+      "sha256": "959e8ce6c790258bfb9c808eab55da6d3e0c6d5aafe6718b96f1d454b1347f46",
+      "bytes": 17345
     },
     {
       "path": "configs/humanoid_everyday/dvlt_long.yaml",
-      "sha256": "0588abd7e0e205c98f6065befe1d5693af172ad9b51fc9fd25f63b7470db91c1",
-      "bytes": 18073
+      "sha256": "c23ae6a2a0f8d7d3b918f9bb014f43ffd8ebfc2420ef2473ae3ad720d994ff3e",
+      "bytes": 18051
     },
     {
       "path": "configs/humanoid_everyday/lingbot_map_long.yaml",
-      "sha256": "a464b787f7dd84e4cedea20578ca7a43106f91f84f5f4c52bdc3ca1907be4e8f",
-      "bytes": 18098
+      "sha256": "b8b03eb4a850594482634316a72c25992c64ea071a0bf80ae66c4aa792da6703",
+      "bytes": 18054
     },
     {
       "path": "configs/humanoid_everyday/pi3_long.yaml",
-      "sha256": "f4b1a158c453b9515cdac6a61256ea8049b8a91707cd73f0ff0a08d0f4ee3124",
-      "bytes": 17945
+      "sha256": "3f2a7699839b2255fe0dc1b276d170444b6cc2805be4df04ca88c99bae2a4839",
+      "bytes": 17489
     },
     {
       "path": "configs/humanoid_everyday/scal3r_long.yaml",
-      "sha256": "889f6c2c4969549a98c0dd6a3b5c1f940498ed7505b1bfb54d1249e97f36accd",
-      "bytes": 18749
+      "sha256": "038f4d5436c4c7ff87bdcc9a6891cc6fd1c9cf5a7141842276169589c4e33467",
+      "bytes": 18698
     },
     {
       "path": "configs/humanoid_everyday/stream3r_long.yaml",
-      "sha256": "53a9ecc2e38ae2068548f6a62f91e75cf99aa959fcafae067f3e4a5f5e2493a0",
-      "bytes": 18081
+      "sha256": "da729220851cfc87b9087548ce462e8fbfe27542ca3ad9004a63453b027c8cfb",
+      "bytes": 18063
     },
     {
       "path": "configs/humanoid_everyday/vggt_long.yaml",
-      "sha256": "404a5825a43b3559ba22913fc65eb5ca14b5d8e8ef32492581c5ded61c306910",
-      "bytes": 17947
+      "sha256": "e690899644efb03a7afad597a7dd7f327b38121fbf55b974ef352e3db70188a5",
+      "bytes": 17937
     },
     {
       "path": "configs/humanoid_everyday/vggt_omega_long.yaml",
-      "sha256": "91a7ad208ff0571dd22a831db970f136f5236a1755d86d82e8e3d1948cf726a9",
-      "bytes": 18786
+      "sha256": "ebe6439b3c7e57708587b28995e407e09c96e84d6ca702861e73a9fbe10a1a12",
+      "bytes": 18308
     },
     {
       "path": "configs/jrdb/4rc_long.yaml",
-      "sha256": "9fee6d30e5e1fd4b61ffef204d0fb9af7dd8a0c0efc1f97e119aa167901a0ec6",
-      "bytes": 15843
+      "sha256": "2ccb4c53f0a959bca1f64c6e44b6d99cb4002f7bc86963a3fa550dd4648cbecf",
+      "bytes": 15844
     },
     {
       "path": "configs/jrdb/da3_long.yaml",
-      "sha256": "dbb0648eaca17c0dc2f93cfa4db1ff0da4327a2772dcc6314ccff1aaaa422df3",
-      "bytes": 14951
+      "sha256": "f5184b0b39933f7402310bf0678ca6e610b12c3726e631bd50d5b62355b9c3cb",
+      "bytes": 14930
     },
     {
       "path": "configs/jrdb/default.yaml",
-      "sha256": "9dabeacb572639ae22814d979bf7196eb572a21ad365daddfa1c7239a37b1c3b",
-      "bytes": 13872
+      "sha256": "4fb696d72aead990355e1578b0cb3c918c32865aecd1a692d1da30ba5cd98882",
+      "bytes": 13843
     },
     {
       "path": "configs/jrdb/dvlt_long.yaml",
-      "sha256": "192282712570e48043c86d7abdd7a001bb746dc14de0c9145a2c42ebc55ecd48",
-      "bytes": 15077
+      "sha256": "d130466e600d3924b02b276b90c403e8f6d397952c7cea89eb497d0fd1deef54",
+      "bytes": 15075
     },
     {
       "path": "configs/jrdb/lingbot_map_long.yaml",
-      "sha256": "9db6d13282bd4943f8d1ca93e52b2181dbd89a6be5df31e22f5c557499a88076",
-      "bytes": 15825
+      "sha256": "8ae00a8fac99587de942a584f3f0979693b310ecbc97abb77dd0ee7ce93d50eb",
+      "bytes": 15775
     },
     {
       "path": "configs/jrdb/pi3_long.yaml",
-      "sha256": "2133c35888b7a786368856f3133711d9b6130bc6589565594e2816ab0870fc53",
-      "bytes": 15468
+      "sha256": "4a2b15d716728092eb5dcb3e44617e7e9242867b893d825d52faba571e9acf68",
+      "bytes": 15465
     },
     {
       "path": "configs/jrdb/scal3r_long.yaml",
-      "sha256": "39dd2517e1c2af537decfbae83ba8fa29cd6f470fcf08cb5ebee0f364ba53118",
-      "bytes": 15829
+      "sha256": "361feccb269c428b8a35dbcffe5a8afcd06c5d46837d919501218229522e916d",
+      "bytes": 15810
     },
     {
       "path": "configs/jrdb/stream3r_long.yaml",
-      "sha256": "d2a4dfd2127652a4e501b226db32e52ea8be009e681c2023a3e4a0b2b1bb8663",
-      "bytes": 15185
+      "sha256": "c6b0bc081b2a2450aaf61ba28f6307d709d6954f4070724e42133fae506ee755",
+      "bytes": 15169
     },
     {
       "path": "configs/jrdb/vggt_long.yaml",
-      "sha256": "a48c575211600779a689c341fad5d42382bb1572b68eb8d42b45aa63b2eb111e",
-      "bytes": 14974
+      "sha256": "5a8ecdb9c1c3b252d143010c2231e9060c1a39bd28e8d0586c317e60550279d6",
+      "bytes": 14981
     },
     {
       "path": "configs/jrdb/vggt_omega_long.yaml",
-      "sha256": "1cb077eb6108b1243d1b6406220211a7614b13a3673ff44d94615391b0826296",
-      "bytes": 15518
+      "sha256": "d386667bd6991dcff7b18495a44ed662c02b3a4aca953948cb9727dcf0ca6c00",
+      "bytes": 15504
     },
     {
       "path": "configs/kitti/4rc_long.yaml",
-      "sha256": "4564df86c5286088027eca9b6bb2834f45f12e80308c80fca227d6140cd7e3e7",
-      "bytes": 10639
+      "sha256": "8d2b489d69e137f0349dc46691e6243caa76f1e2e1aaffbf5384b5db489394a8",
+      "bytes": 10386
     },
     {
       "path": "configs/kitti/da3_long.yaml",
-      "sha256": "0354588a4d537b4c86456b61bc7e05a287015df40f1b6c49ee1431b9cb721c7a",
-      "bytes": 15735
+      "sha256": "d99e090ae5c561e99eb34f1f37b2f08a4223c842ec73f2b4a17d1c0b679c768e",
+      "bytes": 15375
     },
     {
       "path": "configs/kitti/default.yaml",
-      "sha256": "63cddcbd902cabf4d35f990bbcbc49f75360407ab1a3866982de342c6badfbcf",
-      "bytes": 15310
+      "sha256": "e293063b3b3bf82bff6eedd2066794af0426eeb1bb2f5502557230a0b856969f",
+      "bytes": 15280
     },
     {
       "path": "configs/kitti/dvlt_long.yaml",
-      "sha256": "8d754aebe8904fc310c2ba97d9e85c1cfb41f1eeda42d230d5d76f1e9ad6cbde",
-      "bytes": 10841
+      "sha256": "109bb112a8f745c260b9a58329b4f0344115a5debfe4ef58085bc92572f410a0",
+      "bytes": 10578
     },
     {
       "path": "configs/kitti/lingbot_map_long.yaml",
-      "sha256": "8b75068da7e491199dff68dc64c30b45c0ffa95a3d988fe1fcc08c12172e109c",
-      "bytes": 11501
+      "sha256": "9dd176444162abd65959ce2989812b4fe5b94c2dbb4029f1babab7d8f5921c02",
+      "bytes": 11220
     },
     {
       "path": "configs/kitti/pi3_long.yaml",
-      "sha256": "00c4c11e00d88c04d385fe1ad578866763f4e137310ddbcc3d8863da4cc2ca1b",
-      "bytes": 11350
+      "sha256": "1fa24206dce61c5bb1c59b9b57d02e5a251a211d4ff6e56c1d20ff3249d3d894",
+      "bytes": 11067
     },
     {
       "path": "configs/kitti/scal3r_long.yaml",
-      "sha256": "58eda56f57137f80f349d37deb87271c3518916dd951b30172b1313aca48d3b7",
-      "bytes": 15861
+      "sha256": "cc42c003ebe4d1f3e916373e3af5ea7d2283f3c5ac7ec5469e235841426b6b73",
+      "bytes": 15501
     },
     {
       "path": "configs/kitti/scale_profile_reference/4rc_full8_weighted.json",
@@ -476,168 +486,168 @@
     },
     {
       "path": "configs/kitti/stream3r_long.yaml",
-      "sha256": "99ad4a2e60d913262e0b93aa42cfcfec92ead8c27316a61b2e2087a05b294bb9",
-      "bytes": 15711
+      "sha256": "a8db924b7b6e0d41e07ec83614244cc4c7702105974d5ba5611531fd71da53e9",
+      "bytes": 15350
     },
     {
       "path": "configs/kitti/vggt_long.yaml",
-      "sha256": "d2bcbd22518cf525eac3f59161b9333e7bbdec87487dc5a384eaf401d7b4435c",
-      "bytes": 15766
+      "sha256": "d75622d736babed92ea03d09c4d21b9cd9e4dbd71740310fd89bdf5cef22172f",
+      "bytes": 15428
     },
     {
       "path": "configs/kitti/vggt_omega_long.yaml",
-      "sha256": "f44ae9eee62a22f028e3336a6aa74b4de65310e6edc0ffb331864f74685bb0de",
-      "bytes": 16068
+      "sha256": "d90b6deb483db14258317886c2bf46ae716dfc4634ee8ff55df97ae39725fca2",
+      "bytes": 15705
     },
     {
       "path": "configs/nuscenes/4rc_long.yaml",
-      "sha256": "19ff74605af9e7e273edef274acb890de118bb082095431e30986b71b1420557",
-      "bytes": 14727
+      "sha256": "ca529f9d3de6adecad1283811323745b809fb2df2df251cab2d86ef2c2aee512",
+      "bytes": 14402
     },
     {
       "path": "configs/nuscenes/da3_long.yaml",
-      "sha256": "16b51a1f408d8a6b5a7f257825336e454279bf42be93b8bb523e666d2e5d89ff",
-      "bytes": 16006
+      "sha256": "15a21b802308922ef31126f04993292de9a76fa90e5fecde9797fceaa4e5a82a",
+      "bytes": 15634
     },
     {
       "path": "configs/nuscenes/default.yaml",
-      "sha256": "1f8b894ae60fab92999aa13367dce6a649a19a5659bb969f2799c70c422fa983",
-      "bytes": 15272
+      "sha256": "a8146125fef9900fd1b17d38d6ccb4b9321bbcf92ffe2e82b6063d06f579c942",
+      "bytes": 15242
     },
     {
       "path": "configs/nuscenes/dvlt_long.yaml",
-      "sha256": "5b0284d5fd72f98ba9f149636dc5509beb893d5bc94d71aa6ed72b4423de0322",
-      "bytes": 15970
+      "sha256": "739503746e2e6b54c02f1ca1838cbd24168441302857be7fd01952c893e98bf2",
+      "bytes": 15614
     },
     {
       "path": "configs/nuscenes/lingbot_map_long.yaml",
-      "sha256": "d89912766091749603cc334ab28c9b6b9f3dc43623f7fcdebcbab00f427c220b",
-      "bytes": 16655
+      "sha256": "9e8efb3dff2a62e66dda0242762adc1d29ec7f1da4f8969cadfb9466c6ee80db",
+      "bytes": 16282
     },
     {
       "path": "configs/nuscenes/pi3_long.yaml",
-      "sha256": "3fc0eaafddf3f7bbf7215c9f70dcd9900013b22a2faf3ac68e09a29051890ab0",
-      "bytes": 15960
+      "sha256": "006e7746c7a6f2336db6675506ddc3918cb37136798e884d8891a758de847820",
+      "bytes": 15594
     },
     {
       "path": "configs/nuscenes/scal3r_long.yaml",
-      "sha256": "649bc5e002927962c50946320471a2b12d4869b6e9a776aeec3f15b83340a50e",
-      "bytes": 16188
+      "sha256": "f947ee1065e590f6146749e1fdafeb5fe34289c7a66ec5849744dc393c6ccf70",
+      "bytes": 15817
     },
     {
       "path": "configs/nuscenes/stream3r_long.yaml",
-      "sha256": "3d42092045736f1841e76306c1d01e76ddf88935d4764b328d968cf7392a1c76",
-      "bytes": 15859
+      "sha256": "d26cd0acce490022b4ab333833cbcd9b884a68a4391deb56c456fa5072a895e1",
+      "bytes": 15498
     },
     {
       "path": "configs/nuscenes/vggt_long.yaml",
-      "sha256": "316b43a74564842a139492cbeb9e3f4a297548e3b9f6550f5256cbb2dee8c798",
-      "bytes": 16042
+      "sha256": "8aec96a197723ff6bafb4c185f37f1ef1cc31634397907cd26978f0db6706e35",
+      "bytes": 15695
     },
     {
       "path": "configs/nuscenes/vggt_omega_long.yaml",
-      "sha256": "c4a3f0490b87709eae973fb5dabcc6cd3028df52711ae2bc22ba4191521e4184",
-      "bytes": 16202
+      "sha256": "2a850e13f265e9b438136c03063ef7bc91b19f828a722c1c6fc3bdd773c27d1b",
+      "bytes": 15838
     },
     {
       "path": "configs/v2x_radar_i/4rc_long.yaml",
-      "sha256": "67234fcaf0b7e9a28bed3339835d67709281d307ac3bdc441f954f582462bfb7",
-      "bytes": 13418
+      "sha256": "976f262e8d67f282fbbee35a12ad841e337bad8265e97ea937067651c2bfa989",
+      "bytes": 13400
     },
     {
       "path": "configs/v2x_radar_i/da3_long.yaml",
-      "sha256": "0d92dd8e7802562ffb35c4556bf9d38bacbf3d6be93672f3fff99a3a5fc716c7",
-      "bytes": 15386
+      "sha256": "d6b02ab78564bd6abdcd4791ddf171a716b36d44e53da6615484a1fcec1fb58a",
+      "bytes": 15348
     },
     {
       "path": "configs/v2x_radar_i/default.yaml",
-      "sha256": "746cb659f3f754bc2c6282c93146a595693b7aabf16bafbb5e39853b9304a9e9",
-      "bytes": 15236
+      "sha256": "7c0fe6a470a093c32a23f99af74c14e10553bbfbfc3d9d86f6de5570fbae8cb4",
+      "bytes": 15206
     },
     {
       "path": "configs/v2x_radar_i/dvlt_long.yaml",
-      "sha256": "b87fd02ad79f095ef2731c2f5fd63da9c2213052a553f5b30ce6cde0e9526d05",
-      "bytes": 15770
+      "sha256": "0b6328fecbf7bd7c18759c7c914ab341b919276a597084d9707ef79a7b3d4a42",
+      "bytes": 15751
     },
     {
       "path": "configs/v2x_radar_i/lingbot_map_long.yaml",
-      "sha256": "3692274db6b5b76692bd668f2ca202b9aa1b0da45696913e40e3e104d0d08dab",
-      "bytes": 15984
+      "sha256": "0f8b91b78ee8c9496288ac87be2a3af0ad525e0440ddb261b6e6daef8cf168e4",
+      "bytes": 15961
     },
     {
       "path": "configs/v2x_radar_i/pi3_long.yaml",
-      "sha256": "dda33ab4ce554f37b3a759de0022f33cdbf7dd230dc2cc611577b65364d4587b",
-      "bytes": 15128
+      "sha256": "fca6f87ba5363773d6eb5e0dbfe75889b3790d45aca5381d75d1b5dee4904e98",
+      "bytes": 15098
     },
     {
       "path": "configs/v2x_radar_i/scal3r_long.yaml",
-      "sha256": "07974da7f7d0ffbd3dbb5bcc273ce9d58614a64fc2c50dc1863780e6ac93d2e1",
-      "bytes": 15795
+      "sha256": "81e6d37fa3ea45380f1944259b18ca6ddf34283f62f17051f556b8416b152cf6",
+      "bytes": 15759
     },
     {
       "path": "configs/v2x_radar_i/stream3r_long.yaml",
-      "sha256": "b6f5ac7182b0346472b73f021bae819b315b2d79a9b958d43adac7e5563510e9",
-      "bytes": 15118
+      "sha256": "bcd7e1e63ce9a08ccd2d20008de1a9815be77c4018fcda3d40fe1fd2f418550a",
+      "bytes": 15083
     },
     {
       "path": "configs/v2x_radar_i/vggt_long.yaml",
-      "sha256": "81549781b2cbf3a9bfe6af3cd03bbe2a1185646bd60933eda5b6556581a40040",
-      "bytes": 15357
+      "sha256": "757e6f152b011df31fafa73fb5e459e5039bcba55021c2e7e9f72f3c14b736f9",
+      "bytes": 15347
     },
     {
       "path": "configs/v2x_radar_i/vggt_omega_long.yaml",
-      "sha256": "cbcf0f4fc8dd209f9479f692f8817d6ef8f6db8cbd5e0f2603d62c07a05985e5",
-      "bytes": 15654
+      "sha256": "17de1c7b7aa849309d862b1b79c96ba8bf034a9f28b4f6b6fc4b036c6810de65",
+      "bytes": 15623
     },
     {
       "path": "configs/waymo/4rc_long.yaml",
-      "sha256": "1f942a9c3f21097d49b140eb292545231d4751932520eabac3bdb6cecf283110",
-      "bytes": 14080
+      "sha256": "f4dc5fcc797a52acdbf23ecdd62cad224f232afe2a5248e08cefa262653b68c2",
+      "bytes": 13671
     },
     {
       "path": "configs/waymo/da3_long.yaml",
-      "sha256": "47de9dd4bee1dcb5bed46872f10f3ce5fd25e974c1272b1c2706c9bb492e6197",
-      "bytes": 15975
+      "sha256": "9a679cd94968e7ae4d13058f9731f5336bc95a34de39d247da47d85722424fb6",
+      "bytes": 15525
     },
     {
       "path": "configs/waymo/default.yaml",
-      "sha256": "6eabd49e2b359d10d675d8b16eb85408529f88582a5643dbf03ef9bf1399edcd",
-      "bytes": 15310
+      "sha256": "6132d0a9ec14c4d7cd248ef209707251d8f3f70e116b0e94287f6bc3a6949069",
+      "bytes": 15280
     },
     {
       "path": "configs/waymo/dvlt_long.yaml",
-      "sha256": "ebf9b30451bf6c1a750000ee4d6c93d386834c0ba9ab0431a97386891470ee9a",
-      "bytes": 15855
+      "sha256": "d3a7a67ebdbcc55d487a385721e8ce7ec24997651d6c4b3dad5f15e1ed73b07b",
+      "bytes": 15424
     },
     {
       "path": "configs/waymo/lingbot_map_long.yaml",
-      "sha256": "7da4e6d6c6efbea38d6c1496eb018ad493b6dcafd46d14268177db21631c28a7",
-      "bytes": 16458
+      "sha256": "834bb0a337b8b430f55ad6efd15bc9a9d0c1eadafb5442dfe6aae06849487dfc",
+      "bytes": 16008
     },
     {
       "path": "configs/waymo/pi3_long.yaml",
-      "sha256": "1ad637a8def27aa97b41ff068cd6bc171ff64507dfa60e81ab099771aeb4e8c5",
-      "bytes": 15718
+      "sha256": "ad19ca8b61c92f40783a95d0e7cf69eed37667b2b235f82e5e2851d09f7312c2",
+      "bytes": 15277
     },
     {
       "path": "configs/waymo/scal3r_long.yaml",
-      "sha256": "9a612434239551dee2664b006b39bd28c024bcf0f89d080dbfa2b65d26ac70cd",
-      "bytes": 16007
+      "sha256": "def4c18307443446aa4f802584939c4808d7561d49646fbf60cae84cd9f029fd",
+      "bytes": 15556
     },
     {
       "path": "configs/waymo/stream3r_long.yaml",
-      "sha256": "f5d3b52ca9859c630967132ee2b959204bf63511cce963acbbc8d704699f74ca",
-      "bytes": 15716
+      "sha256": "aec3b0d986b14d15d2ce60f8927b56e490b80ed88c4fb9018d1191534f9d37c6",
+      "bytes": 15270
     },
     {
       "path": "configs/waymo/vggt_long.yaml",
-      "sha256": "68f441bb5156aefaa986b42af72ca5af8fe400943cd687916ecd643092c04705",
-      "bytes": 15945
+      "sha256": "5ca4a5a7c9fb6729ce36e0411358ee850fbc09fe7d7f9e280cec63dd8687fd2b",
+      "bytes": 15522
     },
     {
       "path": "configs/waymo/vggt_omega_long.yaml",
-      "sha256": "e4e37cd39e503931db59f06e9bf80ce2781d985874d395d9f26bcc27756ec52b",
-      "bytes": 16109
+      "sha256": "258d4b7b6ba550fdaa0a006942df1173364b57a64017d7ab33f829242833f755",
+      "bytes": 15659
     },
     {
       "path": "dataset_tools/cleanup_depth_outputs.py",
@@ -715,9 +725,14 @@
       "bytes": 4000
     },
     {
+      "path": "docs/gfm-environments.md",
+      "sha256": "9027ce213aafa2804ed91be4099d3f20d2b591eab84a16d29ed10b27c7161eeb",
+      "bytes": 10249
+    },
+    {
       "path": "docs/runbook.md",
-      "sha256": "ee6fca08b05a75211a3c10407b962b5293c538d290f8072a092aadb2866a3f98",
-      "bytes": 2109
+      "sha256": "ab19cc1189545179535f6dc9e18d7a349d55e742a4a108f38c2351af0946f39a",
+      "bytes": 2547
     },
     {
       "path": "docs/semantic-scale.md",
@@ -728,11 +743,6 @@
       "path": "get_metric_scale.py",
       "sha256": "31d35c6ee2d0e26e0962294d1abb509f64cc07750637f4374772fc20d08e638b",
       "bytes": 11723
-    },
-    {
-      "path": "LICENSING.md",
-      "sha256": "21aa9bbd518f102adc8f39a14d8a0a1f53e07f69bc1938137eddb55d82802511",
-      "bytes": 1935
     },
     {
       "path": "metric_scale/__init__.py",
@@ -746,8 +756,8 @@
     },
     {
       "path": "metric_scale/config/config.py",
-      "sha256": "7ef08eb7d70787ffbbca33cd211ae5df14671ca964f6631d8e01fbf9c028f415",
-      "bytes": 121111
+      "sha256": "e9e85c92d2d6c6a77eb0a0af44c3512e49ce9e25e73a742967bed312d37a733f",
+      "bytes": 118307
     },
     {
       "path": "metric_scale/config/path_config.py",
@@ -831,8 +841,8 @@
     },
     {
       "path": "metric_scale/models/vggt_long_depth_estimator.py",
-      "sha256": "8970078e1e41e51242364c4c105babb0d435fbc0ad4461c4d9e142c787deaa86",
-      "bytes": 28556
+      "sha256": "cac57679911de245d88d9776202b3071933c2d5ff1dd3e7cbac674227e73ae07",
+      "bytes": 28650
     },
     {
       "path": "metric_scale/models/vggt_omega_long_depth_estimator.py",
@@ -975,9 +985,9 @@
       "bytes": 8350
     },
     {
-      "path": "README.md",
-      "sha256": "6e70457db6750583edc967ffc896165feffb4e68ca4f9e532c622bd2c56fbf75",
-      "bytes": 5062
+      "path": "reproducibility/README.md",
+      "sha256": "e15cf93a004c9f9d34cf656f245dd73c61410216bacee4e211a29ad2e6a4f8f5",
+      "bytes": 6164
     },
     {
       "path": "reproducibility/check_setup.py",
@@ -991,13 +1001,8 @@
     },
     {
       "path": "reproducibility/freeze_manifest.py",
-      "sha256": "9470783f4844d47382586ac4a9cc61bb9ef0a4c198f304ff8f78cd57b0193926",
-      "bytes": 2928
-    },
-    {
-      "path": "reproducibility/README.md",
-      "sha256": "f95f3891e0bcea4c56ae4cbcabfb5cb15f39e4325af12f61e4a3b6340e22a040",
-      "bytes": 4672
+      "sha256": "415470e735770f23ec3d4491b39928fed058f5c160845acec90bf542c27db529",
+      "bytes": 2946
     },
     {
       "path": "reproducibility/test_active_features.py",
@@ -1020,6 +1025,41 @@
       "bytes": 496
     },
     {
+      "path": "scripts/check_gfm.py",
+      "sha256": "c05a5dc31ea3a1ac20a06565268e0afed123503f6f39f0ed19a9530d257e92ee",
+      "bytes": 3402
+    },
+    {
+      "path": "scripts/download_gfm_weights.py",
+      "sha256": "0be61227f597ab4e6b6fbda592aafa77f5f40735838a466cdfe1e527c0bc2022",
+      "bytes": 1858
+    },
+    {
+      "path": "scripts/gfm_profiles.json",
+      "sha256": "0e21d9a84b229ebec6231a93927ade80440536ad4687057a7dcd8d74a0dcf684",
+      "bytes": 8408
+    },
+    {
+      "path": "scripts/install_gfm.py",
+      "sha256": "90d2c9c471f6853ba844445d770fe77987e91fb75754bd231910ca19580f2c48",
+      "bytes": 17541
+    },
+    {
+      "path": "scripts/install_gfm.sh",
+      "sha256": "058ffb0e5587d1de14db7f946ed1c75ed9a0b94e968f8b1ec692b86dd1b64c89",
+      "bytes": 150
+    },
+    {
+      "path": "tests/test_gfm_dependency_isolation.py",
+      "sha256": "5f8c5e93d3b9013dfa97cc4a2cd12a47983d4530dd909933799c9d1b73185bcd",
+      "bytes": 4945
+    },
+    {
+      "path": "tests/test_gfm_installer.py",
+      "sha256": "c4969f4921b435672c93fb6738604a9151596501c42bb7edc2312cc982d5be44",
+      "bytes": 18853
+    },
+    {
       "path": "tests/test_omega_balanced_preprocess.py",
       "sha256": "e943b96a48c93e4bb5db44c157d897599cb8acb25cdc2acb72cc91c9355a294a",
       "bytes": 4164
@@ -1031,8 +1071,8 @@
     },
     {
       "path": "vendor/README.md",
-      "sha256": "84757fc0babc76bf00cbd12ce539531f2c3387135e79f4baa035591d6115056d",
-      "bytes": 2262
+      "sha256": "c156f63225d27c274e74057d4c0ec77fcc992df184df6dc41c09ef3ff0dc4201",
+      "bytes": 4594
     }
   ]
 }

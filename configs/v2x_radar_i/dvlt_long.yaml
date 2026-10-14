@@ -4,7 +4,7 @@ runtime:
   dataset: "v2x-radar-i"
 
   # Dataset root directory.
-  data_path: "data/official-data/v2x-radar-i/"
+  data_path: "data/metric_bench/v2x-radar-i"
 
   # Selected depth model wrapper; this YAML filename identifies the production model.
   # The published matrix contains nine depth-model configs per dataset.
@@ -161,7 +161,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
+  long_temp_root: "{project_root}/tmp"
 
 
   # Saved prediction resolution. Options: "original", "native".
@@ -369,8 +369,8 @@ semantic_scale:
 
 models:
   # Local DVLT project root and checkpoint.
-  dvlt_project_root: "/data1/yanglei/FoundationModel/dvlt"
-  dvlt_checkpoint: "{dvlt_project_root}"
+  dvlt_project_root: "{project_root}/vendor/DVLT"
+  dvlt_checkpoint: "{pretrained_model_dir}/DVLT"
 
 paths:
   # Base project path template.
@@ -411,4 +411,4 @@ paths:
   dvlt_output: "{output}/dvlt_outputs"
 
   # Prepared P3 image directory.
-  p3_images: "{project_root}/p3_images/{sequence_name}"
+  p3_images: "{project_root}/p3_images/{dataset_name}/{sequence_name}"

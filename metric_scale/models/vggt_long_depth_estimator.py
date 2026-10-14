@@ -15,8 +15,6 @@ from metric_scale.config.config import config
 from metric_scale.config.path_config import ensure_dir
 from metric_scale.models.output_metadata import build_camera_params
 from metric_scale.utils.utils import file_utils
-from vggt.models.vggt import VGGT
-from vggt.utils.pose_enc import pose_encoding_to_extri_intri
 
 class VGGTLongDepthEstimator:
     """Chunked long-sequence VGGT estimator with Pi3-long-style resize preprocessing."""
@@ -45,6 +43,9 @@ class VGGTLongDepthEstimator:
             raise ValueError(
                 f"Overlap ({self.overlap}) must be smaller than chunk size ({self.chunk_size})."
             )
+
+        # Other backends reuse the chunk utilities without installing VGGT.
+        from vggt.models.vggt import VGGT
 
         self.model = VGGT.from_pretrained(pretrained_model).to(self.device).eval()
 
@@ -198,6 +199,8 @@ class VGGTLongDepthEstimator:
         return (camera_dirs * depth[..., None]).astype(np.float32)
 
     def _run_chunk_inference(self, chunk_idx, image_paths, global_start_idx, temp_dir, target_size):
+        from vggt.utils.pose_enc import pose_encoding_to_extri_intri
+
         images, metas = self._load_chunk_images_resized(image_paths, target_size)
         images = images.to(self.device)
         autocast_enabled = self.device_type == "cuda"

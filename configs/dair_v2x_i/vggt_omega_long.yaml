@@ -1,5 +1,5 @@
 # dair_v2x_i / vggt_omega_long production configuration.
-# Comments explain options; the parameter values below are unchanged.
+# Algorithmic parameters are preserved; resource paths are repository-relative.
 
 # Dataset/sequence selection, evaluation settings, and output lifecycle.
 
@@ -8,7 +8,7 @@ runtime:
   # Common values: "argoverse", "v2x-radar-i", "dair-v2x-i", "kitti", "waymo", "nuscenes".
   dataset: dair-v2x-i
   # Dataset root directory.
-  data_path: data/official-data/dair-v2x-i/
+  data_path: 'data/metric_bench/dair-v2x-i'
   # Selected depth model wrapper; this YAML filename identifies the production model.
   # The published matrix contains nine depth-model configs per dataset.
   depth_model: vggt_omega_long
@@ -137,7 +137,7 @@ depth:
   # Whether to remove temporary files created during long-sequence inference.
   long_delete_temp_files: true
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: /data1/yanglei/outputs/Metric-Depth-new-repro/tmp
+  long_temp_root: '{project_root}/tmp'
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: native
   # Sampling mode for native-resolution predictions. Options: "nearest", "bilinear".
@@ -304,8 +304,8 @@ semantic_scale:
 
 models:
   # Local VGGT-Omega project root and checkpoint.
-  vggt_omega_project_root: /data1/yanglei/FoundationModel/vggt-omega
-  vggt_omega_checkpoint: '{vggt_omega_project_root}/checkpoints/vggt_omega_1b_512.pt'
+  vggt_omega_project_root: '{project_root}/vendor/VGGT-Omega'
+  vggt_omega_checkpoint: '{pretrained_model_dir}/VGGT-Omega/vggt_omega_1b_512.pt'
   vggt_omega_image_resolution: 512
   vggt_omega_preprocess_mode: resize_only
   vggt_omega_enable_alignment: false
@@ -341,4 +341,4 @@ paths:
   vggt_omega_relative_scale: '{vggt_omega_output}/relative_scale'
   vggt_omega_absolute_scale: '{vggt_omega_output}/absolute_scale'
   # Prepared P3 image directory.
-  p3_images: '{project_root}/p3_images/{sequence_name}'
+  p3_images: '{project_root}/p3_images/{dataset_name}/{sequence_name}'

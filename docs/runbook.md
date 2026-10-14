@@ -1,6 +1,6 @@
 # Runbook
 
-The [reproducibility guide](../reproducibility/README.md) is the full setup reference. First run `python reproducibility/check_setup.py` to check datasets, model source, checkpoints, and the SAM2 configuration.
+The [README](../README.md#quick-start) provides the default setup and run commands. Place each MetricBench dataset directly in `data/metric_bench/<dataset>/` (for example, `data/metric_bench/JRDB/`) and model assets in the [default directories](../vendor/README.md#default-directories), then run a supplied YAML from the repository root. No configuration edits are needed. `python reproducibility/check_setup.py` checks the entire configuration matrix, including models and datasets you may not have installed.
 
 ## Start from empty outputs
 
@@ -22,6 +22,6 @@ The legacy `runtime.depth_only: true` workflow remains supported. It requires VL
 
 ## Outputs and external assets
 
-Datasets, model weights, checkpoints, outputs, and P3 images are not part of the source commit. Local symbolic links and third-party `vendor/` source on the original server are excluded by `.gitignore`. On another machine, install the model source as described in the [vendor guide](../vendor/README.md) and update the YAML `data_path`, model roots, checkpoints, and output paths.
+Datasets, model weights, checkpoints, outputs, and P3 images are not part of the source commit. The default resource directories are excluded by `.gitignore`. Data is read from `data/metric_bench/<dataset>/`; model source and weights use `vendor/` and `pretrained_model/`; SAM weights use `checkpoints/`. Results, prepared images, and temporary files are written to `outputs/`, `p3_images/`, and `tmp/` respectively. Dataset paths resolve relative to the working directory, so launch commands from the repository root.
 
 `reproducibility/freeze_external_assets.py` can generate a Git-ignored local manifest of asset paths and file hashes.

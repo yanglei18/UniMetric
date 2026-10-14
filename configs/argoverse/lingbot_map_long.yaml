@@ -4,7 +4,7 @@ runtime:
   dataset: "argoverse"
 
   # Dataset root directory.
-  data_path: "data/official-data/Argoverse/"
+  data_path: "data/metric_bench/Argoverse"
 
   # Selected depth model wrapper; this YAML filename identifies the production model.
   # The published matrix contains nine depth-model configs per dataset.
@@ -164,7 +164,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
+  long_temp_root: "{project_root}/tmp"
 
 
   # Saved prediction resolution. Options: "original", "native".
@@ -367,7 +367,7 @@ semantic_scale:
 models:
   # Local LingBot-Map project root and checkpoint.
   lingbot_map_project_root: "{project_root}/vendor/LingBot-Map"
-  lingbot_map_checkpoint: "/data1/yanglei/MetricDepth/weights/lingbot-map/lingbot-map-long.pt"
+  lingbot_map_checkpoint: "{pretrained_model_dir}/LingBot-Map/lingbot-map-long.pt"
   lingbot_map_mode: "streaming"
   lingbot_map_image_size: 518
   lingbot_map_patch_size: 14
@@ -423,4 +423,4 @@ paths:
   lingbot_map_absolute_scale: "{lingbot_map_output}/absolute_scale"
 
   # Prepared P3 image directory.
-  p3_images: "{project_root}/p3_images/{sequence_name}"
+  p3_images: "{project_root}/p3_images/{dataset_name}/{sequence_name}"

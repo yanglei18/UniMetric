@@ -1,5 +1,5 @@
 # dair_v2x_i / lingbot_map_long production configuration.
-# Comments explain options; the parameter values below are unchanged.
+# Algorithmic parameters are preserved; resource paths are repository-relative.
 
 # Dataset/sequence selection, evaluation settings, and output lifecycle.
 
@@ -8,7 +8,7 @@ runtime:
   # Common values: "argoverse", "v2x-radar-i", "dair-v2x-i", "kitti", "waymo", "nuscenes".
   dataset: dair-v2x-i
   # Dataset root directory.
-  data_path: data/official-data/dair-v2x-i/
+  data_path: 'data/metric_bench/dair-v2x-i'
   # Selected depth model wrapper; this YAML filename identifies the production model.
   # The published matrix contains nine depth-model configs per dataset.
   depth_model: lingbot_map_long
@@ -137,7 +137,7 @@ depth:
   # Whether to remove temporary files created during long-sequence inference.
   long_delete_temp_files: true
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: /data1/yanglei/outputs/Metric-Depth-new-repro/tmp
+  long_temp_root: '{project_root}/tmp'
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: native
   # Sampling mode for native-resolution predictions. Options: "nearest", "bilinear".
@@ -306,8 +306,8 @@ semantic_scale:
 
 models:
   # Local LingBot-Map project root and checkpoint.
-  lingbot_map_project_root: /data1/yanglei/MetricDepth/weights/lingbot-map
-  lingbot_map_checkpoint: '{lingbot_map_project_root}/lingbot-map-long.pt'
+  lingbot_map_project_root: '{project_root}/vendor/LingBot-Map'
+  lingbot_map_checkpoint: '{pretrained_model_dir}/LingBot-Map/lingbot-map-long.pt'
   lingbot_map_mode: streaming
   lingbot_map_image_size: 518
   lingbot_map_patch_size: 14
@@ -353,4 +353,4 @@ paths:
   lingbot_map_relative_scale: '{lingbot_map_output}/relative_scale'
   lingbot_map_absolute_scale: '{lingbot_map_output}/absolute_scale'
   # Prepared P3 image directory.
-  p3_images: '{project_root}/p3_images/{sequence_name}'
+  p3_images: '{project_root}/p3_images/{dataset_name}/{sequence_name}'

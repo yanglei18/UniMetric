@@ -42,7 +42,7 @@ paths.append(ROOT / 'reproducibility/README.md')
 for optional in (ROOT / 'requirements-base.txt', ROOT / 'LICENSING.md', ROOT / 'vendor/README.md'):
     if optional.is_file():
         paths.append(optional)
-subtrees = [ROOT / 'metric_scale', ROOT / 'dataset_tools', ROOT / 'tests', ROOT / 'docs']
+subtrees = [ROOT / 'metric_scale', ROOT / 'dataset_tools', ROOT / 'tests', ROOT / 'docs', ROOT / 'scripts']
 if args.include_vendor:
     subtrees.append(ROOT / 'vendor')
 for subtree in subtrees:

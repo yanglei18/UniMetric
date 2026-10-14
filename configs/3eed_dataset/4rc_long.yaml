@@ -2,7 +2,7 @@ runtime:
   # Logical dataset name used in outputs and prompt routing.
   dataset: "3eed_dataset"
   # Dataset root directory.
-  data_path: "data/official-data/3eed_dataset_10hz"
+  data_path: "data/metric_bench/3EED"
 
   # 3EED is an outdoor campus dataset captured by drone and quadruped cameras.
   scene_domain: "outdoor"
@@ -163,7 +163,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
+  long_temp_root: "{project_root}/tmp"
 
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: "native"
@@ -343,10 +343,10 @@ semantic_scale:
 
 models:
   # Local 4RC repository root.
-  fourrc_project_root: "/home/yanglei/4RC"
+  fourrc_project_root: "{project_root}/vendor/4RC"
 
   # 4RC checkpoint or checkpoint directory.
-  fourrc_checkpoint: "/data1/yanglei/FoundationModel/4RC"
+  fourrc_checkpoint: "{pretrained_model_dir}/4RC"
 
 paths:
   # Base project path template.
@@ -392,7 +392,7 @@ paths:
   sam_aligned_anchor: "{sam_output}/aligned_anchor_plys"
 
   # Prepared P3 image directory.
-  p3_images: "{project_root}/p3_images/{sequence_name}"
+  p3_images: "{project_root}/p3_images/{dataset_name}/{sequence_name}"
 
   # 4RC outputs.
   fourrc_output: "{output}/4rc_outputs"

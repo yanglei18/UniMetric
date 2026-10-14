@@ -1,5 +1,5 @@
 # nuscenes / 4rc_long production configuration.
-# Comments explain options; the parameter values below are unchanged.
+# Algorithmic parameters are preserved; resource paths are repository-relative.
 
 # Dataset/sequence selection, evaluation settings, and output lifecycle.
 
@@ -7,7 +7,7 @@ runtime:
   # Logical dataset name used in outputs and prompt routing.
   dataset: nuscenes
   # Dataset root directory.
-  data_path: data/official-data/nuScenes/
+  data_path: 'data/metric_bench/nuScenes'
   # Selected depth model wrapper; this YAML filename identifies the production model.
   # The published matrix contains nine depth-model configs per dataset.
   depth_model: 4rc_long
@@ -130,7 +130,7 @@ depth:
   # Whether to remove temporary files created during long-sequence inference.
   long_delete_temp_files: true
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: /data1/yanglei/outputs/Metric-Depth-new-repro/tmp
+  long_temp_root: '{project_root}/tmp'
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: original
   # Sampling mode for native-resolution predictions. Options: "nearest", "bilinear".
@@ -280,9 +280,9 @@ semantic_scale:
 
 models:
   # Local 4RC repository root.
-  fourrc_project_root: /home/yanglei/4RC
+  fourrc_project_root: '{project_root}/vendor/4RC'
   # 4RC checkpoint or checkpoint directory.
-  fourrc_checkpoint: /data1/yanglei/FoundationModel/4RC
+  fourrc_checkpoint: '{pretrained_model_dir}/4RC'
   fourrc_image_size: 512
   fourrc_patch_size: 14
   fourrc_dtype: bf16-mixed
@@ -322,4 +322,4 @@ paths:
   # 4RC outputs.
   fourrc_output: '{output}/4rc_outputs'
   # Prepared P3 image directory.
-  p3_images: '{project_root}/p3_images/{sequence_name}'
+  p3_images: '{project_root}/p3_images/{dataset_name}/{sequence_name}'

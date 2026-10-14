@@ -1,5 +1,5 @@
 # jrdb / pi3_long production configuration.
-# Comments explain options; the parameter values below are unchanged.
+# Algorithmic parameters are preserved; resource paths are repository-relative.
 
 # Dataset/sequence selection, evaluation settings, and output lifecycle.
 
@@ -7,7 +7,7 @@ runtime:
   # Logical dataset name used in outputs and prompt routing.
   dataset: jrdb
   # Dataset root directory.
-  data_path: data/official-data/JRDB
+  data_path: 'data/metric_bench/JRDB'
   # Scene domain hint used by prompts / dataset-specific routing.
   scene_domain: indoor
   # Selected depth model wrapper; this YAML filename identifies the production model.
@@ -132,7 +132,7 @@ depth:
   # Whether to remove temporary files created during long-sequence inference.
   long_delete_temp_files: true
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: /data1/yanglei/outputs/Metric-Depth-new-repro/tmp
+  long_temp_root: '{project_root}/tmp'
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: original
   # Sampling mode for native-resolution predictions. Options: "nearest", "bilinear".
@@ -313,7 +313,7 @@ semantic_scale:
 
 models:
   # Local checkpoint path for Pi3 / Pi3X.
-  pi3_weights: /data1/yanglei/MetricDepth/weights/Pi3X
+  pi3_weights: '{pretrained_model_dir}/Pi3X'
 # Input/output path templates resolved for this run.
 
 paths:
@@ -332,7 +332,7 @@ paths:
   # Alias for the active dataset path.
   vehicle_data: '{data_path}'
   # Sequence-level output root.
-  output: '{output_root}/JRDB/{sequence_name}'
+  output: '{output_root}/{dataset_name}/{sequence_name}'
   # VLM outputs and subdirectories.
   vlm_output: '{output}/vlm_outputs'
   # VLM result JSON directory.
@@ -346,6 +346,6 @@ paths:
   # SAM aligned-anchor point cloud directory.
   sam_aligned_anchor: '{sam_output}/aligned_anchor_plys'
   # Prepared P3 image directory.
-  p3_images: '{project_root}/p3_images/{sequence_name}'
+  p3_images: '{project_root}/p3_images/{dataset_name}/{sequence_name}'
   # Pi3 / Pi3X outputs.
   pi3_output: '{output}/pi3_outputs'

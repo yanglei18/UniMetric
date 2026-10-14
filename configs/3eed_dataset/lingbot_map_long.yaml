@@ -3,7 +3,7 @@ runtime:
   # Common values: "argoverse", "v2x-radar-i".
   dataset: "3eed_dataset"
   # Dataset root directory.
-  data_path: "data/official-data/3eed_dataset_10hz"
+  data_path: "data/metric_bench/3EED"
 
   # 3EED is an outdoor campus dataset captured by drone and quadruped cameras.
   scene_domain: "outdoor"
@@ -164,7 +164,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
+  long_temp_root: "{project_root}/tmp"
 
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: "native"
@@ -382,10 +382,10 @@ semantic_scale:
 
 models:
   # Local LingBot-Map project or checkpoint root.
-  lingbot_map_project_root: "/home/yanglei/tianyinchen/SAM4D-master-oldstable/third_party/lingbot-map"
+  lingbot_map_project_root: "{project_root}/vendor/LingBot-Map"
 
   # LingBot-Map checkpoint path.
-  lingbot_map_checkpoint: "/data1/yanglei/MetricDepth/weights/lingbot-map/lingbot-map-long.pt"
+  lingbot_map_checkpoint: "{pretrained_model_dir}/LingBot-Map/lingbot-map-long.pt"
 
   # LingBot-Map runtime parameters.
   lingbot_map_mode: "streaming"
@@ -447,7 +447,7 @@ paths:
   sam_aligned_anchor: "{sam_output}/aligned_anchor_plys"
 
   # Prepared P3 image directory.
-  p3_images: "{project_root}/p3_images/{sequence_name}"
+  p3_images: "{project_root}/p3_images/{dataset_name}/{sequence_name}"
 
   # LingBot-Map outputs.
   lingbot_map_output: "{output}/lingbot_map_outputs"

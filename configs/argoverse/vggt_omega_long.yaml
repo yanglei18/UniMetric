@@ -4,7 +4,7 @@ runtime:
   dataset: "argoverse"
 
   # Dataset root directory.
-  data_path: "data/official-data/Argoverse/"
+  data_path: "data/metric_bench/Argoverse"
 
   # Selected depth model wrapper; this YAML filename identifies the production model.
   # The published matrix contains nine depth-model configs per dataset.
@@ -165,7 +165,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
+  long_temp_root: "{project_root}/tmp"
 
 
   # Saved prediction resolution. Options: "original", "native".
@@ -373,8 +373,8 @@ semantic_scale:
 models:
 
   # Local VGGT-Omega project root and checkpoint.
-  vggt_omega_project_root: "/data1/yanglei/FoundationModel/vggt-omega"
-  vggt_omega_checkpoint: "{vggt_omega_project_root}/checkpoints/vggt_omega_1b_512.pt"
+  vggt_omega_project_root: "{project_root}/vendor/VGGT-Omega"
+  vggt_omega_checkpoint: "{pretrained_model_dir}/VGGT-Omega/vggt_omega_1b_512.pt"
   vggt_omega_image_resolution: 512
   vggt_omega_preprocess_mode: "resize_only"
   vggt_omega_enable_alignment: false
@@ -421,4 +421,4 @@ paths:
   vggt_omega_absolute_scale: "{vggt_omega_output}/absolute_scale"
 
   # Prepared P3 image directory.
-  p3_images: "{project_root}/p3_images/{sequence_name}"
+  p3_images: "{project_root}/p3_images/{dataset_name}/{sequence_name}"

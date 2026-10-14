@@ -3,7 +3,7 @@ runtime:
   dataset: "droid"
 
   # Dataset root directory.
-  data_path: "data/official-data/DROID"
+  data_path: "data/metric_bench/DROID"
 
   # Scene domain hint used by prompts / dataset-specific routing.
   scene_domain: "indoor"
@@ -164,7 +164,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
+  long_temp_root: "{project_root}/tmp"
 
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: "original"
@@ -343,7 +343,7 @@ semantic_scale:
 
 models:
   # Depth Anything 3 model identifier or local path.
-  da3_model_name: "/data2/yanglei/DepthAnything/DepthAnything/DA3-LARGE"
+  da3_model_name: "{pretrained_model_dir}/DA3-LARGE"
 
 paths:
   # Base project path template.
@@ -389,7 +389,7 @@ paths:
   sam_aligned_anchor: "{sam_output}/aligned_anchor_plys"
 
   # Prepared P3 image directory.
-  p3_images: "{project_root}/p3_images/{sequence_name}"
+  p3_images: "{project_root}/p3_images/{dataset_name}/{sequence_name}"
 
   # Depth Anything 3 outputs.
   da3_output: "{output}/da3_outputs"

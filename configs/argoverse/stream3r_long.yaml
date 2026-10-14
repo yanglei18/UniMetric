@@ -4,7 +4,7 @@ runtime:
   dataset: "argoverse"
 
   # Dataset root directory.
-  data_path: "data/official-data/Argoverse/"
+  data_path: "data/metric_bench/Argoverse"
 
   # Selected depth model wrapper; this YAML filename identifies the production model.
   # The published matrix contains nine depth-model configs per dataset.
@@ -165,7 +165,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
+  long_temp_root: "{project_root}/tmp"
 
 
   # Saved prediction resolution. Options: "original", "native".
@@ -366,8 +366,8 @@ semantic_scale:
   bi_min_segment_width: 1.0e-6
 
 models:
-  stream3r_project_root: "/data1/yanglei/FoundationModel/STream3R"
-  stream3r_checkpoint: "/data1/yanglei/FoundationModel/STream3R"
+  stream3r_project_root: "{project_root}/vendor/STream3R"
+  stream3r_checkpoint: "{pretrained_model_dir}/STream3R"
 
 paths:
   # Base project path template.
@@ -407,4 +407,4 @@ paths:
   stream3r_output: "{output}/stream3r_outputs"
 
   # Prepared P3 image directory.
-  p3_images: "{project_root}/p3_images/{sequence_name}"
+  p3_images: "{project_root}/p3_images/{dataset_name}/{sequence_name}"

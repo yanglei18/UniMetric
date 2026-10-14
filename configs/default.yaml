@@ -4,7 +4,7 @@ runtime:
   dataset: "nuscenes"
 
   # Dataset root directory.
-  data_path: "data/official-data/nuScenes/"
+  data_path: "data/metric_bench/nuScenes"
 
   # Selected depth model wrapper; this YAML filename identifies the production model.
   # The published matrix contains nine depth-model configs per dataset.
@@ -164,7 +164,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/Metric-Depth/tmp"
+  long_temp_root: "{project_root}/tmp"
 
 
   # Saved prediction resolution. Options: "original", "native".
@@ -329,7 +329,7 @@ semantic_scale:
 
 models:
   # Local checkpoint path for Pi3 / Pi3X.
-  pi3_weights: "/data1/yanglei/MetricDepth/weights/Pi3X"
+  pi3_weights: "{pretrained_model_dir}/Pi3X"
 
 paths:
   # Base project path template.
@@ -370,4 +370,4 @@ paths:
   pi3_output: "{output}/pi3_outputs"
 
   # Prepared P3 image directory.
-  p3_images: "{project_root}/p3_images/{sequence_name}"
+  p3_images: "{project_root}/p3_images/{dataset_name}/{sequence_name}"

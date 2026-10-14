@@ -43,3 +43,4 @@ __pycache__/
 /reproducibility/config-parameter-preservation-report.json
 /reproducibility/external-assets-manifest.json
 /reproducibility/local-source-and-config-manifest.json
+/reproducibility/environments/

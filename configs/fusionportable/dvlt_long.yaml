@@ -3,7 +3,7 @@ runtime:
   dataset: "fusionportable"
 
   # Dataset root directory.
-  data_path: "data/official-data/FusionPortable"
+  data_path: "data/metric_bench/FusionPortable"
 
   # Scene domain hint used by prompts / dataset-specific routing.
   scene_domain: "indoor"
@@ -164,7 +164,7 @@ depth:
   long_delete_temp_files: true
 
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: "/data1/yanglei/outputs/Metric-Depth-new-repro/tmp"
+  long_temp_root: "{project_root}/tmp"
 
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: "native"
@@ -357,10 +357,10 @@ semantic_scale:
 
 models:
   # Local DVLT project / checkpoint root.
-  dvlt_project_root: "/data1/yanglei/FoundationModel/dvlt"
+  dvlt_project_root: "{project_root}/vendor/DVLT"
 
   # DVLT checkpoint path.
-  dvlt_checkpoint: "{dvlt_project_root}"
+  dvlt_checkpoint: "{pretrained_model_dir}/DVLT"
 
 paths:
   # Base project path template.
@@ -406,7 +406,7 @@ paths:
   sam_aligned_anchor: "{sam_output}/aligned_anchor_plys"
 
   # Prepared P3 image directory.
-  p3_images: "{project_root}/p3_images/{sequence_name}"
+  p3_images: "{project_root}/p3_images/{dataset_name}/{sequence_name}"
 
   # DVLT outputs.
   dvlt_output: "{output}/dvlt_outputs"

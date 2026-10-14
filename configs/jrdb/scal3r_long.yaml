@@ -1,5 +1,5 @@
 # jrdb / scal3r_long production configuration.
-# Comments explain options; the parameter values below are unchanged.
+# Algorithmic parameters are preserved; resource paths are repository-relative.
 
 # Dataset/sequence selection, evaluation settings, and output lifecycle.
 
@@ -7,7 +7,7 @@ runtime:
   # Logical dataset name used in outputs and prompt routing.
   dataset: jrdb
   # Dataset root directory.
-  data_path: data/official-data/JRDB
+  data_path: 'data/metric_bench/JRDB'
   # Scene domain hint used by prompts / dataset-specific routing.
   scene_domain: indoor
   # Selected depth model wrapper; this YAML filename identifies the production model.
@@ -132,7 +132,7 @@ depth:
   # Whether to remove temporary files created during long-sequence inference.
   long_delete_temp_files: true
   # Optional custom temp directory. Empty string means default behavior.
-  long_temp_root: /data1/yanglei/outputs/Metric-Depth-new-repro/tmp
+  long_temp_root: '{project_root}/tmp'
   # Saved prediction resolution. Options: "original", "native".
   output_resolution: native
   # Sampling mode for native-resolution predictions. Options: "nearest", "bilinear".
@@ -309,11 +309,11 @@ semantic_scale:
 
 models:
   # Local Scal3R repository root.
-  scal3r_project_root: /data1/yanglei/FoundationModel/Scal3R
+  scal3r_project_root: '{project_root}/vendor/Scal3R'
   # Scal3R model config path.
   scal3r_config_path: '{scal3r_project_root}/configs/models/scal3r.yaml'
   # Scal3R checkpoint path.
-  scal3r_checkpoint: '{scal3r_project_root}/data/checkpoints/scal3r.pt'
+  scal3r_checkpoint: '{pretrained_model_dir}/Scal3R/scal3r.pt'
 # Input/output path templates resolved for this run.
 
 paths:
@@ -346,7 +346,7 @@ paths:
   # SAM aligned-anchor point cloud directory.
   sam_aligned_anchor: '{sam_output}/aligned_anchor_plys'
   # Prepared P3 image directory.
-  p3_images: '{project_root}/p3_images/{sequence_name}'
+  p3_images: '{project_root}/p3_images/{dataset_name}/{sequence_name}'
   # Scal3R outputs.
   scal3r_output: '{output}/scal3r_outputs'
   # Scal3R relative-scale output directory.
