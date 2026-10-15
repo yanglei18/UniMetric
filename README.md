@@ -32,9 +32,9 @@ The [technical report](https://arxiv.org/abs/2610.16945) reports the following s
 
 | Task | Metric | Mean error reduction |
 |---|---|---:|
-| Depth estimation | Abs Rel | 54.2% |
-| 3D reconstruction | Chamfer distance | 83.8% |
-| Camera trajectory estimation | Trajectory error | 65.6% |
+| Depth estimation | Abs Rel | ↓ 54.2% |
+| 3D reconstruction | Chamfer distance | ↓ 83.8% |
+| Camera trajectory estimation | Trajectory error | ↓ 65.6% |
 
 These are aggregate results on the evaluated MetricBench subsets; see the paper for individual model/dataset results and evaluation protocols.
 
