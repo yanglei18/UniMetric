@@ -26,8 +26,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "cafe1cbd9fa05c913a47d1560a2e6078e98583fbca19d7c95cc852a848103377",
-      "bytes": 18608
+      "sha256": "91c4b58dc1cdb08274eee119a504f02f42b8f2aac7e69054ddf6057b84a34b6e",
+      "bytes": 18599
     },
     {
       "path": "configs/3eed_dataset/4rc_long.yaml",
@@ -731,8 +731,8 @@
     },
     {
       "path": "docs/runbook.md",
-      "sha256": "5682487f6712e5d111ae363eba188e4cf9ba9f58f22e12ac22228b2c7e9db11c",
-      "bytes": 3136
+      "sha256": "94b5d3f51ee1db8651b5f3841e998b280276c825b20d10998a69cf1defce6cbb",
+      "bytes": 3127
     },
     {
       "path": "docs/semantic-scale.md",
@@ -876,8 +876,8 @@
     },
     {
       "path": "metric_scale/processing/precomputed_vlm.py",
-      "sha256": "29765f37d8bd0e32ce038fb63b33f3a6e5004c9ec9f42f48752449f231d8b4b2",
-      "bytes": 3277
+      "sha256": "e571f11745d448036a0d5fe75c5d9388a9b6ab86a9e96a89569f09ee4e6eaf29",
+      "bytes": 3268
     },
     {
       "path": "metric_scale/processing/processing.py",
@@ -990,19 +990,19 @@
       "bytes": 8350
     },
     {
-      "path": "precomputed/vlm_results_12datasets_20261013.manifest.json",
-      "sha256": "7ac06adeb0ad21e11f0499c1bed0af74291ba28af9ab5dd11aa8f5c341219c5c",
-      "bytes": 1420
+      "path": "precomputed/vlm_results_12datasets.manifest.json",
+      "sha256": "ee7b31733264ed6c518b96ac16b8b274d6e6326a64bbc651d1fdfea3b67d3f32",
+      "bytes": 1411
     },
     {
-      "path": "precomputed/vlm_results_12datasets_20261013.zip",
+      "path": "precomputed/vlm_results_12datasets.zip",
       "sha256": "7a5d0100ccf0b835fea7cb063a47c3489ee35ad48c95a8acbd97c3a0c353102c",
       "bytes": 40872324
     },
     {
       "path": "reproducibility/README.md",
-      "sha256": "e6b23ec6d7cd57a11103ee2d8cdee4c4608c2be7f787167fb70b1c2eac9ab99c",
-      "bytes": 6655
+      "sha256": "09b5a7b046c13ff8343c11df06c08a8c8c3499e227d4d0948fb97efd31d86480",
+      "bytes": 6646
     },
     {
       "path": "reproducibility/check_setup.py",

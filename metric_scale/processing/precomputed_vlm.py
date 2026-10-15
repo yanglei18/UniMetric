@@ -8,7 +8,7 @@ from typing import Iterable, Optional, Union
 import zipfile
 
 
-ARCHIVE_RELATIVE_PATH = Path("precomputed/vlm_results_12datasets_20261013.zip")
+ARCHIVE_RELATIVE_PATH = Path("precomputed/vlm_results_12datasets.zip")
 PathLike = Union[str, os.PathLike]
 
 

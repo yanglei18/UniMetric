@@ -4,7 +4,7 @@ The [README](../README.md#quick-start) provides the default setup and run comman
 
 ## Start from empty outputs
 
-By default, `get_metric_scale.py` restores missing VLM JSON for the selected dataset/sequences from `precomputed/vlm_results_12datasets_20261013.zip`, preserves existing cache files, and reuses the responses. It then generates SAM masks, P3 images, depth/point maps, semantic scale, and metrics using the current configuration. Select a dataset and one of the nine supported models with its YAML:
+By default, `get_metric_scale.py` restores missing VLM JSON for the selected dataset/sequences from `precomputed/vlm_results_12datasets.zip`, preserves existing cache files, and reuses the responses. It then generates SAM masks, P3 images, depth/point maps, semantic scale, and metrics using the current configuration. Select a dataset and one of the nine supported models with its YAML:
 
 ```bash
 python get_metric_scale.py --config configs/jrdb/pi3_long.yaml
