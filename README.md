@@ -24,9 +24,10 @@
 
 ## Highlights
 
-- **Training-free scale recovery.** Apply semantic size constraints to existing geometry predictions without retraining the underlying model.
-- **Three connected stages.** Metric Prior Acquisition extracts height intervals; Semantic–Geometric Alignment converts them into scale constraints; Global Scale Recovery combines them into a shared estimate.
-- **Evaluation across geometric outputs.** Measure depth, reconstruction, and camera-motion accuracy while retaining metric scale.
+- **Metric scale from uncertain object sizes.** Jointly reconcile coarse VLM height intervals across objects and frames to recover a shared scene scale.
+- **Training-free, plug-and-play across 9 GFMs.** Recover metric scale without retraining the geometry model, additional sensors, or task-specific metric supervision.
+- **One scale for depth, 3D structure, and camera motion.** Apply the same recovered scale to reconstructed points and camera translations, preserving relative geometry across all three outputs.
+- **MetricBench: 12 dataset subsets across driving, roadside, and embodied scenarios.** Evaluate physical-scale accuracy against sensor-derived references without ground-truth scale fitting.
 
 The [technical report](https://arxiv.org/abs/2610.16945) reports the following suite-level mean error reductions across nine models:
 
