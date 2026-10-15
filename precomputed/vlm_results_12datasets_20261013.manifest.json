@@ -1,0 +1,61 @@
+{
+  "snapshot": "2026-10-13",
+  "archive": "vlm_results_12datasets_20261013.zip",
+  "archive_sha256": "7a5d0100ccf0b835fea7cb063a47c3489ee35ad48c95a8acbd97c3a0c353102c",
+  "archive_bytes": 40872324,
+  "json_count": 51339,
+  "datasets": {
+    "3EED": {
+      "sequences": 20,
+      "responses": 3844
+    },
+    "Argoverse": {
+      "sequences": 70,
+      "responses": 6613
+    },
+    "CEAR": {
+      "sequences": 20,
+      "responses": 5670
+    },
+    "DROID": {
+      "sequences": 45,
+      "responses": 3102
+    },
+    "FusionPortable": {
+      "sequences": 5,
+      "responses": 3847
+    },
+    "HumanoidEveryday": {
+      "sequences": 30,
+      "responses": 3949
+    },
+    "JRDB": {
+      "sequences": 27,
+      "responses": 3729
+    },
+    "KITTI": {
+      "sequences": 96,
+      "responses": 5211
+    },
+    "Waymo": {
+      "sequences": 149,
+      "responses": 5951
+    },
+    "dair-v2x-i": {
+      "sequences": 86,
+      "responses": 3704
+    },
+    "nuScenes": {
+      "sequences": 116,
+      "responses": 4627
+    },
+    "v2x-radar-i": {
+      "sequences": 30,
+      "responses": 1092
+    }
+  },
+  "image_path_format": "data/metric_bench/<dataset>/<sequence>/<frame>_camera1.jpg",
+  "archive_layout": "<dataset>/<sequence>/vlm_outputs/results/<frame>_camera1.json",
+  "semantic_predictions_preserved": true,
+  "semantic_predictions_sha256": "ab5bb6efa04de9fa860d7cb2257459bd998eda16e24a7fb344d7729a05e6a68a"
+}

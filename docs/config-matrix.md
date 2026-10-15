@@ -14,6 +14,6 @@ Important cases:
 - Historical Argoverse runs used the outdoor fallback in `metric_scale.prompts.default`; neither the original run repository nor the new server had a dedicated Argoverse prompt. This checkout's `metric_scale/prompts/argoverse.py` explicitly forwards the same text. All four legacy prompt types were compared byte-for-byte.
 - The JRDB Pi3, Scal3R, and 4RC configurations use `semantic_scale.sequence_overrides`, applied per sequence at runtime.
 - Current code parses and executes the additional offload and scale-fallback switches for CEAR/Humanoid Scal3R, FusionPortable, and V2X Radar.
-- `resume_existing_results` is off by default to avoid silently reusing metrics after configuration changes.
+- `reuse_vlm_results` is on by default; bundled responses are restored automatically for the selected dataset/sequences. `resume_existing_results` remains off by default to avoid silently reusing depth or metrics after configuration changes.
 
 For path migration, upstream source/weights, and licensing, see the [runbook](runbook.md) and [vendor guide](../vendor/README.md). Third-party source is not committed to the public repository.

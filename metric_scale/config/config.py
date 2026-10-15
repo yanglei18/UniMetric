@@ -1372,6 +1372,36 @@ class Config:
     def data_path(self):
         return self._resolve_template(self._get_section("runtime").get("data_path"))
 
+    def resolve_vlm_image_path(self, image_path: "str | os.PathLike[str]", sequence_name: str) -> str:
+        """Resolve published VLM paths independently of the working directory.
+
+        Relocation is restricted to the configured dataset and sequence; never
+        search other datasets for an image with the same frame name.
+        """
+        stored_path = os.path.normpath(os.fspath(image_path))
+        parts = stored_path.split(os.sep)
+        normalize = lambda value: "".join(c for c in str(value).lower() if c.isalnum())
+        data_root = os.fspath(self.data_path)
+        if not os.path.isabs(data_root):
+            data_root = os.path.join(self.project_root, data_root)
+        expected_datasets = {normalize(self.dataset), normalize(os.path.basename(data_root))}
+        if "metric_bench" in parts:
+            suffix = parts[parts.index("metric_bench") + 1:]
+            if (len(suffix) != 3 or normalize(suffix[0]) not in expected_datasets
+                    or suffix[1] != sequence_name):
+                raise ValueError(f"VLM image path does not match configured dataset/sequence: {image_path}")
+        candidate = stored_path if os.path.isabs(stored_path) else os.path.join(self.project_root, stored_path)
+        if os.path.isfile(candidate):
+            return candidate
+        # Support older absolute paths only when their dataset/sequence identity
+        # is explicit. A basename alone is insufficient evidence for relocation.
+        if (len(parts) >= 3 and parts[-2] == sequence_name
+                and normalize(parts[-3]) in expected_datasets):
+            relocated = os.path.join(data_root, sequence_name, os.path.basename(stored_path))
+            if os.path.isfile(relocated):
+                return relocated
+        raise FileNotFoundError(f"VLM image not found for {self.dataset}/{sequence_name}: {image_path}")
+
     @property
     def dataset(self):
         dataset = str(self._get_section("runtime").get("dataset", "") or "").strip()
@@ -2527,6 +2557,11 @@ class Config:
     def resume_existing_results(self):
         """Opt-in reuse; existing files alone cannot prove matching YAML parameters."""
         return bool(self._get_section("runtime").get("resume_existing_results", False))
+
+    @property
+    def reuse_vlm_results(self):
+        """Reuse published VLM JSON without reusing depth or metric outputs."""
+        return bool(self._get_section("runtime").get("reuse_vlm_results", True))
 
     @property
     def pi3_weights(self):

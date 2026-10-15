@@ -26,8 +26,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "73e90d18255516fb87897eb44d7e1cfc097ebd2f7f6236d05da8b457b07054f2",
-      "bytes": 16988
+      "sha256": "e22d9d663d2b8e16d3b5906b70732bf07ae70c9034d1b563d94f93f22c55684a",
+      "bytes": 18671
     },
     {
       "path": "configs/3eed_dataset/4rc_long.yaml",
@@ -231,8 +231,8 @@
     },
     {
       "path": "configs/default.yaml",
-      "sha256": "28f867fc4c36e08c6906819d8c708695fb4770677cc01668c45397dba5b02af0",
-      "bytes": 13553
+      "sha256": "204d9919c7319ae6972fc9d2cc08bed2bf81c87be025ca76d74ab5ff4b6cbf65",
+      "bytes": 13755
     },
     {
       "path": "configs/droid/4rc_long.yaml",
@@ -716,8 +716,8 @@
     },
     {
       "path": "docs/config-matrix.md",
-      "sha256": "ea9aff2ec6de684817168f91172e410a19c3563156c69cff148b539da362bacf",
-      "bytes": 2577
+      "sha256": "52b470ead7aad24646c25dc804831b8c5137a9358971c748d9e7a47c23eb1b58",
+      "bytes": 2710
     },
     {
       "path": "docs/evaluation.md",
@@ -731,8 +731,8 @@
     },
     {
       "path": "docs/runbook.md",
-      "sha256": "ab19cc1189545179535f6dc9e18d7a349d55e742a4a108f38c2351af0946f39a",
-      "bytes": 2547
+      "sha256": "5682487f6712e5d111ae363eba188e4cf9ba9f58f22e12ac22228b2c7e9db11c",
+      "bytes": 3136
     },
     {
       "path": "docs/semantic-scale.md",
@@ -756,8 +756,8 @@
     },
     {
       "path": "metric_scale/config/config.py",
-      "sha256": "e9e85c92d2d6c6a77eb0a0af44c3512e49ce9e25e73a742967bed312d37a733f",
-      "bytes": 118307
+      "sha256": "969e542748d77ee4e22f01489158f72f1f9a8c6ea12e6a1a14f6451ecb04d58e",
+      "bytes": 120378
     },
     {
       "path": "metric_scale/config/path_config.py",
@@ -875,9 +875,14 @@
       "bytes": 19423
     },
     {
+      "path": "metric_scale/processing/precomputed_vlm.py",
+      "sha256": "29765f37d8bd0e32ce038fb63b33f3a6e5004c9ec9f42f48752449f231d8b4b2",
+      "bytes": 3277
+    },
+    {
       "path": "metric_scale/processing/processing.py",
-      "sha256": "492f2bbcd6328e94b886668792b240eaf97107620372d9885d96019b61fe492d",
-      "bytes": 128756
+      "sha256": "25f80cfef93979429391966c0d5e2d0804f0de549880c21008cbd42df4081531",
+      "bytes": 130112
     },
     {
       "path": "metric_scale/processing/varify_dataset.py",
@@ -985,9 +990,19 @@
       "bytes": 8350
     },
     {
+      "path": "precomputed/vlm_results_12datasets_20261013.manifest.json",
+      "sha256": "7ac06adeb0ad21e11f0499c1bed0af74291ba28af9ab5dd11aa8f5c341219c5c",
+      "bytes": 1420
+    },
+    {
+      "path": "precomputed/vlm_results_12datasets_20261013.zip",
+      "sha256": "7a5d0100ccf0b835fea7cb063a47c3489ee35ad48c95a8acbd97c3a0c353102c",
+      "bytes": 40872324
+    },
+    {
       "path": "reproducibility/README.md",
-      "sha256": "e15cf93a004c9f9d34cf656f245dd73c61410216bacee4e211a29ad2e6a4f8f5",
-      "bytes": 6164
+      "sha256": "e6b23ec6d7cd57a11103ee2d8cdee4c4608c2be7f787167fb70b1c2eac9ab99c",
+      "bytes": 6655
     },
     {
       "path": "reproducibility/check_setup.py",
@@ -1001,8 +1016,8 @@
     },
     {
       "path": "reproducibility/freeze_manifest.py",
-      "sha256": "415470e735770f23ec3d4491b39928fed058f5c160845acec90bf542c27db529",
-      "bytes": 2946
+      "sha256": "2702069e5d7ebc7186a6ce5777f44f49090e29e87e3d1993213bddadba253984",
+      "bytes": 3001
     },
     {
       "path": "reproducibility/test_active_features.py",
@@ -1068,6 +1083,16 @@
       "path": "tests/test_omega_dataset_intrinsics.py",
       "sha256": "11c20be2f43c102b009a5a38812b5d96250b522860080a6b78c5d43309b8cb2c",
       "bytes": 7720
+    },
+    {
+      "path": "tests/test_portable_vlm_cache.py",
+      "sha256": "f7f2ab8d5411a7bcd58ee220ae6e2feaff4056275003a77a5bba09471c41c9b2",
+      "bytes": 9922
+    },
+    {
+      "path": "tests/test_precomputed_vlm.py",
+      "sha256": "2944cdaa21c432f61675a45df8deb23d2b2d23a4b9c4fd2dcbbef2efe164265b",
+      "bytes": 3514
     },
     {
       "path": "vendor/README.md",

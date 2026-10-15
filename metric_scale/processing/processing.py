@@ -11,6 +11,7 @@ import cv2
 from PIL import Image
 import torch
 from metric_scale.processing.frame_loader import FrameLoader
+from metric_scale.processing.precomputed_vlm import restore_precomputed_vlm_results
 from metric_scale.config.config import config
 from metric_scale.models.models import model_manager
 from metric_scale.models.mllm_agent import ModelConfig, get_model
@@ -148,7 +149,9 @@ def _run_sequence_pipeline_on_gpu(gpu_id, task_payloads, result_queue):
                 task["sequence_name"],
                 device=device,
             )
-            pipeline._prepare_p3_for_sequence(task["sequence_name"], device=device)
+            pipeline._prepare_p3_for_sequence(
+                task["sequence_name"], device=device, sequence_path=task["sequence_path"]
+            )
 
         model_manager.release_model(f"sam_tracker{device_suffix}")
         if torch.cuda.is_available():
@@ -344,7 +347,7 @@ class VLMProcessor:
         skipped_existing = 0
         for frame_id in frame_ids:
             existing = VLMProcessor._vlm_result_path(results_dir, frame_id)
-            if config.resume_existing_results and os.path.isfile(existing) and os.path.getsize(existing) > 2:
+            if (config.reuse_vlm_results or config.resume_existing_results) and os.path.isfile(existing) and os.path.getsize(existing) > 2:
                 skipped_existing += 1
                 continue
             pending_frame_ids.append(frame_id)
@@ -531,7 +534,7 @@ class SAMProcessor:
         
         # 处理每个结果
         for result in vlm_results:
-            image = Image.open(result["image_path"])
+            image = Image.open(config.resolve_vlm_image_path(result["image_path"], sequence_name))
             image_name = os.path.basename(result["image_path"]).split('.')[0]
             
             # 准备提示
@@ -1942,7 +1945,7 @@ class P3ImagePreparer:
     """P3图像准备器"""
     
     @staticmethod
-    def prepare_images(vlm_results_dir, sequence_name):
+    def prepare_images(vlm_results_dir, sequence_name, frame_ids=None):
         """准备P3图像"""
         import shutil
         
@@ -1951,15 +1954,20 @@ class P3ImagePreparer:
         
         # 加载VLM结果
         vlm_results = []
+        selected_frame_ids = None if frame_ids is None else set(frame_ids)
         for json_file in os.listdir(vlm_results_dir):
             if json_file.endswith(".json"):
+                frame_key = os.path.splitext(json_file)[0]
+                normalized_frame_id = frame_key.rsplit("_camera", 1)[0] if "_camera" in frame_key else frame_key
+                if selected_frame_ids is not None and normalized_frame_id not in selected_frame_ids:
+                    continue
                 json_path = os.path.join(vlm_results_dir, json_file)
                 vlm_results.append(file_utils.read_json(json_path))
         
         # 复制图像。并行模型会共用同一份 p3_images，必须整文件替换，
         # 不能边写边读。
         for result in vlm_results:
-            src_image_path = result["image_path"]
+            src_image_path = config.resolve_vlm_image_path(result["image_path"], sequence_name)
             dest_image_path = os.path.join(p3_images_dir, os.path.basename(src_image_path))
             src_size = os.path.getsize(src_image_path)
             if config.resume_existing_results and os.path.exists(dest_image_path) and os.path.getsize(dest_image_path) == src_size:
@@ -2026,12 +2034,15 @@ class ProcessingPipeline:
 
             timer.print_results(timer_key)
 
-    def _prepare_p3_for_sequence(self, sequence_name, device=None):
+    def _prepare_p3_for_sequence(self, sequence_name, device=None, sequence_path=None):
         print(f"\n--- {_device_prefix(device)} Processing sequence: {sequence_name} ---")
         vlm_results_dir = config.get_path('vlm_results', sequence_name)
         timer_key = f"prepare_p3_{sequence_name}"
         timer.start(timer_key)
-        P3ImagePreparer.prepare_images(vlm_results_dir, sequence_name)
+        if sequence_path is None:
+            sequence_path = os.path.join(config.data_path, sequence_name)
+        frame_ids = self._get_sequence_frame_ids(sequence_path)
+        P3ImagePreparer.prepare_images(vlm_results_dir, sequence_name, frame_ids=frame_ids)
         DepthProcessor.refresh_existing_depth_visualizations(sequence_name)
         timer.end(timer_key)
         timer.print_results(timer_key)
@@ -2367,7 +2378,7 @@ class ProcessingPipeline:
         print("\n=== Stage 2: Prepare P3 Images ===")
         
         for sequence_path, sequence_name in self.sequences:
-            self._prepare_p3_for_sequence(sequence_name)
+            self._prepare_p3_for_sequence(sequence_name, sequence_path=sequence_path)
     
     def process_sam(self):
         """处理SAM"""
@@ -2769,7 +2780,7 @@ class ProcessingPipeline:
         self._process_sam_for_sequence(sequence_path, sequence_name, device=device)
         device_suffix = "" if device is None else f"_{device}"
         model_manager.release_model(f"sam_tracker{device_suffix}")
-        self._prepare_p3_for_sequence(sequence_name, device=device)
+        self._prepare_p3_for_sequence(sequence_name, device=device, sequence_path=sequence_path)
         self._process_depth_for_sequence(sequence_path, sequence_name, device=device)
         self._process_scale_for_sequence(sequence_path, sequence_name, device=device)
         self._finalize_sequence_metrics_and_cleanup(sequence_path, sequence_name, device=device)
@@ -2782,8 +2793,18 @@ class ProcessingPipeline:
         
         self.prepare_sequences()
 
+        if config.reuse_vlm_results or config.resume_existing_results:
+            restored = restore_precomputed_vlm_results(
+                config.project_root,
+                config.get_path("output_root"),
+                config.dataset_name,
+                [name for _, name in self.sequences],
+            )
+            if restored:
+                print(f"Restored {restored} precomputed VLM JSON file(s).")
+
         # A clean checkout must be able to build VLM JSON before SAM/depth/scale.
-        # When resume_existing_results is enabled, the VLM stage skips saved JSON.
+        # Published VLM JSON is reused by default, independently of depth/metrics.
         if not config._get_section("runtime").get("depth_only", False):
             self.process_vlm()
 

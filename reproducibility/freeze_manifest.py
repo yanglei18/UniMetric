@@ -36,6 +36,7 @@ paths = [ROOT / 'get_metric_scale.py', ROOT / '.gitignore', ROOT / 'README.md']
 for dataset in DATASETS:
     paths.extend(sorted((ROOT / 'configs' / dataset).glob('*.yaml')))
 paths.append(ROOT / 'configs/default.yaml')
+paths.extend(sorted((ROOT / 'precomputed').glob('*')))
 paths.extend(sorted((ROOT / 'configs/kitti/scale_profile_reference').glob('*.json')))
 paths.extend(sorted((ROOT / 'reproducibility').glob('*.py')))
 paths.append(ROOT / 'reproducibility/README.md')

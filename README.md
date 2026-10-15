@@ -119,6 +119,18 @@ nuScenes/
 
 Use the prepared frame bundles when evaluating on MetricBench. The release consists of benchmark subsets, rather than the complete official test sets of all source datasets.
 
+### Precomputed VLM results
+
+This repository includes **51,339 precomputed VLM responses across all 12 dataset subsets** from the October 13, 2026 snapshot, in [`precomputed/vlm_results_12datasets_20261013.zip`](precomputed/vlm_results_12datasets_20261013.zip). Keep this archive in the cloned repository. The runner automatically extracts missing responses for the selected dataset and sequences into the default cache:
+
+```text
+outputs/<dataset>/<sequence>/vlm_outputs/results/<frame>_camera1.json
+```
+
+Dataset names match `data/metric_bench/` exactly, including `3EED`, `CEAR`, `HumanoidEveryday`, `KITTI`, and `Waymo`. Images referenced by the responses use portable `data/metric_bench/<dataset>/<sequence>/...` paths. Existing cache files are preserved during extraction.
+
+**No VLM API credentials or YAML edits are needed for frames covered by the cache.** `runtime.reuse_vlm_results` is enabled by default; missing frames use the configured VLM service and require [API credentials](#optional-generate-new-vlm-results). Geometry inference, scale recovery, and evaluation still run with the current configuration.
+
 ## Supported models
 
 Each dataset has a `default.yaml` and a configuration for each of the nine model keys below. Select `configs/<dataset>/<model_key>.yaml`; see the [configuration matrix](docs/config-matrix.md) for details.
@@ -158,7 +170,7 @@ The shared environment uses **PyTorch 2.6.0 / torchvision 0.21.0 / cu124 / NumPy
 
 The installer runs `pip check`, imports the selected backend, checks NumPy/Torch/Open3D interoperability, and performs a small CUDA operation. To also load the GFM checkpoint, add `--load-model`; this requires enough GPU memory. These checks do not run the benchmark or call a VLM. See the [environment guide](docs/gfm-environments.md) for reruns, download-only recovery, and installation options.
 
-After installation, download [MetricBench](#metricbench) and configure the [VLM API credentials](#1-set-api-credentials). No YAML path edits are needed. Optional model selections are described [below](#optional-model-selection).
+After installation, download [MetricBench](#metricbench). The bundled VLM results are prepared automatically when running; API credentials are only needed for missing or newly generated responses. No YAML path edits are needed. Optional model selections are described [below](#optional-model-selection).
 
 The default resource layout is:
 
@@ -168,8 +180,9 @@ UniMetric/
 ├── pretrained_model/          # Geometry model weights (see table above)
 ├── checkpoints/
 │   └── sam2.1_hiera_large.pt
+├── precomputed/               # Bundled portable VLM response archive
 ├── vendor/                    # Third-party model source
-├── outputs/                   # Results, created during execution
+├── outputs/                   # Restored VLM cache and generated results
 ├── p3_images/                 # Prepared images, created during execution
 └── tmp/                       # Inference temporary files
 ```
@@ -178,18 +191,7 @@ UniMetric/
 
 After the default installation, prepare `data/metric_bench/nuScenes/` using the download instructions above. **There is no need to copy or edit a YAML file.**
 
-### 1. Set API credentials
-
-The default configuration uses Doubao. Set the credentials and endpoint for a service supporting the configured model:
-
-```bash
-export DOUBAO_API_KEY="<your-api-key>"
-export DOUBAO_BASE_URL="https://<your-provider-host>/v1"
-```
-
-Humanoid Everyday configurations use the Qwen API backend and read `MODEL_KEY` and `BASE_URL` instead. Credentials stay in environment variables. A fresh run sends images to the selected VLM service and uses its API quota.
-
-### 2. Run UniMetric
+### 1. Run UniMetric
 
 Activate the shared environment and run from the repository root:
 
@@ -198,18 +200,18 @@ conda activate unimetric
 python get_metric_scale.py
 ```
 
-The default is LingBot-Map on nuScenes using `configs/nuscenes/lingbot_map_long.yaml`, including its existing sequence selection and frame coverage.
+The default is LingBot-Map on nuScenes using `configs/nuscenes/lingbot_map_long.yaml`, including its existing sequence selection and frame coverage. Matching precomputed VLM JSON is restored and reused automatically before model inference, without initializing a VLM client.
 
 The runner executes the full pipeline and saves evaluation reports:
 
 ```text
-VLM height priors and planes → SAM masks → prepared images
+Cached VLM height priors and planes → SAM masks → prepared images
 → geometry prediction → metric scale recovery → evaluation
 ```
 
 The supplied configuration also determines GPU scheduling and output cleanup.
 
-### 3. Read the results
+### 2. Read the results
 
 Results for the default run are saved automatically under `outputs/nuScenes/`:
 
@@ -227,6 +229,17 @@ outputs/nuScenes/
 ```
 
 `run_id` is a timestamp by default. Geometry intermediates are written under each sequence's model output directory; configurations with automatic cleanup enabled remove them after saving metrics. VLM and SAM caches remain available.
+
+### Optional: generate new VLM results
+
+For frames missing from the cache, the default Doubao configuration needs credentials and an endpoint supporting the configured model:
+
+```bash
+export DOUBAO_API_KEY="<your-api-key>"
+export DOUBAO_BASE_URL="https://<your-provider-host>/v1"
+```
+
+Humanoid Everyday's Qwen API configurations read `MODEL_KEY` and `BASE_URL` instead. Credentials stay in environment variables. New VLM requests send images to the selected service and use its API quota. To deliberately regenerate cached responses, set `runtime.reuse_vlm_results: false` while leaving `runtime.resume_existing_results: false`.
 
 ### Optional model selection
 
@@ -260,7 +273,7 @@ The commands above include evaluation. Use the supplied dataset/model YAML to ke
 
 Depth reports include Abs Rel and δ₁; reconstruction reports include Chamfer distance; trajectory reports include ATE. Pose alignment uses SE(3), without fitting an additional scale to ground truth. Other scale variants are available for analysis; see the [evaluation guide](docs/evaluation.md) and [semantic-scale guide](docs/semantic-scale.md).
 
-For reproducible comparisons, retain the exact input subset, effective YAML, model/checkpoint versions, VLM settings and cached responses. API responses can vary over time. Reuse existing outputs with `runtime.resume_existing_results: true` only when their inputs and configuration match the current run. Detailed setup and runtime options are in the [reproducibility guide](reproducibility/README.md) and [runbook](docs/runbook.md).
+For reproducible comparisons, retain the exact input subset, effective YAML, model/checkpoint versions, VLM settings and cached responses. The bundled responses are reused by default to avoid variation from repeated API calls; their original semantic predictions are preserved. Full reuse of SAM/depth/metric outputs remains opt-in with `runtime.resume_existing_results: true`, and requires matching inputs and configuration. Detailed setup and runtime options are in the [reproducibility guide](reproducibility/README.md) and [runbook](docs/runbook.md).
 
 <details>
 <summary>Configuration and regression checks</summary>

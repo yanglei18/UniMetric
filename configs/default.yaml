@@ -1,4 +1,8 @@
 runtime:
+  # Reuse downloaded/generated VLM JSON; missing frames still run VLM inference.
+  reuse_vlm_results: true
+  # Depth and metric output reuse remains an explicit opt-in.
+  resume_existing_results: false
   # Logical dataset name used in outputs and prompt routing.
   # Common values: "argoverse", "v2x-radar-i".
   dataset: "nuscenes"
