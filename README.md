@@ -121,7 +121,7 @@ Use the prepared frame bundles when evaluating on MetricBench. The release consi
 
 ### Precomputed VLM results
 
-This repository includes **51,339 precomputed VLM responses across all 12 dataset subsets** from the October 13, 2026 snapshot, in [`precomputed/vlm_results_12datasets_20261013.zip`](precomputed/vlm_results_12datasets_20261013.zip). Keep this archive in the cloned repository. The runner automatically extracts missing responses for the selected dataset and sequences into the default cache:
+This repository includes **51,339 precomputed VLM responses across all 12 dataset subsets** in a [downloadable archive](precomputed/vlm_results_12datasets_20261013.zip). Keep this archive in the cloned repository. The runner automatically extracts missing responses for the selected dataset and sequences into the default cache:
 
 ```text
 outputs/<dataset>/<sequence>/vlm_outputs/results/<frame>_camera1.json
